@@ -109,8 +109,10 @@ app.get("/api/campeonatos/:campeonatoId/fases/:faseId", (req, res) => {
   return apiFutebol(
     "/campeonatos/" + campeonatoId + "/fases/" + faseId,
     res
+  );
+});
 
+// Inicia o servidor.
 app.listen(PORT, () => {
   console.log("Green da Sorte API ouvindo na porta " + PORT);
 });
-
