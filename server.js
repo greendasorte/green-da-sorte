@@ -82,8 +82,8 @@ app.get("/api/campeonatos/:campeonatoId/fases", (req, res) => {
   const { campeonatoId } = req.params;
   if (!/^\d+$/.test(campeonatoId)) {
     return res.status(400).json({ error: "ID de campeonato inválido." });
-  }
-  return apiFutebol("/campeonatos/" + campeonatoId + "/fases", res);
+  }console.log("FASE SOLICITADA:", campeonatoId, faseId);
+return apiFutebol("/campeonatos/" + campeonatoId + "/fases/" + faseId, res);
 });
 
 // Consulta uma fase específica, incluindo os dados de partidas fornecidos pela API.
