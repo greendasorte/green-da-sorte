@@ -98,11 +98,13 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
   }
 
   function getMatchDate(match) {
-    const raw = match.data_hora_realizacao || match.data_realizacao ||
-      match.data_partida || match.date || match.startTimestamp;
+    const explicitTime = match.hora_realizacao || match.horario || match.match_time;
+    if (explicitTime) return String(explicitTime).slice(0, 5);
+    const raw = match.data_hora_realizacao || match.data_partida || match.date || match.startTimestamp;
     if (!raw) return 'Horário a confirmar';
+    if (typeof raw === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw)) return 'Horário a confirmar';
     const date = typeof raw === 'number' ? new Date(raw * 1000) : new Date(raw);
-    if (Number.isNaN(date.getTime())) return String(raw);
+    if (Number.isNaN(date.getTime())) return 'Horário a confirmar';
     return date.toLocaleTimeString('pt-BR', {
       timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit'
     });
