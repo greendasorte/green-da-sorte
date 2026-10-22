@@ -217,16 +217,117 @@ app.get("/api/campeonatos/:campeonatoId/fases/:faseId", (req, res) => {
   );
 });
 
-// Busca automaticamente as partidas de hoje dentro de todas as fases do campeonato.
-app.get("/api/campeonatos/:campeonatoId/jogos-hoje", async (req, res) => {
+// Diagnóstico: compara a fase atual informada no campeonato com a lista de fases
+// e confirma se a API devolve o mesmo ID ao consultar a fase atual.
+app.get("/api/diagnostico/campeonatos/:campeonatoId", async (req, res) => {
   const { campeonatoId } = req.params;
 
-  if (!/^\d+$/.test(campeonatoId)) {
-    return res.status(400).json({
-      error: "ID de campeonato inválido."
+  if (!/^\\d+$/.test(campeonatoId)) {
+    return res.status(400).json({ error: "ID de campeonato inválido." });
+  }
+  if (!API_KEY) {
+    return res.status(503).json({
+      error: "API_FUTEBOL_KEY não configurada no Render.",
+      provider: "API Futebol"
     });
   }
 
+  try {
+    const campeonatosResposta = await buscarDadosFutebol("/campeonatos");
+    const campeonatos = Array.isArray(campeonatosResposta)
+      ? campeonatosResposta
+      : Array.isArray(campeonatosResposta?.data)
+        ? campeonatosResposta.data
+        : Array.isArray(campeonatosResposta?.campeonatos)
+          ? campeonatosResposta.campeonatos
+          : [];
+    const campeonato = campeonatos.find(item =>
+      String(item.campeonato_id ?? item.id) === String(campeonatoId)
+    );
+
+    const fasesResposta = await buscarDadosFutebol(
+      "/campeonatos/" + campeonatoId + "/fases"
+    );
+    const fases = Array.isArray(fasesResposta)
+      ? fasesResposta
+      : Array.isArray(fasesResposta?.data)
+        ? fasesResposta.data
+        : Array.isArray(fasesResposta?.fases)
+          ? fasesResposta.fases
+          : [];
+
+    const faseAtual = campeonato?.fase_atual ?? null;
+    const faseAtualId = faseAtual?.fase_id ?? faseAtual?.id ?? null;
+    let detalheConsultado = null;
+    let erroDetalhe = null;
+
+    if (faseAtualId != null) {
+      try {
+        const detalhe = await buscarDadosFutebol(
+          "/campeonatos/" + campeonatoId + "/fases/" + faseAtualId
+        );
+        detalheConsultado = {
+          fase_id_solicitada: Number(faseAtualId),
+          fase_id_retornada: detalhe?.fase_id ?? detalhe?.id ?? null,
+          nome: detalhe?.nome ?? detalhe?.nome_popular ?? null,
+          total_partidas: Array.isArray(detalhe?.partidas)
+            ? detalhe.partidas.length
+            : null,
+          ids_conferem:
+            (detalhe?.fase_id ?? detalhe?.id) == null
+              ? null
+              : String(detalhe.fase_id ?? detalhe.id) === String(faseAtualId)
+        };
+      } catch (error) {
+        erroDetalhe = {
+          status: error.status ?? null,
+          mensagem: error.message,
+          detalhes: error.details ?? null
+        };
+      }
+    }
+
+    return res.json({
+      campeonato_id: Number(campeonatoId),
+      campeonato_encontrado: Boolean(campeonato),
+      campeonato: campeonato ? {
+        nome: campeonato.nome_popular ?? campeonato.nome ?? null,
+        status: campeonato.status ?? null,
+        edicao_atual: campeonato.edicao_atual ?? null,
+        fase_atual: faseAtual ? {
+          fase_id: faseAtualId,
+          nome: faseAtual.nome ?? faseAtual.nome_popular ?? null,
+          status: faseAtual.status ?? null
+        } : null
+      } : null,
+      fases_listadas: fases.map(fase => ({
+        fase_id: fase.fase_id ?? fase.id ?? null,
+        nome: fase.nome ?? fase.nome_popular ?? null,
+        status: fase.status ?? null
+      })),
+      detalhe_fase_atual: detalheConsultado,
+      erro_detalhe_fase_atual: erroDetalhe,
+      consultado_em: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error("ERRO DIAGNÓSTICO CAMPEONATO:", error.message);
+    return res.status(error.status || 502).json({
+      error: "Não foi possível diagnosticar o campeonato.",
+      provider: "API Futebol",
+      details: error.details || error.message
+    });
+  }
+});
+
+// Busca jogos de hoje usando a fase_atual do campeonato.
+// Se a API devolver uma fase diferente da solicitada, bloqueia os dados para não
+// exibir partidas antigas como se fossem jogos de hoje.
+app.get("/api/campeonatos/:campeonatoId/jogos-hoje", async (req, res) => {
+  const { campeonatoId } = req.params;
+
+  if (!/^\\d+$/.test(campeonatoId)) {
+    return res.status(400).json({ error: "ID de campeonato inválido." });
+  }
   if (!API_KEY) {
     return res.status(503).json({
       error: "API_FUTEBOL_KEY não configurada no Render.",
@@ -237,48 +338,75 @@ app.get("/api/campeonatos/:campeonatoId/jogos-hoje", async (req, res) => {
   const hoje = dataHojeBrasil();
 
   try {
-    const fasesResposta = await buscarDadosFutebol(
-      "/campeonatos/" + campeonatoId + "/fases"
+    const campeonatosResposta = await buscarDadosFutebol("/campeonatos");
+    const campeonatos = Array.isArray(campeonatosResposta)
+      ? campeonatosResposta
+      : Array.isArray(campeonatosResposta?.data)
+        ? campeonatosResposta.data
+        : Array.isArray(campeonatosResposta?.campeonatos)
+          ? campeonatosResposta.campeonatos
+          : [];
+    const campeonato = campeonatos.find(item =>
+      String(item.campeonato_id ?? item.id) === String(campeonatoId)
     );
 
-    const fases = Array.isArray(fasesResposta)
-      ? fasesResposta
-      : Array.isArray(fasesResposta?.data)
-        ? fasesResposta.data
-        : Array.isArray(fasesResposta?.fases)
-          ? fasesResposta.fases
-          : [];
-
-    if (!fases.length) {
-      return res.json({
+    if (!campeonato) {
+      return res.status(404).json({
+        error: "Campeonato não encontrado na lista retornada pela API Futebol.",
         campeonato_id: Number(campeonatoId),
         data: hoje,
         total: 0,
-        partidas: [],
-        aviso: "A API não retornou fases para este campeonato."
+        partidas: []
       });
     }
 
-    const partidas = [];
-    for (const fase of fases) {
-      const faseId = fase.fase_id ?? fase.id;
-      if (faseId == null) continue;
+    const faseAtual = campeonato.fase_atual ?? null;
+    const faseId = faseAtual?.fase_id ?? faseAtual?.id ?? null;
 
-      const faseDetalhe = await buscarDadosFutebol(
-        "/campeonatos/" + campeonatoId + "/fases/" + faseId
-      );
-      const partidasFase = extrairPartidasDoDia(faseDetalhe, hoje);
-
-      for (const partida of partidasFase) {
-        partidas.push({
-          ...partida,
-          fase_id_consultada: faseId
-        });
-      }
+    if (faseId == null) {
+      return res.status(502).json({
+        error: "A API não informou a fase atual deste campeonato.",
+        campeonato_id: Number(campeonatoId),
+        campeonato: campeonato.nome_popular ?? campeonato.nome ?? null,
+        data: hoje,
+        total: 0,
+        partidas: [],
+        proximo_passo: "Verificar no painel/documentação da API Futebol qual edição e fase estão disponíveis para este campeonato."
+      });
     }
 
+    const faseDetalhe = await buscarDadosFutebol(
+      "/campeonatos/" + campeonatoId + "/fases/" + faseId
+    );
+    const faseDetalheId = faseDetalhe?.fase_id ?? faseDetalhe?.id ?? null;
+
+    if (faseDetalheId != null && String(faseDetalheId) !== String(faseId)) {
+      console.error(
+        "FASE INCONSISTENTE:",
+        "solicitada", faseId,
+        "retornada", faseDetalheId,
+        "campeonato", campeonatoId
+      );
+      return res.status(502).json({
+        error: "A API Futebol retornou uma fase diferente da solicitada. As partidas foram bloqueadas para evitar dados antigos.",
+        campeonato_id: Number(campeonatoId),
+        campeonato: campeonato.nome_popular ?? campeonato.nome ?? null,
+        data: hoje,
+        fase_id_solicitada: Number(faseId),
+        fase_id_retornada: Number(faseDetalheId),
+        total: 0,
+        partidas: [],
+        proximo_passo: "Abra /api/diagnostico/campeonatos/" + campeonatoId + " e envie o JSON completo para identificar a inconsistência."
+      });
+    }
+
+    const partidas = extrairPartidasDoDia(faseDetalhe, hoje);
     return res.json({
       campeonato_id: Number(campeonatoId),
+      campeonato: campeonato.nome_popular ?? campeonato.nome ?? null,
+      edicao_atual: campeonato.edicao_atual ?? null,
+      fase_id: Number(faseId),
+      fase: faseAtual.nome ?? faseAtual.nome_popular ?? null,
       data: hoje,
       total: partidas.length,
       partidas
