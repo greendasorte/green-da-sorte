@@ -77,24 +77,40 @@ async function apiFutebol(path, res) {
 // Lista campeonatos disponíveis na conta/plano da API.
 app.get("/api/campeonatos", (_req, res) => apiFutebol("/campeonatos", res));
 
-// Lista as fases de um campeonato.
+
+ // Lista as fases de um campeonato.
 app.get("/api/campeonatos/:campeonatoId/fases", (req, res) => {
   const { campeonatoId } = req.params;
+
   if (!/^\d+$/.test(campeonatoId)) {
-    return res.status(400).json({ error: "ID de campeonato inválido." });
-  }console.log("FASE SOLICITADA:", campeonatoId, faseId);
-return apiFutebol("/campeonatos/" + campeonatoId + "/fases/" + faseId, res);
+    return res.status(400).json({
+      error: "ID de campeonato inválido."
+    });
+  }
+
+  return apiFutebol(
+    "/campeonatos/" + campeonatoId + "/fases",
+    res
+  );
 });
 
-// Consulta uma fase específica, incluindo os dados de partidas fornecidos pela API.
+// Consulta uma fase específica.
 app.get("/api/campeonatos/:campeonatoId/fases/:faseId", (req, res) => {
   const { campeonatoId, faseId } = req.params;
-  if (!/^\d+$/.test(campeonatoId) || !/^\d+$/.test(faseId)) {
-    return res.status(400).json({ error: "ID de campeonato ou fase inválido." });
-  }
-  return apiFutebol("/campeonatos/" + campeonatoId + "/fases/" + faseId, res);
-});
 
-app.listen(PORT, () => {
+  if (!/^\d+$/.test(campeonatoId) || !/^\d+$/.test(faseId)) {
+    return res.status(400).json({
+      error: "ID de campeonato ou fase inválido."
+    });
+  }
+
+  console.log("FASE SOLICITADA:", campeonatoId, faseId);
+
+  return apiFutebol(
+    "/campeonatos/" + campeonatoId + "/fases/" + faseId,
+    res
+  );
+});
+ {
   console.log("Green da Sorte API ouvindo na porta " + PORT);
 });
