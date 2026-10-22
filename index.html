@@ -62,10 +62,8 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
 </section>
 
 <aside class="right">
-  <div class="card side-card" id="palpites"><div class="side-title">🎯 PALPITES DO DIA <span style="float:right;color:#16e06f;font-size:11px">Ver todos →</span></div>
-    <div class="tip"><b style="color:#16e06f">🍀 PALPITE PRINCIPAL</b><h3>Flamengo para vencer</h3><span class="confidence">Confiança: 78%</span><p style="font-size:12px;color:#9eada7">Análise baseada em desempenho recente, mando de campo e indicadores estatísticos.</p></div>
-    <div style="padding:12px 4px;font-size:13px">Real Madrid x Barcelona <span style="float:right;color:#16e06f">72%</span></div>
-    <div style="padding:12px 4px;font-size:13px">Manchester City x Arsenal <span style="float:right;color:#16e06f">68%</span></div>
+  <div class="card side-card" id="palpites"><div class="side-title">🎯 PALPITES DO DIA</div>
+    <div class="tip"><b style="color:#16e06f">🍀 ANÁLISES EM PREPARAÇÃO</b><p style="font-size:12px;color:#c0ccc6;line-height:1.6">Os palpites e percentuais só serão exibidos quando houver dados atuais e uma análise verificável. Não usamos placares, odds ou probabilidades inventadas.</p></div>
   </div>
 </aside>
 </main>
@@ -188,7 +186,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
     try {
       const response = await fetch(API + '/api/campeonatos/' + encodeURIComponent(id) + '/jogos-hoje', { cache: 'no-store' });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Falha ao buscar os jogos.');
+      if (!response.ok) throw new Error((data.error || 'Falha ao buscar os jogos.') + (data.proximo_passo ? ' ' + data.proximo_passo : ''));
       renderGames(data.partidas || [], championshipSelect.options[championshipSelect.selectedIndex]?.text || 'Campeonato');
       if (data.aviso) status.textContent = data.aviso;
     } catch (error) {
