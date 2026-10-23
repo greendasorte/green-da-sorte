@@ -331,8 +331,8 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
     const link = event.target.closest('a');
     if (!link) return;
     event.preventDefault();
-    const label = link.textContent.replace(/^[^A-Za-zÀ-ÿ]+/, '').trim().toLowerCase();
     const normalized = value => String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const label = normalized(link.textContent.replace(/^[^A-Za-zÀ-ÿ]+/, '').trim());
     const found = availableChampionships.find(c => {
       const name = normalized(c.nome_popular || c.nome || c.name || '');
       const area = normalized(c.area || '');
