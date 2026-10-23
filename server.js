@@ -215,6 +215,88 @@ app.get("/api/diagnostico/campeonatos/:campeonatoId", async (req, res) => {
   }
 });
 
+// Classificação da competição (quando disponível no plano da football-data.org).
+app.get("/api/campeonatos/:campeonatoId/classificacao", async (req, res) => {
+  const id = String(req.params.campeonatoId || "");
+  if (!/^\\d+$/.test(id)) {
+    return res.status(400).json({ error: "ID de campeonato inválido." });
+  }
+  try {
+    const competitionsData = await footballData("/competitions", "competitions", COMPETITIONS_TTL_MS);
+    const competitions = Array.isArray(competitionsData?.competitions) ? competitionsData.competitions : [];
+    const competition = competitions.find(item => String(item.id) === id);
+    if (!competition) {
+      return res.status(404).json({ error: "Campeonato não disponível para esta conta." });
+    }
+    const code = competition.code || id;
+    const data = await footballData(
+      "/competitions/" + encodeURIComponent(code) + "/standings",
+      "standings:" + code,
+      60 * 60 * 1000
+    );
+    return res.json({
+      provider: "football-data.org",
+      campeonato_id: competition.id,
+      campeonato: competition.name,
+      standings: Array.isArray(data?.standings) ? data.standings : [],
+      temporada: data?.season || competition.currentSeason || null
+    });
+  } catch (error) {
+    return sendApiError(res, error);
+  }
+});
+
+// Resultados concluídos nos últimos sete dias, para a competição escolhida.
+app.get("/api/campeonatos/:campeonatoId/resultados", async (req, res) => {
+  const id = String(req.params.campeonatoId || "");
+  if (!/^\\d+$/.test(id)) {
+    return res.status(400).json({ error: "ID de campeonato inválido." });
+  }
+  const hoje = dataHojeBrasil();
+  const [year, month, day] = hoje.split("-").map(Number);
+  const inicio = new Date(Date.UTC(year, month - 1, day + 12));
+  inicio.setUTCDate(inicio.getUTCDate() - 7);
+  const dataInicial = inicio.toISOString().slice(0, 10);
+  try {
+    const competitionsData = await footballData("/competitions", "competitions", COMPETITIONS_TTL_MS);
+    const competitions = Array.isArray(competitionsData?.competitions) ? competitionsData.competitions : [];
+    const competition = competitions.find(item => String(item.id) === id);
+    if (!competition) {
+      return res.status(404).json({ error: "Campeonato não disponível para esta conta." });
+    }
+    const code = competition.code || id;
+    const data = await footballData(
+      "/competitions/" + encodeURIComponent(code) + "/matches?dateFrom=" + dataInicial + "&dateTo=" + hoje,
+      "results:" + code + ":" + dataInicial + ":" + hoje,
+      CACHE_TTL_MS
+    );
+    const partidas = (Array.isArray(data?.matches) ? data.matches : [])
+      .filter(match => ["FINISHED", "AWARDED"].includes(match.status))
+      .map(match => ({
+        id: match.id,
+        data_hora_realizacao: match.utcDate || null,
+        status: match.status,
+        time_mandante: { nome: match.homeTeam?.name || "A definir" },
+        time_visitante: { nome: match.awayTeam?.name || "A definir" },
+        placar_mandante: match.score?.fullTime?.home ?? null,
+        placar_visitante: match.score?.fullTime?.away ?? null,
+        campeonato: competition.name,
+        rodada: match.matchday ?? null
+      }));
+    return res.json({
+      provider: "football-data.org",
+      campeonato_id: competition.id,
+      campeonato: competition.name,
+      data_inicial: dataInicial,
+      data_final: hoje,
+      total: partidas.length,
+      partidas
+    });
+  } catch (error) {
+    return sendApiError(res, error);
+  }
+});
+
 // Compatibilidade: fases pertenciam ao provedor anterior.
 app.get("/api/campeonatos/:campeonatoId/fases", (_req, res) => {
   res.status(410).json({
