@@ -14,7 +14,8 @@ const COMPETITIONS_TTL_MS = 60 * 60 * 1000;
 app.use(cors({
   origin: [
     "https://greendasorte.github.io",
-    "https://green-da-sorte.onrender.com"
+    "https://green-da-sorte.onrender.com",
+    "https://green-da-sorte-2.onrender.com"
   ]
 }));
 app.use(express.json());
