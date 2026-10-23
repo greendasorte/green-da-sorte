@@ -98,7 +98,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
   function getMatchDate(match) {
     const explicitTime = match.hora_realizacao || match.horario || match.match_time;
     if (explicitTime) return String(explicitTime).slice(0, 5);
-    const raw = match.data_hora_realizacao || match.data_partida || match.date || match.startTimestamp;
+    const raw = match.data_hora_realizacao || match.data_partida || match.date || match.utcDate || match.startTimestamp;
     if (!raw) return 'Horário a confirmar';
     if (typeof raw === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw)) return 'Horário a confirmar';
     const date = typeof raw === 'number' ? new Date(raw * 1000) : new Date(raw);
@@ -142,7 +142,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
       gamesList.appendChild(row);
     });
 
-    status.textContent = matches.length + ' partidas encontradas • Fonte: API Futebol';
+    status.textContent = matches.length + ' partidas encontradas • Fonte: football-data.org';
   }
 
   async function loadChampionships() {
@@ -180,7 +180,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
     formatDate();
     const id = championshipSelect.value;
     if (!id) return;
-    gamesList.innerHTML = '<div class="game-loading">⏳ Buscando partidas de hoje na API Futebol...</div>';
+    gamesList.innerHTML = '<div class="game-loading">⏳ Buscando partidas de hoje na football-data.org...</div>';
     status.textContent = 'Atualizando jogos do campeonato selecionado...';
     refresh.disabled = true;
     try {
