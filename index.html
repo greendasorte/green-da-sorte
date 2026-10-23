@@ -31,7 +31,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
 <body>
 <header>
   <div class="logo"><div class="clover">🍀</div><div class="brand">GREEN<br><span>DA SORTE</span></div></div>
-  <nav><a class="active" href="#">Início</a><a href="#jogos">Jogos do Dia</a><a href="#palpites">Palpites</a><a href="#">Estatísticas</a><a href="#">Campeonatos</a><a href="#">Resultados</a></nav>
+  <nav><a class="active" href="#" data-view="inicio">Início</a><a href="#jogos" data-view="jogos">Jogos do Dia</a><a href="#palpites" data-view="palpites">Palpites</a><a href="#estatisticas" data-view="estatisticas">Estatísticas</a><a href="#campeonatos" data-view="campeonatos">Campeonatos</a><a href="#resultados" data-view="resultados">Resultados</a></nav>
   <div class="search">🔎 &nbsp; Buscar time, campeonato ou jogo...</div>
 </header>
 
@@ -39,7 +39,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
 <aside class="sidebar">
   <div class="menu-title">MENU</div>
   <div class="menu">
-    <a class="active" href="#">⌂ &nbsp; Início</a><a href="#jogos">▣ &nbsp; Jogos do Dia</a><a href="#palpites">◎ &nbsp; Palpites</a><a href="#">▥ &nbsp; Estatísticas</a><a href="#">🏆 &nbsp; Campeonatos</a><a href="#">▣ &nbsp; Resultados</a>
+    <a class="active" href="#" data-view="inicio">⌂ &nbsp; Início</a><a href="#jogos" data-view="jogos">▣ &nbsp; Jogos do Dia</a><a href="#palpites" data-view="palpites">◎ &nbsp; Palpites</a><a href="#estatisticas" data-view="estatisticas">▥ &nbsp; Estatísticas</a><a href="#campeonatos" data-view="campeonatos">🏆 &nbsp; Campeonatos</a><a href="#resultados" data-view="resultados">▣ &nbsp; Resultados</a>
   </div>
   <div class="comp"><div class="menu-title">CAMPEONATOS</div><div class="menu">
     <a>🇧🇷 Brasileirão</a><a>🏆 Libertadores</a><a>⚽ Champions League</a><a>🏴 Premier League</a><a>🇪🇸 La Liga</a><a>🇮🇹 Serie A</a><a>🇩🇪 Bundesliga</a>
@@ -58,6 +58,10 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
     <div class="section-head"><h2>⚽ JOGOS DO DIA</h2><div class="date" id="todayDate">📅 Carregando data...</div></div>
     <div id="gameStatus" style="padding:8px 14px;font-size:11px;color:#8b9b94">Carregando campeonatos...</div><div class="tabs" id="leagueTabs"><select id="championshipSelect" class="tab" aria-label="Escolher campeonato"><option value="">Carregando campeonatos...</option></select><button id="refreshGames" class="tab" style="margin-left:auto;color:#16e06f">↻ Atualizar jogos</button></div>
     <div id="gamesList"><div class="game-loading">⏳ Conectando à API do Green da Sorte...</div></div>
+  </div>
+  <div class="card" id="extraViewPanel" hidden style="margin-top:15px">
+    <div class="section-head"><h2 id="extraViewTitle">Green da Sorte</h2><div class="date" id="extraViewMeta"></div></div>
+    <div id="extraViewContent" style="padding:16px"></div>
   </div>
 </section>
 
@@ -153,6 +157,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
       if (!response.ok) throw new Error(data.error || 'Não foi possível consultar os campeonatos.');
       const list = Array.isArray(data) ? data : (data.data || data.campeonatos || []);
       const championships = list.filter(item => item && (item.campeonato_id ?? item.id) != null);
+      availableChampionships = championships;
       championshipSelect.innerHTML = '';
       if (!championships.length) {
         championshipSelect.innerHTML = '<option value="">Nenhum campeonato disponível</option>';
@@ -196,6 +201,131 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
       refresh.disabled = false;
     }
   }
+
+  let availableChampionships = [];
+
+  function showPanel(view, title, meta = '') {
+    document.getElementById('jogos').hidden = view !== 'jogos';
+    const panel = document.getElementById('extraViewPanel');
+    panel.hidden = view === 'jogos';
+    document.getElementById('extraViewTitle').textContent = title;
+    document.getElementById('extraViewMeta').textContent = meta;
+    document.querySelectorAll('[data-view]').forEach(link => {
+      link.classList.toggle('active', link.dataset.view === view || (view === 'inicio' && link.dataset.view === 'inicio'));
+    });
+  }
+
+  function showChampionships() {
+    showPanel('campeonatos', '🏆 CAMPEONATOS DISPONÍVEIS', availableChampionships.length + ' campeonatos');
+    const content = document.getElementById('extraViewContent');
+    if (!availableChampionships.length) {
+      content.innerHTML = '<div class="game-loading">Carregando lista de campeonatos...</div>';
+      return;
+    }
+    content.innerHTML = '<p style="color:#aab8b2;margin-top:0">Escolha um campeonato para ver os jogos de hoje.</p><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">' +
+      availableChampionships.map(c => {
+        const id = c.campeonato_id ?? c.id;
+        const name = c.nome_popular || c.nome || c.name || ('Campeonato ' + id);
+        const area = c.area ? ' • ' + c.area : '';
+        return '<button type="button" class="tab" data-comp-id="' + escapeHtml(id) + '" style="text-align:left;white-space:normal;padding:14px">' +
+          '<b style="display:block;color:#16e06f;margin-bottom:5px">' + escapeHtml(name) + '</b><span style="color:#9eada7">' + escapeHtml(area.trim() || 'Competição disponível') + '</span></button>';
+      }).join('') + '</div>';
+  }
+
+  async function showStandings() {
+    showPanel('estatisticas', '📊 ESTATÍSTICAS / CLASSIFICAÇÃO', 'Dados fornecidos pela API');
+    const content = document.getElementById('extraViewContent');
+    content.innerHTML = '<div class="game-loading">⏳ Carregando classificação...</div>';
+    const id = championshipSelect.value;
+    if (!id) {
+      content.innerHTML = '<div class="game-error">Selecione um campeonato primeiro.</div>';
+      return;
+    }
+    try {
+      const response = await fetch(API + '/api/campeonatos/' + encodeURIComponent(id) + '/classificacao', { cache: 'no-store' });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'A classificação não está disponível para este campeonato/plano.');
+      const group = (data.standings || []).find(item => Array.isArray(item.table) && item.table.length);
+      if (!group) {
+        content.innerHTML = '<div class="game-error">A API não retornou uma tabela de classificação para este campeonato.</div>';
+        return;
+      }
+      content.innerHTML = '<p style="color:#aab8b2">🏆 ' + escapeHtml(data.campeonato || '') + (group.group ? ' • ' + escapeHtml(group.group) : '') + '</p><div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr>' +
+        ['#','Time','J','V','E','D','SG','Pts'].map(x => '<th style="padding:10px 7px;text-align:left;border-bottom:1px solid #12372a;color:#16e06f">' + x + '</th>').join('') +
+        '</tr></thead><tbody>' + group.table.map(team => '<tr>' +
+        '<td style="padding:10px 7px;border-bottom:1px solid #10271f">' + escapeHtml(team.position) + '</td>' +
+        '<td style="padding:10px 7px;border-bottom:1px solid #10271f;font-weight:700">' + escapeHtml(team.team?.name || 'Time') + '</td>' +
+        '<td style="padding:10px 7px;border-bottom:1px solid #10271f">' + escapeHtml(team.playedGames) + '</td>' +
+        '<td style="padding:10px 7px;border-bottom:1px solid #10271f">' + escapeHtml(team.won) + '</td>' +
+        '<td style="padding:10px 7px;border-bottom:1px solid #10271f">' + escapeHtml(team.draw) + '</td>' +
+        '<td style="padding:10px 7px;border-bottom:1px solid #10271f">' + escapeHtml(team.lost) + '</td>' +
+        '<td style="padding:10px 7px;border-bottom:1px solid #10271f">' + escapeHtml(team.goalDifference) + '</td>' +
+        '<td style="padding:10px 7px;border-bottom:1px solid #10271f;color:#16e06f;font-weight:900">' + escapeHtml(team.points) + '</td></tr>').join('') + '</tbody></table></div>';
+    } catch (error) {
+      content.innerHTML = '<div class="game-error">' + escapeHtml(error.message || 'Erro ao carregar a classificação.') + '</div>';
+    }
+  }
+
+  async function showResults() {
+    showPanel('resultados', '📋 RESULTADOS RECENTES', 'Últimos 7 dias');
+    const content = document.getElementById('extraViewContent');
+    content.innerHTML = '<div class="game-loading">⏳ Buscando resultados concluídos...</div>';
+    const id = championshipSelect.value;
+    if (!id) {
+      content.innerHTML = '<div class="game-error">Selecione um campeonato primeiro.</div>';
+      return;
+    }
+    try {
+      const response = await fetch(API + '/api/campeonatos/' + encodeURIComponent(id) + '/resultados', { cache: 'no-store' });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || 'Não foi possível carregar os resultados.');
+      if (!(data.partidas || []).length) {
+        content.innerHTML = '<div class="game-error">Não há resultados concluídos disponíveis nos últimos sete dias para este campeonato.</div>';
+        return;
+      }
+      content.innerHTML = '<p style="color:#aab8b2">' + escapeHtml(data.campeonato || '') + ' • ' + escapeHtml(data.data_inicial || '') + ' a ' + escapeHtml(data.data_final || '') + '</p>' +
+        data.partidas.map(match => '<div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;padding:14px 8px;border-bottom:1px solid #12372a">' +
+        '<span>' + escapeHtml(getTeamName(match.time_mandante)) + ' <b style="color:#16e06f;margin:0 8px">' + escapeHtml(match.placar_mandante) + ' × ' + escapeHtml(match.placar_visitante) + '</b> ' + escapeHtml(getTeamName(match.time_visitante)) + '</span>' +
+        '<small style="color:#9eada7">' + escapeHtml(match.data_hora_realizacao ? getMatchDate(match) : 'Data indisponível') + '</small></div>').join('');
+    } catch (error) {
+      content.innerHTML = '<div class="game-error">' + escapeHtml(error.message || 'Erro ao carregar os resultados.') + '</div>';
+    }
+  }
+
+  function showPredictions() {
+    showPanel('palpites', '🎯 PALPITES DO DIA', 'Atualização diária');
+    document.getElementById('extraViewContent').innerHTML =
+      '<div class="tip"><b style="color:#16e06f">🍀 PALPITES ATUALIZADOS</b><p style="color:#c0ccc6;line-height:1.7">Os palpites diários são preparados com base nos jogos e nas informações disponíveis. Só exibiremos mercados e odds quando houver dados atuais verificáveis; não há garantia de acerto.</p><p style="color:#c0ccc6;line-height:1.7">Aviso: previsões esportivas são incertas. Aposte somente se tiver idade legal e com responsabilidade.</p></div>';
+  }
+
+  document.querySelectorAll('[data-view]').forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      const view = link.dataset.view;
+      if (view === 'inicio' || view === 'jogos') {
+        showPanel('jogos', '', '');
+        if (view === 'inicio') window.scrollTo({ top: 0, behavior: 'smooth' });
+        else document.getElementById('jogos').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (view === 'campeonatos') {
+        showChampionships();
+      } else if (view === 'estatisticas') {
+        showStandings();
+      } else if (view === 'resultados') {
+        showResults();
+      } else if (view === 'palpites') {
+        showPredictions();
+      }
+    });
+  });
+
+  document.getElementById('extraViewContent').addEventListener('click', event => {
+    const button = event.target.closest('[data-comp-id]');
+    if (!button) return;
+    championshipSelect.value = button.dataset.compId;
+    loadGames();
+    showPanel('jogos', '', '');
+    document.getElementById('jogos').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 
   championshipSelect.addEventListener('change', loadGames);
   refresh.addEventListener('click', loadGames);
