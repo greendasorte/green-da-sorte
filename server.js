@@ -218,7 +218,7 @@ app.get("/api/diagnostico/campeonatos/:campeonatoId", async (req, res) => {
 // Classificação da competição (quando disponível no plano da football-data.org).
 app.get("/api/campeonatos/:campeonatoId/classificacao", async (req, res) => {
   const id = String(req.params.campeonatoId || "");
-  if (!/^\\d+$/.test(id)) {
+  if (!/^\d+$/.test(id)) {
     return res.status(400).json({ error: "ID de campeonato inválido." });
   }
   try {
@@ -249,7 +249,7 @@ app.get("/api/campeonatos/:campeonatoId/classificacao", async (req, res) => {
 // Resultados concluídos nos últimos sete dias, para a competição escolhida.
 app.get("/api/campeonatos/:campeonatoId/resultados", async (req, res) => {
   const id = String(req.params.campeonatoId || "");
-  if (!/^\\d+$/.test(id)) {
+  if (!/^\d+$/.test(id)) {
     return res.status(400).json({ error: "ID de campeonato inválido." });
   }
   const hoje = dataHojeBrasil();
