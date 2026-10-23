@@ -327,6 +327,35 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
     document.getElementById('jogos').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
+  document.querySelector('.comp .menu').addEventListener('click', event => {
+    const link = event.target.closest('a');
+    if (!link) return;
+    event.preventDefault();
+    const label = link.textContent.replace(/^[^A-Za-zÀ-ÿ]+/, '').trim().toLowerCase();
+    const normalized = value => String(value || '').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase();
+    const found = availableChampionships.find(c => {
+      const name = normalized(c.nome_popular || c.nome || c.name || '');
+      const area = normalized(c.area || '');
+      if (label.includes('brasileirao')) return name.includes('brasileiro') || (name.includes('serie a') && area.includes('brazil'));
+      if (label.includes('libertadores')) return name.includes('libertadores');
+      if (label.includes('champions')) return name.includes('champions league');
+      if (label.includes('premier')) return name.includes('premier league');
+      if (label.includes('la liga')) return name.includes('la liga') || name.includes('primera division');
+      if (label.includes('serie a')) return name.includes('serie a') && !name.includes('brasileiro') && (area.includes('italy') || area.includes('italia'));
+      if (label.includes('bundesliga')) return name.includes('bundesliga');
+      return false;
+    });
+    if (!found) {
+      showPanel('campeonatos', '🏆 CAMPEONATOS DISPONÍVEIS', 'Escolha na lista de campeonatos');
+      document.getElementById('extraViewContent').innerHTML = '<div class="game-error">Esse campeonato não está disponível na lista liberada pela API. Abra Campeonatos para ver as opções disponíveis.</div>';
+      return;
+    }
+    championshipSelect.value = String(found.campeonato_id ?? found.id);
+    loadGames();
+    showPanel('jogos', '', '');
+    document.getElementById('jogos').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
   championshipSelect.addEventListener('change', loadGames);
   refresh.addEventListener('click', loadGames);
   formatDate();
