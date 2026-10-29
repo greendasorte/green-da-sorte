@@ -9,7 +9,8 @@ const API_KEY = process.env.API_FUTEBOL_KEY;
 app.use(cors({
   origin: [
     "https://greendasorte.github.io",
-    "https://green-da-sorte.onrender.com"
+    "https://green-da-sorte.onrender.com",
+    "https://green-da-sorte-2.onrender.com"
   ]
 }));
 app.use(express.json());
@@ -73,6 +74,35 @@ async function apiFutebol(path, res) {
     });
   }
 }
+
+
+// Busca os eventos recentes de uma equipe no servidor para evitar bloqueios CORS no navegador.
+app.get("/api/times/:teamId/ultimos-jogos", async (req, res) => {
+  const { teamId } = req.params;
+  if (!/^\d+$/.test(teamId)) {
+    return res.status(400).json({ error: "ID de equipe inválido." });
+  }
+
+  try {
+    const response = await fetch(
+      "https://www.sofascore.com/api/v1/team/" + teamId + "/events/last/0",
+      { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(12000) }
+    );
+    if (!response.ok) {
+      return res.status(502).json({
+        error: "Não foi possível consultar os últimos jogos da equipe.",
+        providerStatus: response.status
+      });
+    }
+    const data = await response.json();
+    return res.json(data);
+  } catch (error) {
+    return res.status(502).json({
+      error: "Falha ao consultar os últimos jogos da equipe.",
+      details: error.name === "TimeoutError" ? "Tempo limite excedido." : error.message
+    });
+  }
+});
 
 // Lista campeonatos disponíveis na conta/plano da API.
 app.get("/api/campeonatos", (_req, res) => apiFutebol("/campeonatos", res));
