@@ -31,7 +31,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
 <body>
 <header>
   <div class="logo"><div class="clover">🍀</div><div class="brand">GREEN<br><span>DA SORTE</span></div></div>
-  <nav><a class="active" href="#">Início</a><a href="#jogos">Jogos do Dia</a><a href="#palpites">Palpites</a><a href="#">Estatísticas</a><a href="#">Campeonatos</a><a href="#">Resultados</a></nav>
+  <nav><a class="active" href="#inicio">Início</a><a href="#jogos">Jogos do Dia</a><a href="#palpites">Palpites</a><a href="#jogos">Estatísticas</a><a href="#leagueTabs">Campeonatos</a><a href="#jogos">Resultados</a></nav>
   <div class="search">🔎 &nbsp; Buscar time, campeonato ou jogo...</div>
 </header>
 
@@ -39,15 +39,15 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
 <aside class="sidebar">
   <div class="menu-title">MENU</div>
   <div class="menu">
-    <a class="active" href="#">⌂ &nbsp; Início</a><a href="#jogos">▣ &nbsp; Jogos do Dia</a><a href="#palpites">◎ &nbsp; Palpites</a><a href="#">▥ &nbsp; Estatísticas</a><a href="#">🏆 &nbsp; Campeonatos</a><a href="#">▣ &nbsp; Resultados</a>
+    <a class="active" href="#inicio">⌂ &nbsp; Início</a><a href="#jogos">▣ &nbsp; Jogos do Dia</a><a href="#palpites">◎ &nbsp; Palpites</a><a href="#jogos">▥ &nbsp; Estatísticas</a><a href="#leagueTabs">🏆 &nbsp; Campeonatos</a><a href="#jogos">▣ &nbsp; Resultados</a>
   </div>
   <div class="comp"><div class="menu-title">CAMPEONATOS</div><div class="menu">
-    <a>🇧🇷 Brasileirão</a><a>🏆 Libertadores</a><a>⚽ Champions League</a><a>🏴 Premier League</a><a>🇪🇸 La Liga</a><a>🇮🇹 Serie A</a><a>🇩🇪 Bundesliga</a>
+    <a href="#jogos" data-sidebar-league="Brasileirão">🇧🇷 Brasileirão</a><a href="#jogos" data-sidebar-league="Libertadores">🏆 Libertadores</a><a href="#jogos" data-sidebar-league="Champions League">⚽ Champions League</a><a href="#jogos" data-sidebar-league="Premier League">🏴 Premier League</a><a href="#jogos" data-sidebar-league="La Liga">🇪🇸 La Liga</a><a href="#jogos" data-sidebar-league="Serie A">🇮🇹 Serie A</a><a href="#jogos" data-sidebar-league="Bundesliga">🇩🇪 Bundesliga</a>
   </div></div>
 </aside>
 
 <section>
-  <div class="hero"><div><div class="big">🍀 GREEN <span>DA SORTE</span></div><p>Análises, estatísticas e palpites para você fazer melhores escolhas.</p></div></div>
+  <div class="hero" id="inicio"><div><div class="big">🍀 GREEN <span>DA SORTE</span></div><p>Análises, estatísticas e palpites para você fazer melhores escolhas.</p></div></div>
   <div class="whatsapp">
     <div><div class="wa-title">◉ &nbsp; ME CHAME NO WHATSAPP</div><div class="wa-sub">Tire suas dúvidas, receba palpites e mais informações!</div></div>
     <!-- TROQUE 5500000000000 PELO SEU NÚMERO COM DDI E DDD -->
@@ -262,15 +262,22 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
     }
   }
 
-  tabs.querySelectorAll(".tab[data-league]").forEach(tab => {
-    tab.addEventListener("click", () => {
-      tabs.querySelectorAll(".tab[data-league]").forEach(t => t.classList.remove("active"));
-      tab.classList.add("active");
-      const filter = tab.dataset.league.toLowerCase();
-      document.querySelectorAll("#gamesList .match").forEach(row => {
-        row.style.display = filter === "todos" || row.dataset.league.includes(filter) ? "" : "none";
-      });
+  function applyLeagueFilter(filterValue) {
+    const filter = String(filterValue || "Todos").toLowerCase();
+    tabs.querySelectorAll(".tab[data-league]").forEach(t => {
+      t.classList.toggle("active", t.dataset.league.toLowerCase() === filter);
     });
+    document.querySelectorAll("#gamesList .match").forEach(row => {
+      row.style.display = filter === "todos" || row.dataset.league.includes(filter) ? "" : "none";
+    });
+  }
+
+  tabs.querySelectorAll(".tab[data-league]").forEach(tab => {
+    tab.addEventListener("click", () => applyLeagueFilter(tab.dataset.league));
+  });
+
+  document.querySelectorAll("[data-sidebar-league]").forEach(link => {
+    link.addEventListener("click", () => applyLeagueFilter(link.dataset.sidebarLeague));
   });
 
   refresh.addEventListener("click", loadGames);
