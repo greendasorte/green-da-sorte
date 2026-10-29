@@ -123,7 +123,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
     if (teamStatsCache.has(teamId)) return teamStatsCache.get(teamId);
     const promise = (async () => {
       try {
-        const response = await fetch(`https://www.sofascore.com/api/v1/team/${teamId}/events/last/0`, {cache:"no-store"});
+        const response = await fetch(`https://green-da-sorte.onrender.com/api/times/${teamId}/ultimos-jogos`, {cache:"no-store"});
         if (!response.ok) return null;
         const data = await response.json();
         const finished = (data.events || []).filter(e =>
@@ -220,7 +220,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
       const markets = row.querySelector(".match-markets");
       if (!p) {
         prob.innerHTML = '<div class="p"><b>—</b>Casa</div><div class="p"><b>—</b>Empate</div><div class="p"><b>—</b>Fora</div>';
-        markets.textContent = "Probabilidades indisponíveis: não foi possível obter resultados recentes suficientes.";
+        markets.textContent = "Probabilidades indisponíveis: a API não retornou resultados recentes suficientes para este jogo.";
         return;
       }
       prob.innerHTML = `<div class="p home"><b>${p.home}%</b>Casa</div><div class="p draw"><b>${p.draw}%</b>Empate</div><div class="p away"><b>${p.away}%</b>Fora</div>`;
