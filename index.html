@@ -123,21 +123,21 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
     if (teamStatsCache.has(teamId)) return teamStatsCache.get(teamId);
     const promise = (async () => {
       try {
-        const response = await fetch(`https://green-da-sorte.onrender.com/api/times/${teamId}/ultimos-jogos`, {cache:"no-store"});
+        const response = await fetch(`https://green-da-sorte.onrender.com/api/football-data/teams/${teamId}/matches`, {cache:"no-store"});
         if (!response.ok) return null;
         const data = await response.json();
-        const finished = (data.events || []).filter(e =>
-          e.status?.type === "finished" &&
-          Number.isFinite(e.homeScore?.current) &&
-          Number.isFinite(e.awayScore?.current) &&
+        const finished = (data.matches || []).filter(e =>
+          e.status === "FINISHED" &&
+          Number.isFinite(e.score?.fullTime?.home) &&
+          Number.isFinite(e.score?.fullTime?.away) &&
           (e.homeTeam?.id === Number(teamId) || e.awayTeam?.id === Number(teamId))
-        ).slice(-5);
+        ).slice(0, 5);
         if (!finished.length) return null;
         let scored = 0, conceded = 0, count = 0;
         finished.forEach(e => {
           const isHome = e.homeTeam?.id === Number(teamId);
-          scored += isHome ? e.homeScore.current : e.awayScore.current;
-          conceded += isHome ? e.awayScore.current : e.homeScore.current;
+          scored += isHome ? e.score.fullTime.home : e.score.fullTime.away;
+          conceded += isHome ? e.score.fullTime.away : e.score.fullTime.home;
           count++;
         });
         return {scored: scored / count, conceded: conceded / count, matches: count};
@@ -244,12 +244,16 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
     status.textContent = "Atualizando jogos...";
     try {
       const date = localDateISO();
-      const url = `https://www.sofascore.com/api/v1/sport/football/scheduled-events/${date}`;
+      const url = `https://green-da-sorte.onrender.com/api/football-data/matches?date=${date}`;
       const response = await fetch(url, {cache:"no-store"});
-      if (!response.ok) throw new Error("API indisponível");
+      if (!response.ok) throw new Error("Football-Data.org indisponível (HTTP " + response.status + ")");
       const data = await response.json();
-      const events = (data.events || []).filter(e => e.status?.type !== "canceled");
-      renderGames(events, "programação atualizada");
+      const events = (data.matches || []).filter(e => e.status !== "CANCELLED").map(e => ({
+        ...e,
+        tournament: { name: e.competition?.name || "Futebol" },
+        startTimestamp: e.utcDate ? Math.floor(new Date(e.utcDate).getTime() / 1000) : null
+      }));
+      renderGames(events, "Football-Data.org");
     } catch (err) {
       renderGames(fallback.map(x => ({
         0:x[0],1:x[1],2:x[2],3:x[3]
