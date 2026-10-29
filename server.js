@@ -112,6 +112,11 @@ async function footballData(path, res) {
   }
 }
 
+
+app.get("/api/football-data/competitions", (_req, res) => {
+  return footballData("/competitions", res);
+});
+
 app.get("/api/football-data/matches", (req, res) => {
   const date = String(req.query.date || "");
   if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) {
