@@ -26,6 +26,12 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
 .game-error{padding:18px;text-align:center;color:#ffb4b4}
 .game-loading{padding:20px;text-align:center;color:#9eada7}
 .game-link{color:inherit;text-decoration:none}
+.ai-tip{border:1px solid #17412f;border-radius:9px;padding:12px;margin-bottom:10px;background:#081610}
+.ai-tip h3{font-size:14px;line-height:1.4;margin:7px 0;color:#f2f7f4}
+.ai-market{display:inline-block;color:#04100a;background:#16e06f;font-weight:900;padding:5px 8px;border-radius:7px;font-size:10px;margin:3px 0}
+.ai-meta{display:flex;justify-content:space-between;gap:8px;align-items:center;color:#9eada7;font-size:11px}
+.ai-reason{font-size:12px;line-height:1.45;color:#aab8b2;margin:8px 0 0}
+.ai-conf{font-size:10px;color:#c6d4cd;text-transform:uppercase;letter-spacing:.4px}
 </style>
 </head>
 <body>
@@ -67,10 +73,10 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
 </section>
 
 <aside class="right">
-  <div class="card side-card" id="palpites"><div class="side-title">🎯 PALPITES DO DIA <span style="float:right;color:#16e06f;font-size:11px">Ver todos →</span></div>
-    <div class="tip"><b style="color:#16e06f">🍀 PALPITE PRINCIPAL</b><h3>Flamengo para vencer</h3><span class="confidence">Confiança: 78%</span><p style="font-size:12px;color:#9eada7">Análise baseada em desempenho recente, mando de campo e indicadores estatísticos.</p></div>
-    <div style="padding:12px 4px;font-size:13px">Real Madrid x Barcelona <span style="float:right;color:#16e06f">72%</span></div>
-    <div style="padding:12px 4px;font-size:13px">Manchester City x Arsenal <span style="float:right;color:#16e06f">68%</span></div>
+  <div class="card side-card" id="palpites">
+    <div class="side-title">🎯 PALPITES COM IA <button id="refreshTips" class="tab" style="float:right;color:#16e06f;padding:5px 8px">↻ Atualizar</button></div>
+    <div id="aiTips"><div class="game-loading">⏳ Analisando jogos reais...</div></div>
+    <p style="font-size:11px;color:#8b9b94;line-height:1.5;margin:12px 0 0">Análises estatísticas geradas por IA a partir dos dados disponíveis. São estimativas, não garantias. Odds não são inventadas.</p>
   </div>
 </aside>
 </main>
@@ -78,6 +84,11 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
 
 <script>
 (() => {
+  // URL do backend onde as chaves ficam protegidas no Render.
+  const API_BASE = "https://green-da-sorte.onrender.com";
+  const aiTips = document.getElementById("aiTips");
+  const refreshTips = document.getElementById("refreshTips");
+
   const gamesList = document.getElementById('gamesList');
   const status = document.getElementById('gameStatus');
   const dateEl = document.getElementById('todayDate');
@@ -177,6 +188,50 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
     });
   }
 
+  const marketLabels = {
+    BOTH_TEAMS_SCORE: "AMBAS MARCAM — SIM",
+    OVER_2_5: "MAIS DE 2,5 GOLS",
+    OVER_1_5: "MAIS DE 1,5 GOLS",
+    HOME_WIN: "VITÓRIA DO MANDANTE",
+    AWAY_WIN: "VITÓRIA DO VISITANTE",
+    DOUBLE_CHANCE_HOME: "MANDANTE OU EMPATE",
+    DOUBLE_CHANCE_AWAY: "VISITANTE OU EMPATE"
+  };
+
+  async function loadAiTips() {
+    if (!aiTips) return;
+    aiTips.innerHTML = '<div class="game-loading">⏳ A IA está analisando os jogos reais...</div>';
+    if (refreshTips) refreshTips.disabled = true;
+    try {
+      const response = await fetch(`${API_BASE}/api/palpites?date=${localDateISO()}`, { cache: "no-store" });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Não foi possível carregar os palpites.");
+      if (!Array.isArray(data.tips) || data.tips.length === 0) {
+        aiTips.innerHTML = '<div class="game-loading">Não há palpites disponíveis para esta data. Confira a API de futebol e tente novamente.</div>';
+        return;
+      }
+      aiTips.innerHTML = data.tips.map(tip => {
+        const kickoff = tip.kickoff ? new Date(tip.kickoff).toLocaleString("pt-BR", {
+          timeZone: "America/Sao_Paulo", day: "2-digit", month: "2-digit",
+          hour: "2-digit", minute: "2-digit"
+        }) : "Horário não informado";
+        const confidence = String(tip.confidence || "baixa");
+        const probability = Number.isFinite(Number(tip.probability)) ? `${Number(tip.probability)}% estimado` : "Estimativa indisponível";
+        return `<div class="ai-tip">
+          <div class="ai-meta"><span>${escapeHtml(tip.competition || "Futebol")}</span><span>${escapeHtml(kickoff)}</span></div>
+          <h3>${escapeHtml(tip.homeTeam)} x ${escapeHtml(tip.awayTeam)}</h3>
+          <span class="ai-market">${escapeHtml(marketLabels[tip.market] || tip.selection || "Palpite")}</span>
+          <div class="ai-meta"><span>${escapeHtml(probability)}</span><span class="ai-conf">Confiança ${escapeHtml(confidence)}</span></div>
+          <p class="ai-reason">${escapeHtml(tip.reason || "A análise usa apenas os dados disponíveis.")}</p>
+        </div>`;
+      }).join("");
+    } catch (error) {
+      aiTips.innerHTML = `<div class="game-error">${escapeHtml(error.message)}<p style="font-size:11px;color:#9eada7">Verifique se o backend está online e se FOOTBALL_DATA_API_KEY e OPENAI_API_KEY estão configuradas no Render.</p></div>`;
+    } finally {
+      if (refreshTips) refreshTips.disabled = false;
+    }
+  }
+
   async function loadGames() {
     formatDate();
     gamesList.innerHTML = '<div class="game-loading">⏳ Buscando os jogos reais de hoje...</div>';
@@ -209,9 +264,12 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
   });
 
   refresh.addEventListener("click", loadGames);
+  if (refreshTips) refreshTips.addEventListener("click", loadAiTips);
   loadGames();
-  // Atualiza automaticamente a lista a cada 5 minutos.
+  loadAiTips();
+  // Atualiza os jogos a cada 5 minutos e os palpites com IA a cada 10 minutos.
   setInterval(loadGames, 5 * 60 * 1000);
+  setInterval(loadAiTips, 10 * 60 * 1000);
 })();
 </script>
 
