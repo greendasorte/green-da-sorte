@@ -20,8 +20,8 @@ main{display:grid;grid-template-columns:245px 1fr 315px;gap:16px;padding:20px 22
 .match{display:grid;grid-template-columns:105px 1fr 290px 105px;align-items:center;gap:12px;padding:13px 12px;border-bottom:1px solid #10271f}.match:last-child{border-bottom:0}.time{font-weight:800}.league{font-size:10px;color:var(--green);margin-top:4px}.teams{text-align:center;font-weight:700}.prob{display:flex;gap:5px}.p{padding:7px 6px;border-radius:7px;background:#0b2019;text-align:center;min-width:82px;font-size:11px}.p b{display:block;font-size:14px;color:#fff}.p.home{background:#07472b}.p.draw{background:#17282a}.p.away{background:#0b2638}.analyze{background:transparent;color:#d4ded9;border:1px solid #244238;border-radius:8px;padding:8px;font-size:11px}
 .side-card{padding:15px;margin-bottom:15px}.side-title{font-weight:900;font-size:16px;margin-bottom:14px}.live{border:1px solid #17412f;border-radius:9px;padding:12px;margin-bottom:10px}.live-head{display:flex;justify-content:space-between;font-weight:800}.live-head .red{color:#ff4040}.bar{height:5px;background:#20332d;border-radius:5px;margin:6px 0 10px}.bar i{display:block;height:100%;background:var(--green);border-radius:5px}.tip{border-left:3px solid var(--green);padding:11px;background:#081610;border-radius:8px}.confidence{display:inline-block;color:#04100a;background:var(--green);font-weight:900;padding:5px 8px;border-radius:15px;font-size:11px;margin:7px 0}
 footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-content:space-between;color:#84958e;font-size:12px}.footerwa{color:var(--green);font-weight:800}
-@media(max-width:1100px){main{grid-template-columns:200px 1fr}.right{display:none}nav{display:none}.search{margin-left:auto}}
-@media(max-width:760px){header{padding:0 14px}.logo{min-width:0}.brand{font-size:19px}.clover{font-size:40px}.search{display:none}main{display:block;padding:10px}.sidebar{display:none}.hero{height:auto}.match{grid-template-columns:72px 1fr}.prob{grid-column:2;justify-content:center}.analyze{display:none}footer{display:block}}
+@media(max-width:1100px){main{grid-template-columns:200px 1fr}.right{display:none}.search{margin-left:auto}}
+@media(max-width:760px){header{height:auto;min-height:70px;padding:10px 12px;gap:10px;flex-wrap:wrap}.logo{min-width:0}.brand{font-size:19px}.clover{font-size:38px}nav{display:flex;order:3;flex:0 0 100%;gap:18px;overflow-x:auto;padding:8px 0 5px;white-space:nowrap;scrollbar-width:thin}nav a{font-size:12px;flex:0 0 auto}.search{display:none}main{display:block;padding:10px}.sidebar{display:none}.hero{height:auto;min-height:110px;padding:18px}.hero .big{font-size:24px}.match{grid-template-columns:66px minmax(0,1fr);gap:8px;padding:12px 8px}.teams{font-size:13px}.prob{grid-column:1 / -1;justify-content:stretch}.p{flex:1;min-width:0}.analyze{display:block;grid-column:1 / -1;width:100%}.whatsapp{gap:10px;align-items:flex-start;flex-wrap:wrap}.wa-btn{width:100%;text-align:center}.section-head{gap:8px;flex-wrap:wrap}.tabs{flex-wrap:nowrap}footer{display:block}footer>div{margin:7px 0}}
 
 .game-error{padding:18px;text-align:center;color:#ffb4b4}
 .game-loading{padding:20px;text-align:center;color:#9eada7}
@@ -31,7 +31,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
 <body>
 <header>
   <div class="logo"><div class="clover">🍀</div><div class="brand">GREEN<br><span>DA SORTE</span></div></div>
-  <nav><a class="active" href="#inicio">Início</a><a href="#jogos">Jogos do Dia</a><a href="#palpites">Palpites</a><a href="#jogos">Estatísticas</a><a href="#leagueTabs">Campeonatos</a><a href="#jogos">Resultados</a></nav>
+  <nav><a class="active" href="#inicio">Início</a><a href="#jogos">Jogos do Dia</a><a href="#palpites">Palpites</a><a href="#statsPanel">Estatísticas</a><a href="#competitionsPanel">Campeonatos</a><a href="#resultsPanel">Resultados</a></nav>
   <div class="search">🔎 &nbsp; Buscar time, campeonato ou jogo...</div>
 </header>
 
@@ -39,7 +39,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
 <aside class="sidebar">
   <div class="menu-title">MENU</div>
   <div class="menu">
-    <a class="active" href="#inicio">⌂ &nbsp; Início</a><a href="#jogos">▣ &nbsp; Jogos do Dia</a><a href="#palpites">◎ &nbsp; Palpites</a><a href="#jogos">▥ &nbsp; Estatísticas</a><a href="#leagueTabs">🏆 &nbsp; Campeonatos</a><a href="#jogos">▣ &nbsp; Resultados</a>
+    <a class="active" href="#inicio">⌂ &nbsp; Início</a><a href="#jogos">▣ &nbsp; Jogos do Dia</a><a href="#palpites">◎ &nbsp; Palpites</a><a href="#statsPanel">▥ &nbsp; Estatísticas</a><a href="#competitionsPanel">🏆 &nbsp; Campeonatos</a><a href="#resultsPanel">▣ &nbsp; Resultados</a>
   </div>
   <div class="comp"><div class="menu-title">CAMPEONATOS</div><div class="menu">
     <a href="#jogos" data-sidebar-league="Brasileirão">🇧🇷 Brasileirão</a><a href="#jogos" data-sidebar-league="Libertadores">🏆 Libertadores</a><a href="#jogos" data-sidebar-league="Champions League">⚽ Champions League</a><a href="#jogos" data-sidebar-league="Premier League">🏴 Premier League</a><a href="#jogos" data-sidebar-league="La Liga">🇪🇸 La Liga</a><a href="#jogos" data-sidebar-league="Serie A">🇮🇹 Serie A</a><a href="#jogos" data-sidebar-league="Bundesliga">🇩🇪 Bundesliga</a>
@@ -64,6 +64,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
     <div class="match"><div><div class="time">21:45</div><div class="league">Champions League</div></div><div class="teams">Real Madrid &nbsp; ⚔ &nbsp; Barcelona</div><div class="prob"><div class="p home"><b>42%</b>Casa</div><div class="p draw"><b>28%</b>Empate</div><div class="p away"><b>30%</b>Fora</div></div><button class="analyze">Ver análise ›</button></div>
     <div class="match"><div><div class="time">22:00</div><div class="league">Premier League</div></div><div class="teams">Manchester City &nbsp; ⚔ &nbsp; Arsenal</div><div class="prob"><div class="p home"><b>46%</b>Casa</div><div class="p draw"><b>28%</b>Empate</div><div class="p away"><b>26%</b>Fora</div></div><button class="analyze">Ver análise ›</button></div></div>
   </div>
+<div class="card" id="statsPanel" style="margin-top:16px;scroll-margin-top:150px"><div class="section-head"><h2>📊 ESTATÍSTICAS</h2></div><div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px"><div class="tip"><b>Jogos hoje</b><h2 id="statGames">—</h2></div><div class="tip"><b>Campeonatos</b><h2 id="statLeagues">—</h2></div><div class="tip"><b>Probabilidades</b><h2>Modelo estatístico</h2></div></div><p style="padding:0 16px 12px;color:#9eada7;font-size:12px">As probabilidades são estimativas e não garantias de resultado.</p></div><div class="card" id="competitionsPanel" style="margin-top:16px;scroll-margin-top:150px"><div class="section-head"><h2>🏆 CAMPEONATOS</h2><button id="loadCompetitions" class="tab">Carregar</button></div><div id="competitionsList" style="padding:14px;color:#9eada7">Clique para consultar as competições disponíveis no seu plano.</div></div><div class="card" id="resultsPanel" style="margin-top:16px;scroll-margin-top:150px"><div class="section-head"><h2>📋 RESULTADOS RECENTES</h2><button id="loadResults" class="tab">Carregar</button></div><div id="resultsList" style="padding:14px;color:#9eada7">Clique para consultar resultados recentes.</div></div>
 </section>
 
 <aside class="right">
@@ -83,6 +84,9 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
   const dateEl = document.getElementById('todayDate');
   const refresh = document.getElementById('refreshGames');
   const tabs = document.getElementById('leagueTabs');
+  const statGames = document.getElementById('statGames');
+  const statLeagues = document.getElementById('statLeagues');
+
 
   const fallback = [
     ["16:45","Champions League","Como","Manchester United"],
@@ -254,6 +258,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
         startTimestamp: e.utcDate ? Math.floor(new Date(e.utcDate).getTime() / 1000) : null
       }));
       renderGames(events, "Football-Data.org");
+      statGames.textContent = events.length;
     } catch (err) {
       renderGames(fallback.map(x => ({
         0:x[0],1:x[1],2:x[2],3:x[3]
