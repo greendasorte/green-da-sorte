@@ -98,6 +98,16 @@ body[data-page="palpites"] header nav a[href="palpites.html"],
 body[data-page="estatisticas"] header nav a[href="estatisticas.html"],
 body[data-page="campeonatos"] header nav a[href="campeonatos.html"],
 body[data-page="resultados"] header nav a[href="resultados.html"]{color:#16e06f;border-bottom:2px solid #16e06f}
+/* Estado ativo do menu lateral conforme a página atual */
+body[data-page] .sidebar .menu a.active{background:transparent;color:#d6dfdb;font-weight:400}
+body[data-page="inicio"] .sidebar .menu a[href="index.html"],
+body[data-page="jogos"] .sidebar .menu a[href="jogos.html"],
+body[data-page="proximos"] .sidebar .menu a[href="proximos.html"],
+body[data-page="palpites"] .sidebar .menu a[href="palpites.html"],
+body[data-page="estatisticas"] .sidebar .menu a[href="estatisticas.html"],
+body[data-page="campeonatos"] .sidebar .menu a[href="campeonatos.html"],
+body[data-page="resultados"] .sidebar .menu a[href="resultados.html"]{background:#07351f;color:var(--green);font-weight:800}
+
 @media(max-width:760px){main{display:block!important}main>.sidebar{margin-bottom:12px}body[data-page="palpites"] main>.right{margin-top:0}}
 
 </style>
