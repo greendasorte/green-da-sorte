@@ -74,12 +74,37 @@ header nav a{flex:0 0 auto;white-space:nowrap}
 .stats-table td:first-child{font-weight:700}
 .stats-loading,.stats-empty{padding:16px;color:#9eada7;font-size:13px}
 @media(max-width:600px){#statsCompetition{max-width:160px;font-size:11px}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Navegação por páginas independentes */
+main{grid-template-columns:245px minmax(0,1fr)!important;align-items:start}
+main>.right{display:none}
+main>section>*{display:none}
+body[data-page="inicio"] main>section>.hero,
+body[data-page="inicio"] main>section>.whatsapp,
+body[data-page="inicio"] main>section>#jogos{display:block}
+body[data-page="jogos"] main>section>#jogos,
+body[data-page="proximos"] main>section>#proximos,
+body[data-page="estatisticas"] main>section>#estatisticas,
+body[data-page="campeonatos"] main>section>#campeonatos,
+body[data-page="resultados"] main>section>#resultados{display:block}
+body[data-page="palpites"] main>section{display:none}
+body[data-page="palpites"] main>.right{display:block;grid-column:2;min-width:0}
+body[data-page="palpites"] main>.right .side-card{display:block}
+body[data-page="inicio"] header nav a[href="index.html"],
+body[data-page="jogos"] header nav a[href="jogos.html"],
+body[data-page="proximos"] header nav a[href="proximos.html"],
+body[data-page="palpites"] header nav a[href="palpites.html"],
+body[data-page="estatisticas"] header nav a[href="estatisticas.html"],
+body[data-page="campeonatos"] header nav a[href="campeonatos.html"],
+body[data-page="resultados"] header nav a[href="resultados.html"]{color:#16e06f;border-bottom:2px solid #16e06f}
+@media(max-width:760px){main{display:block!important}main>.sidebar{margin-bottom:12px}body[data-page="palpites"] main>.right{margin-top:0}}
+
 </style>
 </head>
-<body>
+<body data-page="inicio">
 <header id="inicio">
   <div class="logo"><div class="clover">🍀</div><div class="brand">GREEN<br><span>DA SORTE</span></div></div>
-  <nav><a class="active" href="#inicio">Início</a><a href="#jogos">Jogos do Dia</a><a href="#proximos">Próximos Jogos</a><a href="#palpites">Palpites</a><a href="#estatisticas">Estatísticas</a><a href="#campeonatos">Campeonatos</a><a href="#resultados">Resultados</a></nav>
+  <nav><a class="active" href="index.html">Início</a><a href="jogos.html">Jogos do Dia</a><a href="proximos.html">Próximos Jogos</a><a href="palpites.html">Palpites</a><a href="estatisticas.html">Estatísticas</a><a href="campeonatos.html">Campeonatos</a><a href="resultados.html">Resultados</a></nav>
   <input class="search" id="gameSearch" type="search" placeholder="🔎 Buscar time, campeonato ou jogo..." aria-label="Buscar jogos">
 </header>
 
@@ -87,7 +112,7 @@ header nav a{flex:0 0 auto;white-space:nowrap}
 <aside class="sidebar">
   <div class="menu-title">MENU</div>
   <div class="menu">
-    <a class="active" href="#inicio">⌂ &nbsp; Início</a><a href="#jogos">▣ &nbsp; Jogos do Dia</a><a href="#proximos">📅 &nbsp; Próximos Jogos</a><a href="#palpites">◎ &nbsp; Palpites</a><a href="#estatisticas">▥ &nbsp; Estatísticas</a><a href="#campeonatos">🏆 &nbsp; Campeonatos</a><a href="#resultados">▣ &nbsp; Resultados</a>
+    <a class="active" href="index.html">⌂ &nbsp; Início</a><a href="jogos.html">▣ &nbsp; Jogos do Dia</a><a href="proximos.html">📅 &nbsp; Próximos Jogos</a><a href="palpites.html">◎ &nbsp; Palpites</a><a href="estatisticas.html">▥ &nbsp; Estatísticas</a><a href="campeonatos.html">🏆 &nbsp; Campeonatos</a><a href="resultados.html">▣ &nbsp; Resultados</a>
   </div>
   <div class="comp"><div class="menu-title">CAMPEONATOS</div><div class="menu">
     <a href="#leagueTabs" data-filter="Brasileirão">🇧🇷 Brasileirão</a><a href="#leagueTabs" data-filter="Libertadores">🏆 Libertadores</a><a href="#leagueTabs" data-filter="Champions League">⚽ Champions League</a><a href="#leagueTabs" data-filter="Premier League">🏴 Premier League</a><a href="#leagueTabs" data-filter="La Liga">🇪🇸 La Liga</a><a href="#leagueTabs" data-filter="Serie A">🇮🇹 Serie A</a><a href="#leagueTabs" data-filter="Bundesliga">🇩🇪 Bundesliga</a>
