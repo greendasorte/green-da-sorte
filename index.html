@@ -56,13 +56,8 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
 
   <div class="card" id="jogos">
     <div class="section-head"><h2>⚽ JOGOS DO DIA</h2><div class="date" id="todayDate">📅 Carregando data...</div></div>
-    <div id="gameStatus" style="padding:8px 14px;font-size:11px;color:#8b9b94">Carregando jogos...</div><div class="tabs" id="leagueTabs"><div class="tab active" data-league="Todos">Todos</div><div class="tab" data-league="Brasileirão">🇧🇷 Brasileirão</div><div class="tab" data-league="Libertadores">🏆 Libertadores</div><div class="tab" data-league="Champions League">⚽ Champions League</div><div class="tab" data-league="Premier League">🏴 Premier League</div><div class="tab" data-league="La Liga">🇪🇸 La Liga</div><button id="refreshGames" class="tab" style="margin-left:auto;color:#16e06f">↻ Atualizar jogos</button></div>
-    <div id="gamesList"><div class="match"><div><div class="time">16:00</div><div class="league">Brasileirão</div></div><div class="teams">Fortaleza &nbsp; ⚔ &nbsp; Ceará</div><div class="prob"><div class="p home"><b>52%</b>Casa</div><div class="p draw"><b>27%</b>Empate</div><div class="p away"><b>21%</b>Fora</div></div><button class="analyze">Ver análise ›</button></div>
-    <div class="match"><div><div class="time">18:30</div><div class="league">Brasileirão</div></div><div class="teams">São Paulo &nbsp; ⚔ &nbsp; Fluminense</div><div class="prob"><div class="p home"><b>45%</b>Casa</div><div class="p draw"><b>30%</b>Empate</div><div class="p away"><b>25%</b>Fora</div></div><button class="analyze">Ver análise ›</button></div>
-    <div class="match"><div><div class="time">19:00</div><div class="league">Libertadores</div></div><div class="teams">River Plate &nbsp; ⚔ &nbsp; Atlético-MG</div><div class="prob"><div class="p home"><b>38%</b>Casa</div><div class="p draw"><b>31%</b>Empate</div><div class="p away"><b>31%</b>Fora</div></div><button class="analyze">Ver análise ›</button></div>
-    <div class="match"><div><div class="time">21:30</div><div class="league">Brasileirão</div></div><div class="teams">Flamengo &nbsp; ⚔ &nbsp; Palmeiras</div><div class="prob"><div class="p home"><b>48%</b>Casa</div><div class="p draw"><b>27%</b>Empate</div><div class="p away"><b>25%</b>Fora</div></div><button class="analyze">Ver análise ›</button></div>
-    <div class="match"><div><div class="time">21:45</div><div class="league">Champions League</div></div><div class="teams">Real Madrid &nbsp; ⚔ &nbsp; Barcelona</div><div class="prob"><div class="p home"><b>42%</b>Casa</div><div class="p draw"><b>28%</b>Empate</div><div class="p away"><b>30%</b>Fora</div></div><button class="analyze">Ver análise ›</button></div>
-    <div class="match"><div><div class="time">22:00</div><div class="league">Premier League</div></div><div class="teams">Manchester City &nbsp; ⚔ &nbsp; Arsenal</div><div class="prob"><div class="p home"><b>46%</b>Casa</div><div class="p draw"><b>28%</b>Empate</div><div class="p away"><b>26%</b>Fora</div></div><button class="analyze">Ver análise ›</button></div></div>
+    <div id="gameStatus" style="padding:8px 14px;font-size:11px;color:#8b9b94">Carregando jogos...</div><div class="tabs" id="leagueTabs"><div class="tab active" data-league="Todos">Todos</div><div class="tab" data-league="Brasileirão">🇧🇷 Brasileirão</div><div class="tab" data-league="Libertadores">🏆 Libertadores</div><div class="tab" data-league="Champions League">⚽ Champions League</div><div class="tab" data-league="Premier League">🏴 Premier League</div><div class="tab" data-league="La Liga">🇪🇸 La Liga</div><div class="tab" data-league="Serie A">🇮🇹 Serie A</div><div class="tab" data-league="Bundesliga">🇩🇪 Bundesliga</div><button id="refreshGames" class="tab" style="margin-left:auto;color:#16e06f">↻ Atualizar jogos</button></div>
+    <div id="gamesList"><div class="game-loading">⏳ Aguardando os jogos reais da API...</div></div>
   </div>
 </section>
 
@@ -84,19 +79,6 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
   const refresh = document.getElementById('refreshGames');
   const tabs = document.getElementById('leagueTabs');
 
-  const fallback = [
-    ["16:45","Champions League","Como","Manchester United"],
-    ["16:45","Champions League","Lille","Galatasaray"],
-    ["19:00","Champions League","Aston Villa","Viking"],
-    ["19:00","Champions League","Club Brugge","Lens"],
-    ["19:00","Champions League","Bayern","Arsenal"],
-    ["19:00","Champions League","Inter","Shakhtar"],
-    ["19:00","Champions League","Real Betis","Feyenoord"],
-    ["19:00","Champions League","Real Madrid","Leipzig"],
-    ["19:00","Champions League","Sporting","LASK"],
-    ["18:00","LaLiga","Levante","Athletic Club"],
-    ["22:00","Sudamericana","Torque","Atlético-MG"]
-  ];
 
   function localDateISO() {
     const d = new Date();
