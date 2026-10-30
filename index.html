@@ -38,6 +38,12 @@ nav a.active{border-bottom-color:var(--green);font-weight:800}
 .section-head{gap:12px;flex-wrap:wrap}
 .tab,.analyze,.wa-btn{cursor:pointer;transition:transform .18s ease,filter .18s ease}
 .tab:hover,.analyze:hover,.wa-btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+#upcomingList{max-height:390px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:0 12px 10px;scrollbar-width:thin;scrollbar-color:#16e06f #07130f}
+#upcomingList::-webkit-scrollbar{width:8px}
+#upcomingList::-webkit-scrollbar-track{background:#07130f;border-radius:8px}
+#upcomingList::-webkit-scrollbar-thumb{background:#167a45;border-radius:8px}
+#proximos .section-head{position:relative}
+@media(max-width:760px){#upcomingList{max-height:320px;padding-left:10px;padding-right:10px}}
 #upcomingList .result-item{align-items:center}
 #upcomingList .result-item span{min-width:0}
 #upcomingList .result-item strong{white-space:nowrap;color:var(--green)}
