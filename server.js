@@ -114,7 +114,7 @@ async function footballData(path, res) {
 
 app.get("/api/football-data/matches", (req, res) => {
   const date = String(req.query.date || "");
-  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     return res.status(400).json({ error: "Informe date no formato YYYY-MM-DD." });
   }
   return footballData("/matches?dateFrom=" + encodeURIComponent(date) + "&dateTo=" + encodeURIComponent(date), res);
@@ -122,7 +122,7 @@ app.get("/api/football-data/matches", (req, res) => {
 
 app.get("/api/football-data/teams/:teamId/matches", (req, res) => {
   const { teamId } = req.params;
-  if (!/^\\d+$/.test(teamId)) {
+  if (!/^\d+$/.test(teamId)) {
     return res.status(400).json({ error: "ID de equipe inválido." });
   }
   return footballData("/teams/" + teamId + "/matches?status=FINISHED&limit=5", res);
