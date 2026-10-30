@@ -335,7 +335,11 @@ body[data-page="resultados"] header nav a[href="resultados.html"]{color:#16e06f;
       const response = await fetch(url, {cache:"no-store"});
       if (!response.ok) throw new Error("Football-Data.org indisponível (HTTP " + response.status + ")");
       const data = await response.json();
-      const events = (data.matches || []).filter(e => e.status !== "CANCELLED").map(e => ({
+      const events = (data.matches || []).filter(e => {
+        if (e.status === "CANCELLED" || !e.utcDate) return false;
+        const matchDay = new Intl.DateTimeFormat("sv-SE", {timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(e.utcDate));
+        return matchDay === date;
+      }).map(e => ({
         ...e,
         tournament: { name: e.competition?.name || "Futebol" },
         startTimestamp: e.utcDate ? Math.floor(new Date(e.utcDate).getTime() / 1000) : null
