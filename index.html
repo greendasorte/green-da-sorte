@@ -25,21 +25,21 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
 
 .game-error{padding:18px;text-align:center;color:#ffb4b4}
 .game-loading{padding:20px;text-align:center;color:#9eada7}
-.game-link{color:inherit;text-decoration:none}
+.game-link{color:inherit;text-decoration:none}.extra-section{margin-top:16px;scroll-margin-top:90px}#inicio,#jogos,#palpites,#estatisticas,#campeonatos,#resultados{scroll-margin-top:90px}.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:15px}.stat-box{background:#0a1814;border:1px solid #17382c;border-radius:10px;padding:14px}.stat-box span{display:block;color:#9eada7;font-size:12px}.stat-box strong{display:block;color:var(--green);font-size:24px;margin-top:7px}.section-note{color:#8b9b94;font-size:12px;padding:0 15px 14px;margin:0}.championship-links{display:flex;gap:8px;flex-wrap:wrap;padding:15px}.empty-state{padding:18px;color:#9eada7;font-size:13px}.pick-item,.result-item{padding:12px 14px;border-bottom:1px solid #12372a;font-size:13px}.pick-item strong{color:var(--green)}.pick-item small{display:block;color:#8b9b94;margin-top:5px}.result-item{display:flex;justify-content:space-between;gap:10px}.search{font:inherit;outline:none}.search:focus{border-color:var(--green)}.analysis-dialog{background:#07120f;color:#f2f7f4;border:1px solid #16e06f;border-radius:14px;width:min(520px,calc(100% - 28px));padding:24px}.analysis-dialog::backdrop{background:#000b}.dialog-close{float:right;background:transparent;color:#fff;border:1px solid #315342;border-radius:8px;font-size:22px;width:34px;height:34px;cursor:pointer}.analysis-dialog h3{color:var(--green)}.analysis-dialog p{color:#b3c0bb;line-height:1.5}.footerwa{display:inline-block;text-decoration:none}@media(max-width:760px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.extra-section{margin-top:12px}.search{width:150px;padding:8px;font-size:11px}}
 </style>
 </head>
 <body>
 <header id="inicio">
   <div class="logo"><div class="clover">🍀</div><div class="brand">GREEN<br><span>DA SORTE</span></div></div>
-  <nav><a class="active" href="#inicio">Início</a><a href="#jogos">Jogos do Dia</a><a href="#palpites">Palpites</a><a href="#jogos">Estatísticas</a><a href="#leagueTabs">Campeonatos</a><a href="#jogos">Resultados</a></nav>
-  <div class="search">🔎 &nbsp; Buscar time, campeonato ou jogo...</div>
+  <nav><a class="active" href="#inicio">Início</a><a href="#jogos">Jogos do Dia</a><a href="#palpites">Palpites</a><a href="#estatisticas">Estatísticas</a><a href="#campeonatos">Campeonatos</a><a href="#resultados">Resultados</a></nav>
+  <input class="search" id="gameSearch" type="search" placeholder="🔎 Buscar time, campeonato ou jogo..." aria-label="Buscar jogos">
 </header>
 
 <main>
 <aside class="sidebar">
   <div class="menu-title">MENU</div>
   <div class="menu">
-    <a class="active" href="#inicio">⌂ &nbsp; Início</a><a href="#jogos">▣ &nbsp; Jogos do Dia</a><a href="#palpites">◎ &nbsp; Palpites</a><a href="#jogos">▥ &nbsp; Estatísticas</a><a href="#leagueTabs">🏆 &nbsp; Campeonatos</a><a href="#jogos">▣ &nbsp; Resultados</a>
+    <a class="active" href="#inicio">⌂ &nbsp; Início</a><a href="#jogos">▣ &nbsp; Jogos do Dia</a><a href="#palpites">◎ &nbsp; Palpites</a><a href="#estatisticas">▥ &nbsp; Estatísticas</a><a href="#campeonatos">🏆 &nbsp; Campeonatos</a><a href="#resultados">▣ &nbsp; Resultados</a>
   </div>
   <div class="comp"><div class="menu-title">CAMPEONATOS</div><div class="menu">
     <a href="#leagueTabs" data-filter="Brasileirão">🇧🇷 Brasileirão</a><a href="#leagueTabs" data-filter="Libertadores">🏆 Libertadores</a><a href="#leagueTabs" data-filter="Champions League">⚽ Champions League</a><a href="#leagueTabs" data-filter="Premier League">🏴 Premier League</a><a href="#leagueTabs" data-filter="La Liga">🇪🇸 La Liga</a><a href="#leagueTabs" data-filter="Serie A">🇮🇹 Serie A</a><a href="#leagueTabs" data-filter="Bundesliga">🇩🇪 Bundesliga</a>
@@ -59,18 +59,18 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
     <div id="gameStatus" style="padding:8px 14px;font-size:11px;color:#8b9b94">Carregando jogos...</div><div class="tabs" id="leagueTabs"><div class="tab active" data-league="Todos">Todos</div><div class="tab" data-league="Brasileirão">🇧🇷 Brasileirão</div><div class="tab" data-league="Libertadores">🏆 Libertadores</div><div class="tab" data-league="Champions League">⚽ Champions League</div><div class="tab" data-league="Premier League">🏴 Premier League</div><div class="tab" data-league="La Liga">🇪🇸 La Liga</div><div class="tab" data-league="Serie A">🇮🇹 Serie A</div><div class="tab" data-league="Bundesliga">🇩🇪 Bundesliga</div><button id="refreshGames" class="tab" style="margin-left:auto;color:#16e06f">↻ Atualizar jogos</button></div>
     <div id="gamesList"><div class="game-loading">⏳ Aguardando os jogos reais da API...</div></div>
   </div>
+  <section class="card extra-section" id="estatisticas"><div class="section-head"><h2>📊 ESTATÍSTICAS</h2></div><div class="stats-grid"><div class="stat-box"><span>Jogos encontrados</span><strong id="statMatches">—</strong></div><div class="stat-box"><span>Jogos analisados</span><strong id="statAnalyzed">—</strong></div><div class="stat-box"><span>Média Ambas Marcam</span><strong id="statBtts">—</strong></div><div class="stat-box"><span>Média Over 2.5</span><strong id="statOver">—</strong></div></div><p class="section-note" id="statsNote">As médias serão calculadas com dados disponíveis.</p></section>
+  <section class="card extra-section" id="campeonatos"><div class="section-head"><h2>🏆 CAMPEONATOS</h2></div><div class="championship-links" id="championshipLinks"><button class="tab" data-filter="Todos">Todos</button><button class="tab" data-filter="Brasileirão">Brasileirão</button><button class="tab" data-filter="Libertadores">Libertadores</button><button class="tab" data-filter="Champions League">Champions League</button><button class="tab" data-filter="Premier League">Premier League</button><button class="tab" data-filter="La Liga">La Liga</button><button class="tab" data-filter="Serie A">Serie A</button><button class="tab" data-filter="Bundesliga">Bundesliga</button></div><p class="section-note">São exibidas as competições que a API retornar no seu plano.</p></section>
+  <section class="card extra-section" id="resultados"><div class="section-head"><h2>🏁 RESULTADOS DE HOJE</h2></div><div id="resultsList" class="empty-state">Aguardando dados da API.</div></section>
 </section>
 
 <aside class="right">
-  <div class="card side-card" id="palpites"><div class="side-title">🎯 PALPITES DO DIA <span style="float:right;color:#16e06f;font-size:11px">Ver todos →</span></div>
-    <div class="tip"><b style="color:#16e06f">🍀 PALPITE PRINCIPAL</b><h3>Flamengo para vencer</h3><span class="confidence">Confiança: 78%</span><p style="font-size:12px;color:#9eada7">Análise baseada em desempenho recente, mando de campo e indicadores estatísticos.</p></div>
-    <div style="padding:12px 4px;font-size:13px">Real Madrid x Barcelona <span style="float:right;color:#16e06f">72%</span></div>
-    <div style="padding:12px 4px;font-size:13px">Manchester City x Arsenal <span style="float:right;color:#16e06f">68%</span></div>
-  </div>
+  <div class="card side-card" id="palpites"><div class="side-title">🎯 PALPITES DO DIA</div><div id="picksList" class="empty-state">Aguardando dados estatísticos reais.</div><p class="section-note">Estimativas não são garantias. Aposte com responsabilidade.</p></div>
 </aside>
 </main>
-<footer><div>🍀 <b style="color:#16e06f">GREEN DA SORTE</b></div><div>⚽ JOGOS &nbsp; | &nbsp; 📊 ESTATÍSTICAS &nbsp; | &nbsp; 🎯 PALPITES</div><div class="footerwa">◉ Fale Conosco no WhatsApp</div></footer>
+<footer><div>🍀 <b style="color:#16e06f">GREEN DA SORTE</b></div><div>⚽ JOGOS &nbsp; | &nbsp; 📊 ESTATÍSTICAS &nbsp; | &nbsp; 🎯 PALPITES</div><a class="footerwa" href="https://wa.me/5531971132006?text=Ol%C3%A1%2C%20vim%20pelo%20Green%20da%20Sorte!" target="_blank" rel="noopener noreferrer">◉ Fale Conosco no WhatsApp</a></footer>
 
+<dialog id="analysisDialog" class="analysis-dialog"><button type="button" class="dialog-close" id="closeAnalysis">×</button><div id="analysisContent"></div></dialog>
 <script>
 (() => {
   const gamesList = document.getElementById('gamesList');
@@ -78,6 +78,9 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
   const dateEl = document.getElementById('todayDate');
   const refresh = document.getElementById('refreshGames');
   const tabs = document.getElementById('leagueTabs');
+  const searchInput=document.getElementById("gameSearch"), resultsList=document.getElementById("resultsList"), picksList=document.getElementById("picksList");
+  const analysisDialog=document.getElementById("analysisDialog"), analysisContent=document.getElementById("analysisContent");
+  const analyzedStats=new Map(); let activeLeague="todos";
 
 
   function localDateISO() {
@@ -169,6 +172,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
     if (!events.length) {
       gamesList.innerHTML = '<div class="game-error">Nenhum jogo encontrado para hoje.</div>';
       status.textContent = "Nenhum jogo encontrado.";
+      updateSummary([]); resultsList.textContent="Nenhuma partida finalizada retornada hoje."; picksList.textContent="Nenhum palpite disponível sem dados suficientes.";
       return;
     }
 
@@ -206,18 +210,40 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
         return;
       }
       prob.innerHTML = `<div class="p home"><b>${p.home}%</b>Casa</div><div class="p draw"><b>${p.draw}%</b>Empate</div><div class="p away"><b>${p.away}%</b>Fora</div>`;
+      analyzedStats.set(event.id || (home+"-"+away),{event,home,away,probabilities:p});
       markets.innerHTML = `<span style="color:#16e06f;font-weight:800">AMBAS MARCAM: ${p.btts}%</span> &nbsp;·&nbsp; <span style="color:#16e06f;font-weight:800">OVER 2.5: ${p.over25}%</span> &nbsp;·&nbsp; Gols estimados: ${p.homeXg} x ${p.awayXg} <span style="display:block;color:#74877f;margin-top:4px">Modelo estatístico baseado nos últimos ${Math.min(5, Math.min((await getTeamStats(event.homeTeam?.id))?.matches || 0, (await getTeamStats(event.awayTeam?.id))?.matches || 0))} jogos disponíveis de cada equipe; não é garantia.</span>`;
     }));
+    updateSummary(rows.map(x=>({probabilities:analyzedStats.get(x.event.id || (x.home+"-"+x.away))?.probabilities||null})));
+    renderResults(events); renderPicks(); applyFilters();
     status.textContent = `${rows.length} jogos • probabilidades calculadas com resultados recentes • ${sourceLabel}`;
   }
 
   function attachAnalysis() {
-    document.querySelectorAll(".analyze").forEach(btn => {
-      btn.onclick = () => {
-        const home = btn.dataset.home, away = btn.dataset.away;
-        alert(`Análise de ${home} x ${away}\\n\\nAs probabilidades exibidas são estimativas estatísticas calculadas com resultados recentes disponíveis. Não são garantias de resultado.`);
-      };
+    document.querySelectorAll(".analyze").forEach(btn=>btn.onclick=()=>{
+      const home=btn.dataset.home,away=btn.dataset.away;
+      const item=Array.from(analyzedStats.values()).find(x=>x.home===home&&x.away===away),p=item?.probabilities;
+      analysisContent.innerHTML=`<h3>${escapeHtml(home)} x ${escapeHtml(away)}</h3><p>Estimativas baseadas nos últimos resultados disponíveis.</p><p>Casa: <b>${p?p.home+"%":"—"}</b> · Empate: <b>${p?p.draw+"%":"—"}</b> · Fora: <b>${p?p.away+"%":"—"}</b></p><p>Ambas marcam: <b>${p?p.btts+"%":"—"}</b> · Over 2.5: <b>${p?p.over25+"%":"—"}</b></p><p>Estimativas não garantem resultados.</p>`;
+      if(analysisDialog.showModal)analysisDialog.showModal();else alert(home+" x "+away);
     });
+  }
+  function updateSummary(items){
+    const valid=items.filter(x=>x.probabilities); document.getElementById("statMatches").textContent=items.length;
+    document.getElementById("statAnalyzed").textContent=valid.length;
+    const avg=k=>valid.length?Math.round(valid.reduce((s,x)=>s+x.probabilities[k],0)/valid.length)+"%":"—";
+    document.getElementById("statBtts").textContent=avg("btts");document.getElementById("statOver").textContent=avg("over25");
+    document.getElementById("statsNote").textContent=valid.length?"Médias das estimativas calculadas para partidas com histórico recente disponível.":"Histórico insuficiente para calcular médias.";
+  }
+  function renderResults(events){
+    const done=events.filter(e=>e.status==="FINISHED");
+    resultsList.innerHTML=done.length?done.map(e=>`<div class="result-item"><span>${escapeHtml(e.homeTeam?.name||"Mandante")} x ${escapeHtml(e.awayTeam?.name||"Visitante")}</span><strong>${e.score?.fullTime?.home??"—"} : ${e.score?.fullTime?.away??"—"}</strong></div>`).join(""):'<div class="empty-state">Nenhuma partida finalizada retornada pela API hoje.</div>';
+  }
+  function renderPicks(){
+    const picks=Array.from(analyzedStats.values()).filter(x=>x.probabilities).map(x=>({...x,market:x.probabilities.btts>=x.probabilities.over25?"Ambas marcam":"Mais de 2.5 gols",value:Math.max(x.probabilities.btts,x.probabilities.over25)})).sort((a,b)=>b.value-a.value).slice(0,5);
+    picksList.innerHTML=picks.length?picks.map(x=>`<div class="pick-item"><strong>${escapeHtml(x.home)} x ${escapeHtml(x.away)}</strong><div>${x.market}: <b>${x.value}%</b></div><small>Estimativa estatística, não garantia.</small></div>`).join(""):'<div class="empty-state">Sem dados recentes suficientes para gerar sugestões.</div>';
+  }
+  function applyFilters(){
+    const q=(searchInput?.value||"").trim().toLocaleLowerCase("pt-BR");
+    document.querySelectorAll("#gamesList .match").forEach(row=>{const league=activeLeague==="todos"||row.dataset.league.includes(activeLeague);const match=!q||row.textContent.toLocaleLowerCase("pt-BR").includes(q);row.style.display=league&&match?"":"none";});
   }
 
   async function loadGames() {
@@ -235,10 +261,12 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
         tournament: { name: e.competition?.name || "Futebol" },
         startTimestamp: e.utcDate ? Math.floor(new Date(e.utcDate).getTime() / 1000) : null
       }));
+      analyzedStats.clear();
       renderGames(events, "Football-Data.org");
     } catch (err) {
       gamesList.innerHTML = '<div class="game-error">Não foi possível carregar os jogos reais agora. Tente novamente em instantes.</div>';
       status.textContent = "Falha ao consultar a API: " + (err?.message || "erro desconhecido");
+      updateSummary([]); resultsList.textContent="Resultados indisponíveis: falha na API."; picksList.textContent="Palpites indisponíveis até receber dados reais.";
     }
   }
 
@@ -246,10 +274,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
     tab.addEventListener("click", () => {
       tabs.querySelectorAll(".tab[data-league]").forEach(t => t.classList.remove("active"));
       tab.classList.add("active");
-      const filter = tab.dataset.league.toLowerCase();
-      document.querySelectorAll("#gamesList .match").forEach(row => {
-        row.style.display = filter === "todos" || row.dataset.league.includes(filter) ? "" : "none";
-      });
+      activeLeague=tab.dataset.league.toLocaleLowerCase("pt-BR"); applyFilters();
     });
   });
 
@@ -262,6 +287,10 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
     });
   });
 
+  document.querySelectorAll("#championshipLinks [data-filter]").forEach(button=>button.addEventListener("click",()=>{const filter=button.dataset.filter.toLocaleLowerCase("pt-BR");const tab=Array.from(tabs.querySelectorAll(".tab[data-league]")).find(x=>x.dataset.league.toLocaleLowerCase("pt-BR")===filter);if(tab)tab.click();document.getElementById("jogos").scrollIntoView({behavior:"smooth"});}));
+  searchInput?.addEventListener("input",applyFilters);
+  document.getElementById("closeAnalysis").addEventListener("click",()=>analysisDialog.close());
+  analysisDialog.addEventListener("click",e=>{if(e.target===analysisDialog)analysisDialog.close();});
   refresh.addEventListener("click", loadGames);
   loadGames();
   // Atualiza automaticamente a lista a cada 5 minutos.
