@@ -182,10 +182,14 @@ app.get("/api/football-data/matches-range", (req, res) => {
 
 app.get("/api/football-data/matches", (req, res) => {
   const date = String(req.query.date || "");
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || Number.isNaN(Date.parse(date + "T00:00:00Z"))) {
     return res.status(400).json({ error: "Informe date no formato YYYY-MM-DD." });
   }
-  return footballData("/matches?dateFrom=" + encodeURIComponent(date) + "&dateTo=" + encodeURIComponent(date), res);
+  // Inclui o dia UTC seguinte: partidas da noite no Brasil podem ter kickoff após 00:00 UTC.
+  const next = new Date(date + "T00:00:00Z");
+  next.setUTCDate(next.getUTCDate() + 1);
+  const nextDate = next.toISOString().slice(0, 10);
+  return footballData("/matches?dateFrom=" + encodeURIComponent(date) + "&dateTo=" + encodeURIComponent(nextDate), res);
 });
 
 app.get("/api/football-data/teams/:teamId/matches", (req, res) => {
