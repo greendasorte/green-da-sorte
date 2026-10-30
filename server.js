@@ -79,7 +79,19 @@ async function apiFutebol(path, res) {
 
 
 
-// Football-Data.org proxy: matches scheduled for a date.
+// Cache em memória para reduzir chamadas repetidas e proteger o limite do provedor.
+const footballCache = new Map();
+const footballInFlight = new Map();
+const FOOTBALL_CACHE_TTL = 5 * 60 * 1000;
+const FOOTBALL_STALE_TTL = 60 * 60 * 1000;
+
+function footballCacheTtl(path) {
+  return path.includes("/standings") || path === "/competitions"
+    ? 15 * 60 * 1000
+    : FOOTBALL_CACHE_TTL;
+}
+
+// Football-Data.org proxy com cache, deduplicação e fallback em caso de limite 429.
 async function footballData(path, res) {
   if (!FOOTBALL_DATA_TOKEN) {
     return res.status(503).json({
@@ -87,28 +99,59 @@ async function footballData(path, res) {
       provider: "Football-Data.org"
     });
   }
+
+  const now = Date.now();
+  const cached = footballCache.get(path);
+  const ttl = footballCacheTtl(path);
+  if (cached && now - cached.savedAt < ttl) {
+    res.set("X-Data-Cache", "HIT");
+    return res.json(cached.data);
+  }
+
   try {
-    const response = await fetch(FOOTBALL_DATA_BASE + path, {
-      headers: { "X-Auth-Token": FOOTBALL_DATA_TOKEN, Accept: "application/json" },
-      signal: AbortSignal.timeout(15000)
-    });
-    const bodyText = await response.text();
-    let data;
-    try { data = bodyText ? JSON.parse(bodyText) : {}; }
-    catch { data = { message: bodyText }; }
+    let request = footballInFlight.get(path);
+    if (!request) {
+      request = (async () => {
+        const response = await fetch(FOOTBALL_DATA_BASE + path, {
+          headers: { "X-Auth-Token": FOOTBALL_DATA_TOKEN, Accept: "application/json" },
+          signal: AbortSignal.timeout(15000)
+        });
+        const bodyText = await response.text();
+        let data;
+        try { data = bodyText ? JSON.parse(bodyText) : {}; }
+        catch { data = { message: bodyText }; }
+        return { response, data };
+      })();
+      footballInFlight.set(path, request);
+    }
+
+    const { response, data } = await request;
     if (!response.ok) {
+      if (cached && now - cached.savedAt < FOOTBALL_STALE_TTL) {
+        res.set("X-Data-Cache", "STALE");
+        return res.json(cached.data);
+      }
       return res.status(response.status).json({
         error: "Football-Data.org retornou um erro.",
         providerStatus: response.status,
         details: data
       });
     }
+
+    footballCache.set(path, { data, savedAt: Date.now() });
+    res.set("X-Data-Cache", "MISS");
     return res.json(data);
   } catch (error) {
+    if (cached && now - cached.savedAt < FOOTBALL_STALE_TTL) {
+      res.set("X-Data-Cache", "STALE");
+      return res.json(cached.data);
+    }
     return res.status(502).json({
       error: "Não foi possível consultar Football-Data.org.",
       details: error.name === "TimeoutError" ? "Tempo limite excedido." : error.message
     });
+  } finally {
+    footballInFlight.delete(path);
   }
 }
 
