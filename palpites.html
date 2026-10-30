@@ -114,6 +114,101 @@ body[data-page="resultados"] .sidebar .menu a[href="resultados.html"]{background
  body[data-page="palpites"] main>.right{margin-top:0}
 }
 
+
+/* =========================================================
+   GREENDASORTE 2 — identidade visual premium
+   Mantém a paleta verde/preto e não altera integrações ou dados.
+   ========================================================= */
+:root{
+  --bg:#050907;--panel:#09130f;--panel2:#0c1b14;--green:#19e879;
+  --green2:#0b9f56;--text:#f4faf6;--muted:#9aaca2;--line:#1b3d2d;
+  --gold:#c9a85a;--surface:#0a1711;
+}
+html{background:var(--bg)}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;letter-spacing:.005em;background:radial-gradient(ellipse at 50% -20%,#103b25 0%,#07100b 42%,#040806 78%);color:var(--text)}
+header{height:84px;padding:0 clamp(18px,3vw,42px);gap:clamp(18px,2.5vw,38px);background:rgba(3,9,6,.94);border-bottom:1px solid rgba(38,91,62,.55);box-shadow:0 10px 36px #0005;backdrop-filter:blur(16px)}
+.logo{min-width:220px}.clover{font-size:46px;filter:drop-shadow(0 0 12px #19e87955)}
+.brand{font-size:24px;letter-spacing:-.8px;line-height:.94}
+header nav{gap:clamp(12px,1.8vw,27px)}
+header nav a{font-size:13px;font-weight:650;color:#c0d0c7;padding:13px 3px 11px;transition:color .2s,border-color .2s}
+header nav a:hover{color:var(--green)}
+.search{height:44px;border-radius:12px;background:#0b1811;border:1px solid #244634;color:var(--text);padding:0 15px;box-shadow:inset 0 1px 0 #ffffff08}
+.search:focus{outline:2px solid #19e87944;border-color:var(--green)}
+main{max-width:1720px;margin:0 auto;padding:26px clamp(14px,2vw,30px);gap:20px;grid-template-columns:238px minmax(0,1fr)!important}
+.sidebar{padding:18px 14px;background:linear-gradient(165deg,#0b1710,#060d09);border:1px solid #1c3a2b;border-radius:16px;box-shadow:0 18px 48px #0003;position:sticky;top:104px}
+.menu-title{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#63e99c;margin:8px 12px 14px}
+.menu a{display:flex;align-items:center;min-height:44px;padding:11px 13px;margin:3px 0;border-radius:10px;font-size:13px;font-weight:600;color:#c5d2ca;transition:background .2s,color .2s,transform .2s}
+.menu a:hover{background:#10271a;color:#fff;transform:translateX(2px)}
+.menu a.active{background:linear-gradient(100deg,#0d4227,#0a2a1a);color:#62f0a0;box-shadow:inset 3px 0 0 var(--green),0 6px 18px #0003}
+.comp{border-color:#1a3828;margin-top:18px}
+main>section{min-width:0}
+.hero{min-height:142px;height:auto;padding:28px 32px;border:1px solid #23613d;border-radius:16px;background:radial-gradient(ellipse at 88% 20%,#12613a99,transparent 38%),linear-gradient(115deg,#08150e,#0a2417 58%,#07130d);box-shadow:0 18px 44px #0003;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;width:230px;height:230px;border:1px solid #42e58a20;border-radius:50%;right:5%;top:-130px;box-shadow:0 0 0 24px #42e58a08,0 0 0 48px #42e58a06}
+.hero .big{font-size:clamp(25px,3vw,34px);letter-spacing:-1.1px}
+.hero p{font-size:14px;color:#c0d2c7;line-height:1.6}
+.whatsapp{padding:14px 18px;border:1px solid #1f9a58;border-radius:14px;background:linear-gradient(100deg,#081b11,#0b2818);box-shadow:0 10px 28px #0002}
+.wa-title{font-size:15px;letter-spacing:.03em}.wa-sub{font-size:12px;color:#b1c2b8}
+.wa-btn{border-radius:10px;background:linear-gradient(135deg,#16b967,#0b914c);padding:12px 17px;box-shadow:0 7px 18px #0b9f5638;font-size:12px}
+.card,.sidebar{border-color:#1b3b2b;border-radius:15px;background:linear-gradient(160deg,rgba(10,24,16,.98),rgba(5,13,9,.98));box-shadow:0 16px 42px #0003}
+.section-head{padding:17px 20px;border-bottom:1px solid #1a3828;min-height:62px}
+.section-head h2{font-size:16px;font-weight:800;letter-spacing:.025em}
+.date,.section-note{color:#9aada2}
+.tabs{padding:12px 16px;gap:8px}
+.tab{border-radius:9px;border:1px solid #244432;background:#0b1b12;color:#c0d0c6;font-weight:650;transition:all .18s}
+.tab:hover{border-color:#29985a;color:#fff}
+.tab.active{background:linear-gradient(135deg,#0fa75a,#087b42);border-color:#27dc7b;color:#fff;box-shadow:0 5px 15px #0b9f5630}
+.match{padding:17px 15px;border-bottom:1px solid #152c20;transition:background .18s}
+.match:hover{background:#0c1e14}
+.time{font-size:13px;color:#e5f1e9}.league{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#63e99c}
+.teams{font-size:14px;line-height:1.45}
+.p{border:1px solid #1d3d2a;border-radius:9px;background:#0b1c12;padding:8px 7px;color:#b9cabe}
+.p b{color:#f5fff8;font-size:14px}
+.p.home{background:#0c3821;border-color:#1b7541}.p.draw{background:#14251b}.p.away{background:#10281e;border-color:#205039}
+.analyze{border-radius:9px;border-color:#2a6743;color:#a9f0c6;padding:9px 12px;font-weight:700}
+.analyze:hover{background:#103a23}
+.side-card{padding:18px}
+.side-title{font-size:15px;letter-spacing:.04em}
+.stat-box{background:linear-gradient(145deg,#0d2015,#09150e);border:1px solid #20432f;border-radius:12px;box-shadow:inset 0 1px 0 #ffffff08}
+.stat-box span{font-size:11px;letter-spacing:.025em;color:#a7b9ae}
+.stat-box strong{font-size:26px;letter-spacing:-.5px}
+.stats-table-wrap{padding:0 16px 18px}
+.stats-table{font-size:12px}
+.stats-table th{background:#0d2115;color:#6ceca1}
+.stats-table tr:hover td{background:#0d1e14}
+.stats-table td,.stats-table th{padding:12px 10px}
+.pick-item,.result-item{padding:14px 16px;border-bottom-color:#183324;line-height:1.5}
+.pick-item strong{font-size:13px}
+.live{background:#0a1a10;border-color:#1c4930;border-radius:11px}
+.tip{background:#0c1d12;border-radius:10px}
+#upcomingList{border-top:1px solid #142d1e}
+footer{max-width:1720px;margin:0 auto;border-color:#1b3828;color:#8fa397;padding:22px clamp(16px,3vw,42px)}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--green);outline-offset:3px}
+@media(max-width:1100px){
+ header{height:76px}
+ main{grid-template-columns:190px minmax(0,1fr)!important;padding:18px 14px;gap:14px}
+ .sidebar{padding:14px 10px}
+}
+@media(max-width:760px){
+ body{background:linear-gradient(180deg,#07110b,#040806 45%)}
+ header{min-height:70px;padding:9px 12px;gap:9px}
+ .brand{font-size:17px}.clover{font-size:34px}
+ main{padding:12px 10px 20px;gap:12px}
+ .hero{padding:20px;border-radius:13px;min-height:118px}
+ .hero .big{font-size:24px}
+ .whatsapp{padding:12px;gap:8px;border-radius:12px}
+ .wa-title{font-size:13px}.wa-sub{font-size:10px;line-height:1.4}
+ .wa-btn{font-size:10px;padding:10px 11px}
+ .card{border-radius:13px}
+ .section-head{padding:14px;min-height:56px}
+ .match{padding:13px 9px;gap:7px}
+ .match .teams{font-size:12px}
+ .stats-grid{padding:10px;gap:8px}
+ .stat-box{padding:11px;border-radius:10px}
+ .stat-box strong{font-size:22px}
+ .right{margin-top:12px}
+ footer{padding:16px 12px}
+}
+
 </style>
 </head>
 <body data-page="palpites">
