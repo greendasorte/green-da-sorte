@@ -343,8 +343,9 @@ body[data-page="resultados"] header nav a[href="resultados.html"]{color:#16e06f;
       analyzedStats.clear();
       renderGames(events, "Football-Data.org");
     } catch (err) {
-      gamesList.innerHTML = '<div class="game-error">Não foi possível carregar os jogos reais agora. Tente novamente em instantes.</div>';
-      status.textContent = "Falha ao consultar a API: " + (err?.message || "erro desconhecido");
+      const limited=String(err?.message||"").includes("429");
+      gamesList.innerHTML = '<div class="game-error">'+(limited?'A API está temporariamente limitando as consultas. Aguarde alguns minutos antes de tentar novamente.':'Não foi possível carregar os jogos reais agora. Tente novamente em instantes.')+'</div>';
+      status.textContent = limited ? "Limite temporário da API (HTTP 429)." : "Falha ao consultar a API: " + (err?.message || "erro desconhecido");
       updateSummary([]); resultsList.textContent="Resultados indisponíveis: falha na API."; picksList.textContent="Palpites indisponíveis até receber dados reais.";
     }
   }
@@ -416,10 +417,10 @@ body[data-page="resultados"] header nav a[href="resultados.html"]{color:#16e06f;
         return '<div class="result-item"><span><small style="display:block;color:#16e06f;margin-bottom:4px">'+escapeHtml(dateLabel)+' • '+escapeHtml(timeLabel)+' • '+escapeHtml(league)+'</small><b>'+escapeHtml(home)+' x '+escapeHtml(away)+'</b></span><strong>'+(match.status==='FINISHED'?'Encerrado':match.status==='IN_PLAY'?'AO VIVO':'Agendado')+'</strong></div>';
       }).join('');
       note.textContent=matches.length+' próximos jogos agendados • dados da Football-Data.org';
-    }catch(error){list.innerHTML='<div class="empty-state">Não foi possível consultar os próximos jogos agora. Tente novamente mais tarde.</div>';note.textContent='Falha na consulta ('+escapeHtml(error.message)+').';}
+    }catch(error){const limited=String(error.message).includes("429");list.innerHTML='<div class="empty-state">'+(limited?'Limite temporário da API atingido. Aguarde alguns minutos e atualize a página.':'Não foi possível consultar os próximos jogos agora. Tente novamente mais tarde.')+'</div>';note.textContent=limited?'Limite temporário de consultas (HTTP 429).':'Falha na consulta ('+escapeHtml(error.message)+').';}
   }
-  loadUpcomingGames();
-  setInterval(loadUpcomingGames,10*60*1000);
+  const currentPage=document.body.dataset.page||"inicio";
+  if(currentPage==="proximos") loadUpcomingGames();
 
   // Estatísticas da competição: classificação, pontos, gols e aproveitamento via API.
   const statsCompetition=document.getElementById('statsCompetition');
@@ -451,11 +452,9 @@ body[data-page="resultados"] header nav a[href="resultados.html"]{color:#16e06f;
     }
   }
   statsCompetition?.addEventListener('change',loadCompetitionStats);
-  loadCompetitionStats();
+  if(currentPage==="estatisticas") loadCompetitionStats();
 
-  loadGames();
-  // Atualiza automaticamente a lista a cada 5 minutos.
-  setInterval(loadGames, 5 * 60 * 1000);
+  if(["inicio","jogos","palpites","campeonatos","resultados"].includes(currentPage)) loadGames();
 })();
 </script>
 
