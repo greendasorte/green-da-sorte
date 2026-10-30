@@ -121,7 +121,7 @@ app.get("/api/football-data/competitions", (_req, res) => {
 app.get("/api/football-data/matches-range", (req, res) => {
   const from = String(req.query.from || "");
   const to = String(req.query.to || "");
-  const validDate = value => /^\\d{4}-\\d{2}-\\d{2}$/.test(value) && !Number.isNaN(Date.parse(value + "T00:00:00Z"));
+  const validDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(value + "T00:00:00Z"));
   if (!validDate(from) || !validDate(to) || from > to) {
     return res.status(400).json({ error: "Informe from e to no formato YYYY-MM-DD, com from menor ou igual a to." });
   }
