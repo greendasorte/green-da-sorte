@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Green da Sorte</title>
+<style>
+:root{--bg:#030806;--panel:#07120f;--panel2:#0a1814;--green:#16e06f;--green2:#0aa653;--text:#f2f7f4;--muted:#8b9b94;--line:#12372a}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+header{height:78px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 28px;gap:30px;position:sticky;top:0;background:#030806f5;z-index:10}
+.logo{display:flex;align-items:center;gap:12px;min-width:245px}.clover{font-size:52px;line-height:1;filter:drop-shadow(0 0 8px #16e06f55)}.brand{font-weight:900;font-size:25px;line-height:.9;letter-spacing:-1px}.brand span{color:var(--green)}
+nav{display:flex;gap:25px;flex:1}nav a{color:#cbd5d0;text-decoration:none;font-size:14px}nav a.active,nav a:hover{color:var(--green)}
+.search{width:300px;background:#0b1815;border:1px solid #17382c;border-radius:13px;padding:12px 15px;color:#93a49d}
+main{display:grid;grid-template-columns:245px 1fr 315px;gap:16px;padding:20px 22px}
+.sidebar,.card{background:linear-gradient(180deg,#07120f,#050d0b);border:1px solid var(--line);border-radius:12px}
+.sidebar{padding:16px}.menu-title{font-size:11px;color:var(--green);font-weight:800;margin:4px 10px 14px}.menu a{display:block;padding:13px 12px;border-radius:9px;color:#d6dfdb;text-decoration:none;margin-bottom:4px}.menu a.active,.menu a:hover{background:#07351f;color:var(--green)}.comp{border-top:1px solid var(--line);margin-top:14px;padding-top:16px}.comp a{font-size:14px}
+.hero{height:124px;border:1px solid #174b36;border-radius:12px;background:radial-gradient(circle at 75% 30%,#0d5b35,transparent 32%),linear-gradient(110deg,#07130f,#061b13 55%,#08281a);display:flex;align-items:center;padding:22px 30px;margin-bottom:15px}.hero .big{font-size:30px;font-weight:900}.hero .big span{color:var(--green)}.hero p{margin:7px 0 0;color:#b3c0bb}
+.whatsapp{border:2px solid var(--green);border-radius:12px;background:linear-gradient(90deg,#06150f,#0a2418);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}.wa-title{font-size:18px;font-weight:900;color:var(--green)}.wa-sub{font-size:12px;color:#aab8b2;margin-top:3px}.wa-btn{background:#11a954;color:#fff;text-decoration:none;padding:11px 18px;border-radius:9px;font-weight:800}
+.section-head{display:flex;align-items:center;justify-content:space-between;padding:15px 17px;border-bottom:1px solid var(--line)}.section-head h2{margin:0;font-size:19px}.date{font-size:12px;color:#9eada7}.tabs{display:flex;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);overflow:auto}.tab{background:#0a1714;border:1px solid #16372c;color:#aab8b2;padding:9px 16px;border-radius:8px;white-space:nowrap;font-size:12px}.tab.active{background:#08a653;color:#fff;border-color:#16e06f}
+.match{display:grid;grid-template-columns:105px 1fr 290px 105px;align-items:center;gap:12px;padding:13px 12px;border-bottom:1px solid #10271f}.match:last-child{border-bottom:0}.time{font-weight:800}.league{font-size:10px;color:var(--green);margin-top:4px}.teams{text-align:center;font-weight:700}.prob{display:flex;gap:5px}.p{padding:7px 6px;border-radius:7px;background:#0b2019;text-align:center;min-width:82px;font-size:11px}.p b{display:block;font-size:14px;color:#fff}.p.home{background:#07472b}.p.draw{background:#17282a}.p.away{background:#0b2638}.analyze{background:transparent;color:#d4ded9;border:1px solid #244238;border-radius:8px;padding:8px;font-size:11px}
+.side-card{padding:15px;margin-bottom:15px}.side-title{font-weight:900;font-size:16px;margin-bottom:14px}.live{border:1px solid #17412f;border-radius:9px;padding:12px;margin-bottom:10px}.live-head{display:flex;justify-content:space-between;font-weight:800}.live-head .red{color:#ff4040}.bar{height:5px;background:#20332d;border-radius:5px;margin:6px 0 10px}.bar i{display:block;height:100%;background:var(--green);border-radius:5px}.tip{border-left:3px solid var(--green);padding:11px;background:#081610;border-radius:8px}.confidence{display:inline-block;color:#04100a;background:var(--green);font-weight:900;padding:5px 8px;border-radius:15px;font-size:11px;margin:7px 0}
+footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-content:space-between;color:#84958e;font-size:12px}.footerwa{color:var(--green);font-weight:800}
+@media(max-width:1100px){main{grid-template-columns:200px 1fr}.right{display:block;grid-column:1/-1}nav{display:flex;position:fixed;left:0;right:0;bottom:0;background:#030806f5;border-top:1px solid var(--line);padding:10px 14px;gap:18px;overflow-x:auto;z-index:30;white-space:nowrap}.search{margin-left:auto}body{padding-bottom:54px}}
+@media(max-width:760px){header{padding:0 14px}.logo{min-width:0}.brand{font-size:19px}.clover{font-size:40px}.search{display:block;max-width:145px;padding:8px;font-size:11px}main{display:block;padding:10px}.sidebar{display:none}.right{display:block}.hero{height:auto}.match{grid-template-columns:72px 1fr}.prob{grid-column:2;justify-content:center}.analyze{display:block;grid-column:2;justify-self:center}footer{display:block}nav a{font-size:12px}}
+
+.game-error{padding:18px;text-align:center;color:#ffb4b4}
+.game-loading{padding:20px;text-align:center;color:#9eada7}
+.game-link{color:inherit;text-decoration:none}.extra-section{margin-top:16px;scroll-margin-top:90px}#inicio,#jogos,#palpites,#estatisticas,#campeonatos,#resultados{scroll-margin-top:90px}.stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;padding:15px}.stat-box{background:#0a1814;border:1px solid #17382c;border-radius:10px;padding:14px}.stat-box span{display:block;color:#9eada7;font-size:12px}.stat-box strong{display:block;color:var(--green);font-size:24px;margin-top:7px}.section-note{color:#8b9b94;font-size:12px;padding:0 15px 14px;margin:0}.championship-links{display:flex;gap:8px;flex-wrap:wrap;padding:15px}.empty-state{padding:18px;color:#9eada7;font-size:13px}.pick-item,.result-item{padding:12px 14px;border-bottom:1px solid #12372a;font-size:13px}.pick-item strong{color:var(--green)}.pick-item small{display:block;color:#8b9b94;margin-top:5px}.result-item{display:flex;justify-content:space-between;gap:10px}.search{font:inherit;outline:none}.search:focus{border-color:var(--green)}.analysis-dialog{background:#07120f;color:#f2f7f4;border:1px solid #16e06f;border-radius:14px;width:min(520px,calc(100% - 28px));padding:24px}.analysis-dialog::backdrop{background:#000b}.dialog-close{float:right;background:transparent;color:#fff;border:1px solid #315342;border-radius:8px;font-size:22px;width:34px;height:34px;cursor:pointer}.analysis-dialog h3{color:var(--green)}.analysis-dialog p{color:#b3c0bb;line-height:1.5}.footerwa{display:inline-block;text-decoration:none}@media(max-width:760px){.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.extra-section{margin-top:12px}.search{width:150px;padding:8px;font-size:11px}}
+
+/* Refinamento profissional e navegação responsiva */
+:root{scroll-behavior:smooth;scroll-padding-top:96px}
+button,a,input{ -webkit-tap-highlight-color:transparent }
+nav a,.menu a{transition:background .2s ease,color .2s ease,transform .2s ease}
+nav a{padding:10px 4px;border-bottom:2px solid transparent}
+nav a.active{border-bottom-color:var(--green);font-weight:800}
+.menu a.active{background:#07351f;color:var(--green);font-weight:800}
+.card{box-shadow:0 12px 32px #0002;overflow:hidden}
+.section-head{gap:12px;flex-wrap:wrap}
+.tab,.analyze,.wa-btn{cursor:pointer;transition:transform .18s ease,filter .18s ease}
+.tab:hover,.analyze:hover,.wa-btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+#upcomingList{max-height:390px;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:0 12px 10px;scrollbar-width:thin;scrollbar-color:#16e06f #07130f}
+#upcomingList::-webkit-scrollbar{width:8px}
+#upcomingList::-webkit-scrollbar-track{background:#07130f;border-radius:8px}
+#upcomingList::-webkit-scrollbar-thumb{background:#167a45;border-radius:8px}
+#proximos .section-head{position:relative}
+@media(max-width:760px){#upcomingList{max-height:320px;padding-left:10px;padding-right:10px}}
+#upcomingList .result-item{align-items:center}
+#upcomingList .result-item span{min-width:0}
+#upcomingList .result-item strong{white-space:nowrap;color:var(--green)}
+@media(max-width:1100px){header{padding-bottom:0}header nav{justify-content:flex-start;align-items:center;min-height:58px;box-shadow:0 -8px 28px #0005}header nav a{padding:9px 3px 7px}.search{max-width:240px}}
+@media(max-width:760px){body{padding-bottom:76px}header{height:auto;min-height:68px;gap:10px;padding:10px 12px}.logo{flex:0 0 auto}.brand{font-size:17px}.clover{font-size:34px}.search{width:min(44vw,190px);max-width:none;margin-left:auto}header nav{height:64px;min-height:64px;bottom:0;padding:7px 10px calc(7px + env(safe-area-inset-bottom));gap:16px;justify-content:flex-start}header nav a{font-size:11px;flex:0 0 auto;padding:8px 2px}.hero{padding:18px;min-height:112px}.hero .big{font-size:24px}.whatsapp{gap:10px;align-items:center}.wa-title{font-size:14px}.wa-btn{padding:10px 12px;font-size:11px;white-space:nowrap}.section-head{padding:13px}.section-head h2{font-size:16px}.match{padding:13px 10px;gap:8px}.match .teams{font-size:13px}.match .prob{gap:4px}.match .p{min-width:0;flex:1;padding:7px 3px;font-size:10px}.match .p b{font-size:13px}.analyze{font-size:11px;padding:9px 12px;min-height:36px}.stats-grid{gap:8px;padding:10px}.stat-box{padding:11px}.stat-box strong{font-size:21px}.right{margin-top:12px}.extra-section{margin-top:12px}footer{padding:16px;line-height:1.8} }
+@media(max-width:380px){.brand{font-size:15px}.search{width:39vw}.wa-sub{font-size:10px}.wa-btn{padding:9px;font-size:10px}.match .teams{font-size:12px}}
+
+/* Correções após validação visual em desktop */
+html,body{max-width:100%;overflow-x:hidden}
+main{grid-template-columns:245px minmax(0,1fr) 315px;min-width:0}
+main>section,main>.sidebar,main>.right{min-width:0}
+header{gap:22px;min-width:0}
+header nav{min-width:0;gap:clamp(10px,1.6vw,24px);white-space:nowrap;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+header nav::-webkit-scrollbar{display:none}
+header nav a{flex:0 0 auto;white-space:nowrap}
+.search{flex:0 1 300px;min-width:170px}
+#leagueTabs{max-width:100%;min-width:0;overscroll-behavior-x:contain}
+#leagueTabs .tab{flex:0 0 auto}
+@media(max-width:1100px){main{grid-template-columns:200px minmax(0,1fr)}header nav{gap:16px}}
+@media(max-width:760px){main{display:block;width:100%;max-width:100%;padding:10px}main>section{width:100%;min-width:0}header{width:100%;min-width:0;flex-wrap:nowrap}header nav{max-width:100vw}.search{min-width:0;flex:0 1 42vw}.tabs{max-width:100%}}
+
+#statsCompetition{max-width:230px;background:#0a1814;color:#eaf4ee;border:1px solid #1b4936}
+.stats-table-wrap{width:100%;overflow-x:auto;padding:0 12px 14px}
+.stats-table{width:100%;border-collapse:collapse;min-width:520px;font-size:12px}
+.stats-table th,.stats-table td{padding:10px 8px;border-bottom:1px solid #12372a;text-align:center;white-space:nowrap}
+.stats-table th{color:#16e06f;font-weight:800;background:#081610}
+.stats-table td:first-child,.stats-table th:first-child{text-align:left}
+.stats-table td:first-child{font-weight:700}
+.stats-loading,.stats-empty{padding:16px;color:#9eada7;font-size:13px}
+@media(max-width:600px){#statsCompetition{max-width:160px;font-size:11px}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Navegação por páginas independentes */
+main{grid-template-columns:245px minmax(0,1fr)!important;align-items:start}
+main>.right{display:none}
+main>section>*{display:none}
+body[data-page="inicio"] main>section>.hero,
+body[data-page="inicio"] main>section>.whatsapp,
+body[data-page="inicio"] main>section>#jogos{display:block}
+body[data-page="jogos"] main>section>#jogos,
+body[data-page="proximos"] main>section>#proximos,
+body[data-page="estatisticas"] main>section>#estatisticas,
+body[data-page="campeonatos"] main>section>#campeonatos,
+body[data-page="resultados"] main>section>#resultados{display:block}
+body[data-page="palpites"] main>section{display:none}
+body[data-page="palpites"] main>.right{display:block;grid-column:2;min-width:0}
+body[data-page="palpites"] main>.right .side-card{display:block}
+body[data-page="inicio"] header nav a[href="index.html"],
+body[data-page="jogos"] header nav a[href="jogos.html"],
+body[data-page="proximos"] header nav a[href="proximos.html"],
+body[data-page="palpites"] header nav a[href="palpites.html"],
+body[data-page="estatisticas"] header nav a[href="estatisticas.html"],
+body[data-page="campeonatos"] header nav a[href="campeonatos.html"],
+body[data-page="resultados"] header nav a[href="resultados.html"]{color:#16e06f;border-bottom:2px solid #16e06f}
+@media(max-width:760px){
+ main{display:block!important}
+ main>.sidebar{margin-bottom:12px}
+ body[data-page="palpites"] main>.right{margin-top:0}
+}
+
+</style>
+</head>
+<body data-page="jogos">
+<header id="inicio">
+  <div class="logo"><div class="clover">🍀</div><div class="brand">GREEN<br><span>DA SORTE</span></div></div>
+  <nav><a class="active" href="index.html">Início</a><a href="jogos.html">Jogos do Dia</a><a href="proximos.html">Próximos Jogos</a><a href="palpites.html">Palpites</a><a href="estatisticas.html">Estatísticas</a><a href="campeonatos.html">Campeonatos</a><a href="resultados.html">Resultados</a></nav>
+  <input class="search" id="gameSearch" type="search" placeholder="🔎 Buscar time, campeonato ou jogo..." aria-label="Buscar jogos">
+</header>
+
+<main>
+<aside class="sidebar">
+  <div class="menu-title">MENU</div>
+  <div class="menu">
+    <a class="active" href="index.html">⌂ &nbsp; Início</a><a href="jogos.html">▣ &nbsp; Jogos do Dia</a><a href="proximos.html">📅 &nbsp; Próximos Jogos</a><a href="palpites.html">◎ &nbsp; Palpites</a><a href="estatisticas.html">▥ &nbsp; Estatísticas</a><a href="campeonatos.html">🏆 &nbsp; Campeonatos</a><a href="resultados.html">▣ &nbsp; Resultados</a>
+  </div>
+  <div class="comp"><div class="menu-title">CAMPEONATOS</div><div class="menu">
+    <a href="#leagueTabs" data-filter="Brasileirão">🇧🇷 Brasileirão</a><a href="#leagueTabs" data-filter="Libertadores">🏆 Libertadores</a><a href="#leagueTabs" data-filter="Champions League">⚽ Champions League</a><a href="#leagueTabs" data-filter="Premier League">🏴 Premier League</a><a href="#leagueTabs" data-filter="La Liga">🇪🇸 La Liga</a><a href="#leagueTabs" data-filter="Serie A">🇮🇹 Serie A</a><a href="#leagueTabs" data-filter="Bundesliga">🇩🇪 Bundesliga</a>
+  </div></div>
+</aside>
+
+<section>
+  <div class="hero"><div><div class="big">🍀 GREEN <span>DA SORTE</span></div><p>Análises, estatísticas e palpites para você fazer melhores escolhas.</p></div></div>
+  <div class="whatsapp">
+    <div><div class="wa-title">◉ &nbsp; ME CHAME NO WHATSAPP</div><div class="wa-sub">Tire suas dúvidas, receba palpites e mais informações!</div></div>
+    <!-- TROQUE 5500000000000 PELO SEU NÚMERO COM DDI E DDD -->
+    <a class="wa-btn" href="https://wa.me/5531971132006?text=Ol%C3%A1%2C%20vim%20pelo%20Green%20da%20Sorte!" target="_blank">◉ &nbsp; Falar no WhatsApp &nbsp;›</a>
+  </div>
+
+  <div class="card" id="jogos">
+    <div class="section-head"><h2>⚽ JOGOS DO DIA</h2><div class="date" id="todayDate">📅 Carregando data...</div></div>
+    <div id="gameStatus" style="padding:8px 14px;font-size:11px;color:#8b9b94">Carregando jogos...</div><div class="tabs" id="leagueTabs"><div class="tab active" data-league="Todos">Todos</div><div class="tab" data-league="Brasileirão">🇧🇷 Brasileirão</div><div class="tab" data-league="Libertadores">🏆 Libertadores</div><div class="tab" data-league="Champions League">⚽ Champions League</div><div class="tab" data-league="Premier League">🏴 Premier League</div><div class="tab" data-league="La Liga">🇪🇸 La Liga</div><div class="tab" data-league="Serie A">🇮🇹 Serie A</div><div class="tab" data-league="Bundesliga">🇩🇪 Bundesliga</div><button id="refreshGames" class="tab" style="margin-left:auto;color:#16e06f">↻ Atualizar jogos</button></div>
+    <div id="gamesList"><div class="game-loading">⏳ Aguardando os jogos reais da API...</div></div>
+  </div>
+  <section class="card extra-section" id="proximos"><div class="section-head"><h2>📅 PRÓXIMOS JOGOS</h2><span class="date" id="upcomingRange">Próximos 7 dias</span></div><div id="upcomingStatus" class="section-note">Buscando próximos confrontos...</div><div id="upcomingList" class="empty-state">Aguardando dados da API.</div></section>
+  <section class="card extra-section" id="estatisticas"><div class="section-head"><h2>📊 ESTATÍSTICAS</h2><select id="statsCompetition" class="tab" aria-label="Selecionar campeonato"><option value="2013">Brasileirão Série A</option><option value="2021">Premier League</option><option value="2001">Champions League</option><option value="2014">La Liga</option><option value="2002">Bundesliga</option><option value="2019">Serie A</option><option value="2015">Ligue 1</option><option value="2017">Primeira Liga</option></select></div><div class="stats-grid"><div class="stat-box"><span>Jogos encontrados</span><strong id="statMatches">—</strong></div><div class="stat-box"><span>Clubes na tabela</span><strong id="statAnalyzed">—</strong></div><div class="stat-box"><span>Gols marcados</span><strong id="statBtts">—</strong></div><div class="stat-box"><span>Gols sofridos</span><strong id="statOver">—</strong></div></div><p class="section-note" id="statsNote">Carregando estatísticas da competição selecionada.</p><div id="competitionStats"><div class="empty-state">Carregando classificação e números do campeonato...</div></div></section>
+  <section class="card extra-section" id="campeonatos"><div class="section-head"><h2>🏆 CAMPEONATOS</h2></div><div class="championship-links" id="championshipLinks"><button class="tab" data-filter="Todos">Todos</button><button class="tab" data-filter="Brasileirão">Brasileirão</button><button class="tab" data-filter="Libertadores">Libertadores</button><button class="tab" data-filter="Champions League">Champions League</button><button class="tab" data-filter="Premier League">Premier League</button><button class="tab" data-filter="La Liga">La Liga</button><button class="tab" data-filter="Serie A">Serie A</button><button class="tab" data-filter="Bundesliga">Bundesliga</button></div><p class="section-note">São exibidas as competições que a API retornar no seu plano.</p></section>
+  <section class="card extra-section" id="resultados"><div class="section-head"><h2>🏁 RESULTADOS DE HOJE</h2></div><div id="resultsList" class="empty-state">Aguardando dados da API.</div></section>
+</section>
+
+<aside class="right">
+  <div class="card side-card" id="palpites"><div class="side-title">🎯 PALPITES DO DIA</div><div id="picksList" class="empty-state">Aguardando dados estatísticos reais.</div><p class="section-note">Estimativas não são garantias. Aposte com responsabilidade.</p></div>
+</aside>
+</main>
+<footer><div>🍀 <b style="color:#16e06f">GREEN DA SORTE</b></div><div>⚽ JOGOS &nbsp; | &nbsp; 📊 ESTATÍSTICAS &nbsp; | &nbsp; 🎯 PALPITES</div><a class="footerwa" href="https://wa.me/5531971132006?text=Ol%C3%A1%2C%20vim%20pelo%20Green%20da%20Sorte!" target="_blank" rel="noopener noreferrer">◉ Fale Conosco no WhatsApp</a></footer>
+
+<dialog id="analysisDialog" class="analysis-dialog"><button type="button" class="dialog-close" id="closeAnalysis">×</button><div id="analysisContent"></div></dialog>
+<script>
+(() => {
+  const gamesList = document.getElementById('gamesList');
+  const status = document.getElementById('gameStatus');
+  const dateEl = document.getElementById('todayDate');
+  const refresh = document.getElementById('refreshGames');
+  const tabs = document.getElementById('leagueTabs');
+  const searchInput=document.getElementById("gameSearch"), resultsList=document.getElementById("resultsList"), picksList=document.getElementById("picksList");
+  const analysisDialog=document.getElementById("analysisDialog"), analysisContent=document.getElementById("analysisContent");
+  const analyzedStats=new Map(); let activeLeague="todos";
+
+
+  function localDateISO() {
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  }
+
+  function formatDate() {
+    const d = new Date();
+    dateEl.textContent = "📅 " + d.toLocaleDateString("pt-BR", {
+      day:"2-digit", month:"long", year:"numeric"
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+    }[c]));
+  }
+
+  const teamStatsCache = new Map();
+
+  async function getTeamStats(teamId) {
+    if (!teamId) return null;
+    if (teamStatsCache.has(teamId)) return teamStatsCache.get(teamId);
+    const promise = (async () => {
+      try {
+        const response = await fetch(`https://green-da-sorte.onrender.com/api/football-data/teams/${teamId}/matches`, {cache:"no-store"});
+        if (!response.ok) return null;
+        const data = await response.json();
+        const finished = (data.matches || []).filter(e =>
+          e.status === "FINISHED" &&
+          Number.isFinite(e.score?.fullTime?.home) &&
+          Number.isFinite(e.score?.fullTime?.away) &&
+          (e.homeTeam?.id === Number(teamId) || e.awayTeam?.id === Number(teamId))
+        ).slice(0, 5);
+        if (!finished.length) return null;
+        let scored = 0, conceded = 0, count = 0;
+        finished.forEach(e => {
+          const isHome = e.homeTeam?.id === Number(teamId);
+          scored += isHome ? e.score.fullTime.home : e.score.fullTime.away;
+          conceded += isHome ? e.score.fullTime.away : e.score.fullTime.home;
+          count++;
+        });
+        return {scored: scored / count, conceded: conceded / count, matches: count};
+      } catch (_) { return null; }
+    })();
+    teamStatsCache.set(teamId, promise);
+    return promise;
+  }
+
+  function poisson(lambda, goals) {
+    let p = Math.exp(-lambda);
+    for (let i = 1; i <= goals; i++) p *= lambda / i;
+    return p;
+  }
+
+  function modelProbabilities(homeStats, awayStats) {
+    if (!homeStats || !awayStats) return null;
+    // Estimativa simples usando os últimos jogos concluídos disponíveis para cada equipe.
+    const homeXg = Math.min(4.2, Math.max(0.2, (homeStats.scored + awayStats.conceded) / 2 * 1.08));
+    const awayXg = Math.min(4.2, Math.max(0.2, (awayStats.scored + homeStats.conceded) / 2 * 0.92));
+    let homeWin = 0, draw = 0, awayWin = 0, btts = 0, over25 = 0, total = 0;
+    for (let h = 0; h <= 8; h++) {
+      for (let a = 0; a <= 8; a++) {
+        const p = poisson(homeXg, h) * poisson(awayXg, a);
+        total += p;
+        if (h > a) homeWin += p;
+        else if (h === a) draw += p;
+        else awayWin += p;
+        if (h > 0 && a > 0) btts += p;
+        if (h + a >= 3) over25 += p;
+      }
+    }
+    const pct = n => Math.round(n / total * 100);
+    return {home:pct(homeWin), draw:pct(draw), away:pct(awayWin), btts:pct(btts), over25:pct(over25), homeXg:homeXg.toFixed(1), awayXg:awayXg.toFixed(1)};
+  }
+
+  async function estimateProbabilities(event) {
+    const homeId = event?.homeTeam?.id;
+    const awayId = event?.awayTeam?.id;
+    if (!homeId || !awayId) return null;
+    const [homeStats, awayStats] = await Promise.all([getTeamStats(homeId), getTeamStats(awayId)]);
+    return modelProbabilities(homeStats, awayStats);
+  }
+
+  async function renderGames(events, sourceLabel) {
+    gamesList.innerHTML = "";
+    if (!events.length) {
+      gamesList.innerHTML = '<div class="game-error">Nenhum jogo encontrado para hoje.</div>';
+      status.textContent = "Nenhum jogo encontrado.";
+      updateSummary([]); resultsList.textContent="Nenhuma partida finalizada retornada hoje."; picksList.textContent="Nenhum palpite disponível sem dados suficientes.";
+      return;
+    }
+
+    const selected = events.slice(0, 20);
+    const rows = [];
+    for (const e of selected) {
+      const home = e.homeTeam?.name || e[2] || "Casa";
+      const away = e.awayTeam?.name || e[3] || "Fora";
+      const league = e.tournament?.name || e[1] || "Futebol";
+      const time = e.startTimestamp
+        ? new Date(e.startTimestamp * 1000).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})
+        : e[0] || "--:--";
+      const row = document.createElement("div");
+      row.className = "match";
+      row.dataset.league = league.toLowerCase();
+      row.innerHTML = `
+        <div><div class="time">${escapeHtml(time)}</div><div class="league">${escapeHtml(league)}</div></div>
+        <div class="teams">${escapeHtml(home)} &nbsp; ⚔ &nbsp; ${escapeHtml(away)}</div>
+        <div class="prob"><div class="p home"><b>—</b>Casa</div><div class="p draw"><b>—</b>Empate</div><div class="p away"><b>—</b>Fora</div></div>
+        <button class="analyze" data-home="${escapeHtml(home)}" data-away="${escapeHtml(away)}">Ver análise ›</button>
+        <div class="match-markets" style="grid-column:2 / 4;font-size:11px;color:#aab8b2;padding-top:2px">⏳ Calculando com os últimos jogos...</div>`;
+      gamesList.appendChild(row);
+      rows.push({event:e,row,home,away});
+    }
+    status.textContent = `Calculando probabilidades para ${rows.length} jogos • ${sourceLabel}`;
+    attachAnalysis();
+
+    await Promise.all(rows.map(async ({event,row,home,away}) => {
+      const p = await estimateProbabilities(event);
+      const prob = row.querySelector(".prob");
+      const markets = row.querySelector(".match-markets");
+      if (!p) {
+        prob.innerHTML = '<div class="p"><b>—</b>Casa</div><div class="p"><b>—</b>Empate</div><div class="p"><b>—</b>Fora</div>';
+        markets.textContent = "Probabilidades indisponíveis: a API não retornou resultados recentes suficientes para este jogo.";
+        return;
+      }
+      prob.innerHTML = `<div class="p home"><b>${p.home}%</b>Casa</div><div class="p draw"><b>${p.draw}%</b>Empate</div><div class="p away"><b>${p.away}%</b>Fora</div>`;
+      analyzedStats.set(event.id || (home+"-"+away),{event,home,away,probabilities:p});
+      markets.innerHTML = `<span style="color:#16e06f;font-weight:800">AMBAS MARCAM: ${p.btts}%</span> &nbsp;·&nbsp; <span style="color:#16e06f;font-weight:800">OVER 2.5: ${p.over25}%</span> &nbsp;·&nbsp; Gols estimados: ${p.homeXg} x ${p.awayXg} <span style="display:block;color:#74877f;margin-top:4px">Modelo estatístico baseado nos últimos ${Math.min(5, Math.min((await getTeamStats(event.homeTeam?.id))?.matches || 0, (await getTeamStats(event.awayTeam?.id))?.matches || 0))} jogos disponíveis de cada equipe; não é garantia.</span>`;
+    }));
+    updateSummary(rows.map(x=>({probabilities:analyzedStats.get(x.event.id || (x.home+"-"+x.away))?.probabilities||null})));
+    renderResults(events); renderPicks(); applyFilters();
+    status.textContent = `${rows.length} jogos • probabilidades calculadas com resultados recentes • ${sourceLabel}`;
+  }
+
+  function attachAnalysis() {
+    document.querySelectorAll(".analyze").forEach(btn=>btn.onclick=()=>{
+      const home=btn.dataset.home,away=btn.dataset.away;
+      const item=Array.from(analyzedStats.values()).find(x=>x.home===home&&x.away===away),p=item?.probabilities;
+      analysisContent.innerHTML=`<h3>${escapeHtml(home)} x ${escapeHtml(away)}</h3><p>Estimativas baseadas nos últimos resultados disponíveis.</p><p>Casa: <b>${p?p.home+"%":"—"}</b> · Empate: <b>${p?p.draw+"%":"—"}</b> · Fora: <b>${p?p.away+"%":"—"}</b></p><p>Ambas marcam: <b>${p?p.btts+"%":"—"}</b> · Over 2.5: <b>${p?p.over25+"%":"—"}</b></p><p>Estimativas não garantem resultados.</p>`;
+      if(analysisDialog.showModal)analysisDialog.showModal();else alert(home+" x "+away);
+    });
+  }
+  function updateSummary(items){
+    const valid=items.filter(x=>x.probabilities); document.getElementById("statMatches").textContent=items.length;
+    document.getElementById("statAnalyzed").textContent=valid.length;
+    const avg=k=>valid.length?Math.round(valid.reduce((s,x)=>s+x.probabilities[k],0)/valid.length)+"%":"—";
+    document.getElementById("statBtts").textContent=avg("btts");document.getElementById("statOver").textContent=avg("over25");
+    document.getElementById("statsNote").textContent=valid.length?"Médias das estimativas calculadas para partidas com histórico recente disponível.":"Histórico insuficiente para calcular médias.";
+  }
+  function renderResults(events){
+    const done=events.filter(e=>e.status==="FINISHED");
+    resultsList.innerHTML=done.length?done.map(e=>`<div class="result-item"><span>${escapeHtml(e.homeTeam?.name||"Mandante")} x ${escapeHtml(e.awayTeam?.name||"Visitante")}</span><strong>${e.score?.fullTime?.home??"—"} : ${e.score?.fullTime?.away??"—"}</strong></div>`).join(""):'<div class="empty-state">Nenhuma partida finalizada retornada pela API hoje.</div>';
+  }
+  function renderPicks(){
+    const picks=Array.from(analyzedStats.values()).filter(x=>x.probabilities).map(x=>({...x,market:x.probabilities.btts>=x.probabilities.over25?"Ambas marcam":"Mais de 2.5 gols",value:Math.max(x.probabilities.btts,x.probabilities.over25)})).sort((a,b)=>b.value-a.value).slice(0,5);
+    picksList.innerHTML=picks.length?picks.map(x=>`<div class="pick-item"><strong>${escapeHtml(x.home)} x ${escapeHtml(x.away)}</strong><div>${x.market}: <b>${x.value}%</b></div><small>Estimativa estatística, não garantia.</small></div>`).join(""):'<div class="empty-state">Sem dados recentes suficientes para gerar sugestões.</div>';
+  }
+  function applyFilters(){
+    const q=(searchInput?.value||"").trim().toLocaleLowerCase("pt-BR");
+    document.querySelectorAll("#gamesList .match").forEach(row=>{const league=activeLeague==="todos"||row.dataset.league.includes(activeLeague);const match=!q||row.textContent.toLocaleLowerCase("pt-BR").includes(q);row.style.display=league&&match?"":"none";});
+  }
+
+  async function loadGames() {
+    formatDate();
+    gamesList.innerHTML = '<div class="game-loading">⏳ Buscando os jogos reais de hoje...</div>';
+    status.textContent = "Atualizando jogos...";
+    try {
+      const date = localDateISO();
+      const url = `https://green-da-sorte.onrender.com/api/football-data/matches?date=${date}`;
+      const response = await fetch(url, {cache:"no-store"});
+      if (!response.ok) throw new Error("Football-Data.org indisponível (HTTP " + response.status + ")");
+      const data = await response.json();
+      const events = (data.matches || []).filter(e => e.status !== "CANCELLED").map(e => ({
+        ...e,
+        tournament: { name: e.competition?.name || "Futebol" },
+        startTimestamp: e.utcDate ? Math.floor(new Date(e.utcDate).getTime() / 1000) : null
+      }));
+      analyzedStats.clear();
+      renderGames(events, "Football-Data.org");
+    } catch (err) {
+      gamesList.innerHTML = '<div class="game-error">Não foi possível carregar os jogos reais agora. Tente novamente em instantes.</div>';
+      status.textContent = "Falha ao consultar a API: " + (err?.message || "erro desconhecido");
+      updateSummary([]); resultsList.textContent="Resultados indisponíveis: falha na API."; picksList.textContent="Palpites indisponíveis até receber dados reais.";
+    }
+  }
+
+  tabs.querySelectorAll(".tab[data-league]").forEach(tab => {
+    tab.addEventListener("click", () => {
+      tabs.querySelectorAll(".tab[data-league]").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      activeLeague=tab.dataset.league.toLocaleLowerCase("pt-BR"); applyFilters();
+    });
+  });
+
+  document.querySelectorAll(".comp a[data-filter]").forEach(link => {
+    link.addEventListener("click", () => {
+      const filter = link.dataset.filter.toLowerCase();
+      const tab = Array.from(tabs.querySelectorAll(".tab[data-league]"))
+        .find(item => item.dataset.league.toLowerCase() === filter);
+      if (tab) tab.click();
+    });
+  });
+
+  document.querySelectorAll("#championshipLinks [data-filter]").forEach(button=>button.addEventListener("click",()=>{const filter=button.dataset.filter.toLocaleLowerCase("pt-BR");const tab=Array.from(tabs.querySelectorAll(".tab[data-league]")).find(x=>x.dataset.league.toLocaleLowerCase("pt-BR")===filter);if(tab)tab.click();document.getElementById("jogos").scrollIntoView({behavior:"smooth"});}));
+  searchInput?.addEventListener("input",applyFilters);
+  document.getElementById("closeAnalysis").addEventListener("click",()=>analysisDialog.close());
+  analysisDialog.addEventListener("click",e=>{if(e.target===analysisDialog)analysisDialog.close();});
+  refresh.addEventListener("click", loadGames);
+
+  // Navegação: destaca a área visível e mantém os links sincronizados em desktop/mobile.
+  const navLinks = Array.from(document.querySelectorAll('header nav a, .sidebar .menu a[href^="#"]'));
+  const observedSections = ['inicio','jogos','proximos','palpites','estatisticas','campeonatos','resultados'].map(id=>document.getElementById(id)).filter(Boolean);
+  if ('IntersectionObserver' in window) {
+    const sectionObserver = new IntersectionObserver(entries=>{
+      const visible = entries.filter(entry=>entry.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+      if (!visible) return;
+      navLinks.forEach(link=>link.classList.toggle('active',link.getAttribute('href')==='#'+visible.target.id));
+    },{rootMargin:'-18% 0px -65% 0px',threshold:[0,.15,.35]});
+    observedSections.forEach(section=>sectionObserver.observe(section));
+  }
+  // Fecha o menu de navegação por rolagem natural e garante salto suave para todas as áreas.
+  navLinks.forEach(link=>link.addEventListener('click',event=>{
+    const target=document.querySelector(link.getAttribute('href'));
+    if(target){event.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'});history.replaceState(null,'',link.getAttribute('href'));}
+  }));
+
+  // Próximos jogos: consulta a janela de sete dias sem misturar com a lista de hoje.
+  async function loadUpcomingGames(){
+    const list=document.getElementById('upcomingList');
+    const note=document.getElementById('upcomingStatus');
+    if(!list||!note)return;
+    const from=localDateISO();
+    const end=new Date(from+'T12:00:00'); end.setDate(end.getDate()+7);
+    const to=end.getFullYear()+'-'+String(end.getMonth()+1).padStart(2,'0')+'-'+String(end.getDate()).padStart(2,'0');
+    document.getElementById('upcomingRange').textContent='Até '+new Date(to+'T12:00:00').toLocaleDateString('pt-BR');
+    try{
+      const response=await fetch('https://green-da-sorte.onrender.com/api/football-data/matches-range?from='+from+'&to='+to,{cache:'no-store'});
+      if(!response.ok)throw new Error('HTTP '+response.status);
+      const data=await response.json();
+      const now=Date.now();
+      const matches=(data.matches||[]).filter(match=>{
+        const kickoff=match.utcDate?new Date(match.utcDate).getTime():NaN;
+        return ['SCHEDULED','TIMED'].includes(match.status) && Number.isFinite(kickoff) && kickoff>now;
+      }).sort((a,b)=>new Date(a.utcDate)-new Date(b.utcDate));
+      if(!matches.length){list.innerHTML='<div class="empty-state">Não há partidas futuras agendadas nesse período nas competições liberadas pela sua chave.</div>';note.textContent='Consulta concluída • '+from+' a '+to;return;}
+      list.innerHTML=matches.map(match=>{
+        const date=match.utcDate?new Date(match.utcDate):null;
+        const dateLabel=date?date.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'Data a confirmar';
+        const timeLabel=date?date.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'}):'--:--';
+        const home=match.homeTeam?.name||'Mandante',away=match.awayTeam?.name||'Visitante',league=match.competition?.name||'Futebol';
+        return '<div class="result-item"><span><small style="display:block;color:#16e06f;margin-bottom:4px">'+escapeHtml(dateLabel)+' • '+escapeHtml(timeLabel)+' • '+escapeHtml(league)+'</small><b>'+escapeHtml(home)+' x '+escapeHtml(away)+'</b></span><strong>'+(match.status==='FINISHED'?'Encerrado':match.status==='IN_PLAY'?'AO VIVO':'Agendado')+'</strong></div>';
+      }).join('');
+      note.textContent=matches.length+' próximos jogos agendados • dados da Football-Data.org';
+    }catch(error){list.innerHTML='<div class="empty-state">Não foi possível consultar os próximos jogos agora. Tente novamente mais tarde.</div>';note.textContent='Falha na consulta ('+escapeHtml(error.message)+').';}
+  }
+  loadUpcomingGames();
+  setInterval(loadUpcomingGames,10*60*1000);
+
+  // Estatísticas da competição: classificação, pontos, gols e aproveitamento via API.
+  const statsCompetition=document.getElementById('statsCompetition');
+  const competitionStats=document.getElementById('competitionStats');
+  async function loadCompetitionStats(){
+    if(!statsCompetition||!competitionStats)return;
+    const id=statsCompetition.value;
+    const label=statsCompetition.options[statsCompetition.selectedIndex]?.text||'Campeonato';
+    competitionStats.innerHTML='<div class="stats-loading">Consultando classificação de '+escapeHtml(label)+'...</div>';
+    try{
+      const response=await fetch('https://green-da-sorte.onrender.com/api/football-data/competitions/'+id+'/standings',{cache:'no-store'});
+      if(!response.ok)throw new Error('HTTP '+response.status);
+      const data=await response.json();
+      const standings=(data.standings||[]).find(item=>item.type==='TOTAL')||(data.standings||[])[0];
+      const table=standings?.table||[];
+      if(!table.length){competitionStats.innerHTML='<div class="stats-empty">A API não disponibilizou a classificação para esta competição no seu plano.</div>';return;}
+      const played=table.reduce((sum,row)=>sum+(Number(row.playedGames)||0),0);
+      const goals=table.reduce((sum,row)=>sum+(Number(row.goalsFor)||0),0);
+      const conceded=table.reduce((sum,row)=>sum+(Number(row.goalsAgainst)||0),0);
+      const points=table.reduce((sum,row)=>sum+(Number(row.points)||0),0);
+      document.getElementById('statMatches').textContent=Math.round(played/2);
+      document.getElementById('statAnalyzed').textContent=table.length;
+      document.getElementById('statBtts').textContent=goals;
+      document.getElementById('statOver').textContent=conceded;
+      document.getElementById('statsNote').textContent='Dados oficiais da classificação • '+label+' • temporada atual. Os indicadores mostram totais acumulados da classificação.';
+      competitionStats.innerHTML='<div class="stats-table-wrap"><table class="stats-table"><thead><tr><th># / Clube</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th><th>Pts</th></tr></thead><tbody>'+table.map(row=>'<tr><td>'+(row.position||'—')+'. '+escapeHtml(row.team?.name||'Equipe')+'</td><td>'+Number(row.playedGames||0)+'</td><td>'+Number(row.won||0)+'</td><td>'+Number(row.draw||0)+'</td><td>'+Number(row.lost||0)+'</td><td>'+Number(row.goalsFor||0)+'</td><td>'+Number(row.goalsAgainst||0)+'</td><td>'+Number(row.goalDifference||0)+'</td><td><b style="color:#16e06f">'+Number(row.points||0)+'</b></td></tr>').join('')+'</tbody></table></div>';
+    }catch(error){
+      competitionStats.innerHTML='<div class="stats-empty">Não foi possível carregar a classificação agora ('+escapeHtml(error.message)+'). Verifique se a competição está liberada na sua chave.</div>';
+    }
+  }
+  statsCompetition?.addEventListener('change',loadCompetitionStats);
+  loadCompetitionStats();
+
+  loadGames();
+  // Atualiza automaticamente a lista a cada 5 minutos.
+  setInterval(loadGames, 5 * 60 * 1000);
+})();
+</script>
+
+</body>
+</html>
