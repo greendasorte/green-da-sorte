@@ -112,6 +112,13 @@ async function footballData(path, res) {
   }
 }
 
+// Consulta classificação e estatísticas agregadas de uma competição.
+app.get("/api/football-data/competitions/:competitionId/standings", (req, res) => {
+  const { competitionId } = req.params;
+  if (!/^\\d+$/.test(competitionId)) return res.status(400).json({ error: "ID de competição inválido." });
+  return footballData("/competitions/" + competitionId + "/standings", res);
+});
+
 // Lista as competições que a chave atual pode consultar.
 app.get("/api/football-data/competitions", (_req, res) => {
   return footballData("/competitions", res);
