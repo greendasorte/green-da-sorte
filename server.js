@@ -112,6 +112,24 @@ async function footballData(path, res) {
   }
 }
 
+// Lista as competições que a chave atual pode consultar.
+app.get("/api/football-data/competitions", (_req, res) => {
+  return footballData("/competitions", res);
+});
+
+// Consulta partidas em um intervalo curto para descobrir os próximos jogos disponíveis.
+app.get("/api/football-data/matches-range", (req, res) => {
+  const from = String(req.query.from || "");
+  const to = String(req.query.to || "");
+  const validDate = value => /^\\d{4}-\\d{2}-\\d{2}$/.test(value) && !Number.isNaN(Date.parse(value + "T00:00:00Z"));
+  if (!validDate(from) || !validDate(to) || from > to) {
+    return res.status(400).json({ error: "Informe from e to no formato YYYY-MM-DD, com from menor ou igual a to." });
+  }
+  const days = (Date.parse(to + "T00:00:00Z") - Date.parse(from + "T00:00:00Z")) / 86400000;
+  if (days > 14) return res.status(400).json({ error: "O intervalo máximo permitido é de 15 dias." });
+  return footballData("/matches?dateFrom=" + encodeURIComponent(from) + "&dateTo=" + encodeURIComponent(to), res);
+});
+
 app.get("/api/football-data/matches", (req, res) => {
   const date = String(req.query.date || "");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
