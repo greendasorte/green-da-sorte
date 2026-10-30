@@ -20,8 +20,8 @@ main{display:grid;grid-template-columns:245px 1fr 315px;gap:16px;padding:20px 22
 .match{display:grid;grid-template-columns:105px 1fr 290px 105px;align-items:center;gap:12px;padding:13px 12px;border-bottom:1px solid #10271f}.match:last-child{border-bottom:0}.time{font-weight:800}.league{font-size:10px;color:var(--green);margin-top:4px}.teams{text-align:center;font-weight:700}.prob{display:flex;gap:5px}.p{padding:7px 6px;border-radius:7px;background:#0b2019;text-align:center;min-width:82px;font-size:11px}.p b{display:block;font-size:14px;color:#fff}.p.home{background:#07472b}.p.draw{background:#17282a}.p.away{background:#0b2638}.analyze{background:transparent;color:#d4ded9;border:1px solid #244238;border-radius:8px;padding:8px;font-size:11px}
 .side-card{padding:15px;margin-bottom:15px}.side-title{font-weight:900;font-size:16px;margin-bottom:14px}.live{border:1px solid #17412f;border-radius:9px;padding:12px;margin-bottom:10px}.live-head{display:flex;justify-content:space-between;font-weight:800}.live-head .red{color:#ff4040}.bar{height:5px;background:#20332d;border-radius:5px;margin:6px 0 10px}.bar i{display:block;height:100%;background:var(--green);border-radius:5px}.tip{border-left:3px solid var(--green);padding:11px;background:#081610;border-radius:8px}.confidence{display:inline-block;color:#04100a;background:var(--green);font-weight:900;padding:5px 8px;border-radius:15px;font-size:11px;margin:7px 0}
 footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-content:space-between;color:#84958e;font-size:12px}.footerwa{color:var(--green);font-weight:800}
-@media(max-width:1100px){main{grid-template-columns:200px 1fr}.right{display:none}nav{display:none}.search{margin-left:auto}}
-@media(max-width:760px){header{padding:0 14px}.logo{min-width:0}.brand{font-size:19px}.clover{font-size:40px}.search{display:none}main{display:block;padding:10px}.sidebar{display:none}.hero{height:auto}.match{grid-template-columns:72px 1fr}.prob{grid-column:2;justify-content:center}.analyze{display:none}footer{display:block}}
+@media(max-width:1100px){main{grid-template-columns:200px 1fr}.right{display:none}nav{display:flex;position:fixed;left:0;right:0;bottom:0;background:#030806f5;border-top:1px solid var(--line);padding:10px 14px;gap:18px;overflow-x:auto;z-index:30;white-space:nowrap}.search{margin-left:auto}body{padding-bottom:54px}}
+@media(max-width:760px){header{padding:0 14px}.logo{min-width:0}.brand{font-size:19px}.clover{font-size:40px}.search{display:none}main{display:block;padding:10px}.sidebar{display:none}.hero{height:auto}.match{grid-template-columns:72px 1fr}.prob{grid-column:2;justify-content:center}.analyze{display:none}footer{display:block}nav a{font-size:12px}}
 
 .game-error{padding:18px;text-align:center;color:#ffb4b4}
 .game-loading{padding:20px;text-align:center;color:#9eada7}
@@ -29,9 +29,9 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
 </style>
 </head>
 <body>
-<header>
+<header id="inicio">
   <div class="logo"><div class="clover">🍀</div><div class="brand">GREEN<br><span>DA SORTE</span></div></div>
-  <nav><a class="active" href="#">Início</a><a href="#jogos">Jogos do Dia</a><a href="#palpites">Palpites</a><a href="#">Estatísticas</a><a href="#">Campeonatos</a><a href="#">Resultados</a></nav>
+  <nav><a class="active" href="#inicio">Início</a><a href="#jogos">Jogos do Dia</a><a href="#palpites">Palpites</a><a href="#jogos">Estatísticas</a><a href="#leagueTabs">Campeonatos</a><a href="#jogos">Resultados</a></nav>
   <div class="search">🔎 &nbsp; Buscar time, campeonato ou jogo...</div>
 </header>
 
@@ -39,10 +39,10 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
 <aside class="sidebar">
   <div class="menu-title">MENU</div>
   <div class="menu">
-    <a class="active" href="#">⌂ &nbsp; Início</a><a href="#jogos">▣ &nbsp; Jogos do Dia</a><a href="#palpites">◎ &nbsp; Palpites</a><a href="#">▥ &nbsp; Estatísticas</a><a href="#">🏆 &nbsp; Campeonatos</a><a href="#">▣ &nbsp; Resultados</a>
+    <a class="active" href="#inicio">⌂ &nbsp; Início</a><a href="#jogos">▣ &nbsp; Jogos do Dia</a><a href="#palpites">◎ &nbsp; Palpites</a><a href="#jogos">▥ &nbsp; Estatísticas</a><a href="#leagueTabs">🏆 &nbsp; Campeonatos</a><a href="#jogos">▣ &nbsp; Resultados</a>
   </div>
   <div class="comp"><div class="menu-title">CAMPEONATOS</div><div class="menu">
-    <a>🇧🇷 Brasileirão</a><a>🏆 Libertadores</a><a>⚽ Champions League</a><a>🏴 Premier League</a><a>🇪🇸 La Liga</a><a>🇮🇹 Serie A</a><a>🇩🇪 Bundesliga</a>
+    <a href="#leagueTabs" data-filter="Brasileirão">🇧🇷 Brasileirão</a><a href="#leagueTabs" data-filter="Libertadores">🏆 Libertadores</a><a href="#leagueTabs" data-filter="Champions League">⚽ Champions League</a><a href="#leagueTabs" data-filter="Premier League">🏴 Premier League</a><a href="#leagueTabs" data-filter="La Liga">🇪🇸 La Liga</a><a href="#leagueTabs" data-filter="Serie A">🇮🇹 Serie A</a><a href="#leagueTabs" data-filter="Bundesliga">🇩🇪 Bundesliga</a>
   </div></div>
 </aside>
 
@@ -56,7 +56,7 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
 
   <div class="card" id="jogos">
     <div class="section-head"><h2>⚽ JOGOS DO DIA</h2><div class="date" id="todayDate">📅 Carregando data...</div></div>
-    <div id="gameStatus" style="padding:8px 14px;font-size:11px;color:#8b9b94">Carregando jogos...</div><div class="tabs" id="leagueTabs"><div class="tab active" data-league="Todos">Todos</div><div class="tab">🇧🇷 Brasileirão</div><div class="tab">🏆 Libertadores</div><div class="tab">⚽ Champions League</div><div class="tab">🏴 Premier League</div><div class="tab">🇪🇸 La Liga</div><button id="refreshGames" class="tab" style="margin-left:auto;color:#16e06f">↻ Atualizar jogos</button></div>
+    <div id="gameStatus" style="padding:8px 14px;font-size:11px;color:#8b9b94">Carregando jogos...</div><div class="tabs" id="leagueTabs"><div class="tab active" data-league="Todos">Todos</div><div class="tab" data-league="Brasileirão">🇧🇷 Brasileirão</div><div class="tab" data-league="Libertadores">🏆 Libertadores</div><div class="tab" data-league="Champions League">⚽ Champions League</div><div class="tab" data-league="Premier League">🏴 Premier League</div><div class="tab" data-league="La Liga">🇪🇸 La Liga</div><button id="refreshGames" class="tab" style="margin-left:auto;color:#16e06f">↻ Atualizar jogos</button></div>
     <div id="gamesList"><div class="match"><div><div class="time">16:00</div><div class="league">Brasileirão</div></div><div class="teams">Fortaleza &nbsp; ⚔ &nbsp; Ceará</div><div class="prob"><div class="p home"><b>52%</b>Casa</div><div class="p draw"><b>27%</b>Empate</div><div class="p away"><b>21%</b>Fora</div></div><button class="analyze">Ver análise ›</button></div>
     <div class="match"><div><div class="time">18:30</div><div class="league">Brasileirão</div></div><div class="teams">São Paulo &nbsp; ⚔ &nbsp; Fluminense</div><div class="prob"><div class="p home"><b>45%</b>Casa</div><div class="p draw"><b>30%</b>Empate</div><div class="p away"><b>25%</b>Fora</div></div><button class="analyze">Ver análise ›</button></div>
     <div class="match"><div><div class="time">19:00</div><div class="league">Libertadores</div></div><div class="teams">River Plate &nbsp; ⚔ &nbsp; Atlético-MG</div><div class="prob"><div class="p home"><b>38%</b>Casa</div><div class="p draw"><b>31%</b>Empate</div><div class="p away"><b>31%</b>Fora</div></div><button class="analyze">Ver análise ›</button></div>
@@ -255,10 +255,8 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
       }));
       renderGames(events, "Football-Data.org");
     } catch (err) {
-      renderGames(fallback.map(x => ({
-        0:x[0],1:x[1],2:x[2],3:x[3]
-      })), "modo de segurança");
-      status.textContent += " • Se a fonte externa estiver bloqueada pelo navegador, os jogos de segurança são exibidos.";
+      gamesList.innerHTML = '<div class="game-error">Não foi possível carregar os jogos reais agora. Tente novamente em instantes.</div>';
+      status.textContent = "Falha ao consultar a API: " + (err?.message || "erro desconhecido");
     }
   }
 
@@ -270,6 +268,15 @@ footer{border-top:1px solid var(--line);padding:17px 28px;display:flex;justify-c
       document.querySelectorAll("#gamesList .match").forEach(row => {
         row.style.display = filter === "todos" || row.dataset.league.includes(filter) ? "" : "none";
       });
+    });
+  });
+
+  document.querySelectorAll(".comp a[data-filter]").forEach(link => {
+    link.addEventListener("click", () => {
+      const filter = link.dataset.filter.toLowerCase();
+      const tab = Array.from(tabs.querySelectorAll(".tab[data-league]"))
+        .find(item => item.dataset.league.toLowerCase() === filter);
+      if (tab) tab.click();
     });
   });
 
