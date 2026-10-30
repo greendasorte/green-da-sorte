@@ -58,6 +58,16 @@ header nav a{flex:0 0 auto;white-space:nowrap}
 #leagueTabs .tab{flex:0 0 auto}
 @media(max-width:1100px){main{grid-template-columns:200px minmax(0,1fr)}header nav{gap:16px}}
 @media(max-width:760px){main{display:block;width:100%;max-width:100%;padding:10px}main>section{width:100%;min-width:0}header{width:100%;min-width:0;flex-wrap:nowrap}header nav{max-width:100vw}.search{min-width:0;flex:0 1 42vw}.tabs{max-width:100%}}
+
+#statsCompetition{max-width:230px;background:#0a1814;color:#eaf4ee;border:1px solid #1b4936}
+.stats-table-wrap{width:100%;overflow-x:auto;padding:0 12px 14px}
+.stats-table{width:100%;border-collapse:collapse;min-width:520px;font-size:12px}
+.stats-table th,.stats-table td{padding:10px 8px;border-bottom:1px solid #12372a;text-align:center;white-space:nowrap}
+.stats-table th{color:#16e06f;font-weight:800;background:#081610}
+.stats-table td:first-child,.stats-table th:first-child{text-align:left}
+.stats-table td:first-child{font-weight:700}
+.stats-loading,.stats-empty{padding:16px;color:#9eada7;font-size:13px}
+@media(max-width:600px){#statsCompetition{max-width:160px;font-size:11px}.stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -92,7 +102,7 @@ header nav a{flex:0 0 auto;white-space:nowrap}
     <div id="gamesList"><div class="game-loading">⏳ Aguardando os jogos reais da API...</div></div>
   </div>
   <section class="card extra-section" id="proximos"><div class="section-head"><h2>📅 PRÓXIMOS JOGOS</h2><span class="date" id="upcomingRange">Próximos 7 dias</span></div><div id="upcomingStatus" class="section-note">Buscando próximos confrontos...</div><div id="upcomingList" class="empty-state">Aguardando dados da API.</div></section>
-  <section class="card extra-section" id="estatisticas"><div class="section-head"><h2>📊 ESTATÍSTICAS</h2></div><div class="stats-grid"><div class="stat-box"><span>Jogos encontrados</span><strong id="statMatches">—</strong></div><div class="stat-box"><span>Jogos analisados</span><strong id="statAnalyzed">—</strong></div><div class="stat-box"><span>Média Ambas Marcam</span><strong id="statBtts">—</strong></div><div class="stat-box"><span>Média Over 2.5</span><strong id="statOver">—</strong></div></div><p class="section-note" id="statsNote">As médias serão calculadas com dados disponíveis.</p></section>
+  <section class="card extra-section" id="estatisticas"><div class="section-head"><h2>📊 ESTATÍSTICAS</h2><select id="statsCompetition" class="tab" aria-label="Selecionar campeonato"><option value="2013">Brasileirão Série A</option><option value="2021">Premier League</option><option value="2001">Champions League</option><option value="2014">La Liga</option><option value="2002">Bundesliga</option><option value="2019">Serie A</option><option value="2015">Ligue 1</option><option value="2017">Primeira Liga</option></select></div><div class="stats-grid"><div class="stat-box"><span>Jogos encontrados</span><strong id="statMatches">—</strong></div><div class="stat-box"><span>Jogos analisados</span><strong id="statAnalyzed">—</strong></div><div class="stat-box"><span>Média Ambas Marcam</span><strong id="statBtts">—</strong></div><div class="stat-box"><span>Média Over 2.5</span><strong id="statOver">—</strong></div></div><p class="section-note" id="statsNote">Carregando estatísticas da competição selecionada.</p><div id="competitionStats"><div class="empty-state">Carregando classificação e números do campeonato...</div></div></section>
   <section class="card extra-section" id="campeonatos"><div class="section-head"><h2>🏆 CAMPEONATOS</h2></div><div class="championship-links" id="championshipLinks"><button class="tab" data-filter="Todos">Todos</button><button class="tab" data-filter="Brasileirão">Brasileirão</button><button class="tab" data-filter="Libertadores">Libertadores</button><button class="tab" data-filter="Champions League">Champions League</button><button class="tab" data-filter="Premier League">Premier League</button><button class="tab" data-filter="La Liga">La Liga</button><button class="tab" data-filter="Serie A">Serie A</button><button class="tab" data-filter="Bundesliga">Bundesliga</button></div><p class="section-note">São exibidas as competições que a API retornar no seu plano.</p></section>
   <section class="card extra-section" id="resultados"><div class="section-head"><h2>🏁 RESULTADOS DE HOJE</h2></div><div id="resultsList" class="empty-state">Aguardando dados da API.</div></section>
 </section>
@@ -374,6 +384,39 @@ header nav a{flex:0 0 auto;white-space:nowrap}
   }
   loadUpcomingGames();
   setInterval(loadUpcomingGames,10*60*1000);
+
+  // Estatísticas da competição: classificação, pontos, gols e aproveitamento via API.
+  const statsCompetition=document.getElementById('statsCompetition');
+  const competitionStats=document.getElementById('competitionStats');
+  async function loadCompetitionStats(){
+    if(!statsCompetition||!competitionStats)return;
+    const id=statsCompetition.value;
+    const label=statsCompetition.options[statsCompetition.selectedIndex]?.text||'Campeonato';
+    competitionStats.innerHTML='<div class="stats-loading">Consultando classificação de '+escapeHtml(label)+'...</div>';
+    try{
+      const response=await fetch('https://green-da-sorte.onrender.com/api/football-data/competitions/'+id+'/standings',{cache:'no-store'});
+      if(!response.ok)throw new Error('HTTP '+response.status);
+      const data=await response.json();
+      const standings=(data.standings||[]).find(item=>item.type==='TOTAL')||(data.standings||[])[0];
+      const table=standings?.table||[];
+      if(!table.length){competitionStats.innerHTML='<div class="stats-empty">A API não disponibilizou a classificação para esta competição no seu plano.</div>';return;}
+      const played=table.reduce((sum,row)=>sum+(Number(row.playedGames)||0),0);
+      const goals=table.reduce((sum,row)=>sum+(Number(row.goalsFor)||0),0);
+      const conceded=table.reduce((sum,row)=>sum+(Number(row.goalsAgainst)||0),0);
+      const points=table.reduce((sum,row)=>sum+(Number(row.points)||0),0);
+      document.getElementById('statMatches').textContent=Math.round(played/2);
+      document.getElementById('statAnalyzed').textContent=table.length;
+      document.getElementById('statBtts').textContent=played?Math.round((goals/Math.max(1,played))*100)/100:'—';
+      document.getElementById('statOver').textContent=played?Math.round((goals+conceded)/Math.max(1,played)*100)/100:'—';
+      document.getElementById('statsNote').textContent='Dados oficiais da classificação • '+label+' • temporada atual. Os dois últimos indicadores mostram médias de gols por partida, não probabilidades.';
+      competitionStats.innerHTML='<div class="stats-table-wrap"><table class="stats-table"><thead><tr><th># / Clube</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th><th>Pts</th></tr></thead><tbody>'+table.map(row=>'<tr><td>'+(row.position||'—')+'. '+escapeHtml(row.team?.name||'Equipe')+'</td><td>'+Number(row.playedGames||0)+'</td><td>'+Number(row.won||0)+'</td><td>'+Number(row.draw||0)+'</td><td>'+Number(row.lost||0)+'</td><td>'+Number(row.goalsFor||0)+'</td><td>'+Number(row.goalsAgainst||0)+'</td><td>'+Number(row.goalDifference||0)+'</td><td><b style="color:#16e06f">'+Number(row.points||0)+'</b></td></tr>').join('')+'</tbody></table></div>';
+    }catch(error){
+      competitionStats.innerHTML='<div class="stats-empty">Não foi possível carregar a classificação agora ('+escapeHtml(error.message)+'). Verifique se a competição está liberada na sua chave.</div>';
+    }
+  }
+  statsCompetition?.addEventListener('change',loadCompetitionStats);
+  loadCompetitionStats();
+
   loadGames();
   // Atualiza automaticamente a lista a cada 5 minutos.
   setInterval(loadGames, 5 * 60 * 1000);
