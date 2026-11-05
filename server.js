@@ -17,6 +17,10 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Integração SportsAPI isolada: a fonte antiga permanece ativa durante a validação.
+const sportsApiRouter = require("./sportsapi");
+app.use("/api/sportsapi", sportsApiRouter);
+
 app.get("/", (_req, res) => {
   res.json({
     name: "Green da Sorte API",
