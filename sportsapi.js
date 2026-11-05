@@ -103,8 +103,14 @@ function queryString(query, allowed) {
 
 // Somente parâmetros descritos na documentação pública da SportsAPI.
 const GAME_FILTERS = [
-  "sport", "date", "q", "competition", "region", "team", "status",
-  "sortBy", "sortOrder", "limit", "offset"
+  "sport", "date", "q", "status", "statusIn", "matchId", "competitionId",
+  "teamId", "homeTeamId", "awayTeamId", "competition", "league", "region",
+  "team", "homeTeam", "awayTeam", "venue", "city", "tvNetwork",
+  "stage", "round", "roundNumber", "eventType", "startsAfter", "startsBefore",
+  "minHomeScore", "maxHomeScore", "minAwayScore", "maxAwayScore",
+  "minTotalScore", "maxTotalScore", "hasScore", "hasVenue", "hasBroadcast",
+  "hasOfficials", "hasEvents", "hasStandings", "hasLiveClock", "sortBy",
+  "sortOrder", "limit", "offset"
 ];
 
 router.get("/status", async (_req, res) => {
