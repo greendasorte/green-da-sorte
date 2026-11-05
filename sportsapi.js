@@ -101,15 +101,10 @@ function queryString(query, allowed) {
   return params.toString();
 }
 
+// Somente parâmetros descritos na documentação pública da SportsAPI.
 const GAME_FILTERS = [
-  "sport", "date", "q", "status", "statusIn", "matchId", "competitionId",
-  "teamId", "homeTeamId", "awayTeamId", "competition", "league", "region",
-  "team", "homeTeam", "awayTeam", "provider", "venue", "city", "tvNetwork",
-  "stage", "round", "roundNumber", "eventType", "startsAfter", "startsBefore",
-  "minHomeScore", "maxHomeScore", "minAwayScore", "maxAwayScore",
-  "minTotalScore", "maxTotalScore", "hasScore", "hasVenue", "hasBroadcast",
-  "hasOfficials", "hasEvents", "hasStandings", "hasLiveClock", "sortBy",
-  "sortOrder", "limit", "offset"
+  "sport", "date", "q", "competition", "region", "team", "status",
+  "sortBy", "sortOrder", "limit", "offset"
 ];
 
 router.get("/status", async (_req, res) => {
@@ -121,22 +116,22 @@ router.get("/sports", async (_req, res) => requestProvider("/sports", res, META_
 
 router.get("/games", async (req, res) => {
   const date = req.query.date;
-  if (date && !/^\\d{4}-\\d{2}-\\d{2}$/.test(String(date))) {
+  if (date && !/^\d{4}-\d{2}-\d{2}$/.test(String(date))) {
     return res.status(400).json({ error: "date deve usar o formato YYYY-MM-DD." });
   }
-  if (req.query.limit && (!/^\\d+$/.test(String(req.query.limit)) || Number(req.query.limit) < 1 || Number(req.query.limit) > 100)) {
+  if (req.query.limit && (!/^\d+$/.test(String(req.query.limit)) || Number(req.query.limit) < 1 || Number(req.query.limit) > 100)) {
     return res.status(400).json({ error: "limit deve ser um número entre 1 e 100." });
   }
-  if (req.query.offset && (!/^\\d+$/.test(String(req.query.offset)))) {
+  if (req.query.offset && !/^\d+$/.test(String(req.query.offset))) {
     return res.status(400).json({ error: "offset deve ser um número inteiro maior ou igual a zero." });
   }
-  const qs = queryString(req.query, ["sport", "date", "league", "competition", "region", "team", "status", "limit", "offset"]);
+  const qs = queryString(req.query, ["sport", "date", "competition", "region", "team", "status", "limit", "offset"]);
   return requestProvider("/games" + (qs ? "?" + qs : ""), res, DEFAULT_TTL);
 });
 
 router.get("/games/filter", async (req, res) => {
   const date = req.query.date;
-  if (date && !/^\\d{4}-\\d{2}-\\d{2}$/.test(String(date))) {
+  if (date && !/^\d{4}-\d{2}-\d{2}$/.test(String(date))) {
     return res.status(400).json({ error: "date deve usar o formato YYYY-MM-DD." });
   }
   const qs = queryString(req.query, GAME_FILTERS);
