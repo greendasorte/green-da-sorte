@@ -209,6 +209,20 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
  footer{padding:16px 12px}
 }
 
+
+/* Acessibilidade e navegação: área ativa visível e utilizável por toque. */
+header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--green);font-weight:800}
+.sidebar .menu a[aria-current="page"]{background:linear-gradient(100deg,#0d4227,#0a2a1a);color:#62f0a0;box-shadow:inset 3px 0 0 var(--green);font-weight:800}
+@media(max-width:760px){
+  header nav{scroll-snap-type:x proximity;overscroll-behavior-x:contain}
+  header nav a{min-height:40px;display:inline-flex;align-items:center;justify-content:center;scroll-snap-align:start}
+  header nav a[aria-current="page"]{background:#0b2818;border-radius:8px 8px 0 0}
+  body{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+}
+@media(prefers-reduced-motion:reduce){
+  :root{scroll-behavior:auto}
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
+}
 </style>
 </head>
 <body data-page="jogos">
@@ -482,22 +496,24 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
   analysisDialog.addEventListener("click",e=>{if(e.target===analysisDialog)analysisDialog.close();});
   refresh.addEventListener("click", loadGames);
 
-  // Navegação: destaca a área visível e mantém os links sincronizados em desktop/mobile.
-  const navLinks = Array.from(document.querySelectorAll('header nav a, .sidebar .menu a[href^="#"]'));
-  const observedSections = ['inicio','jogos','proximos','palpites','estatisticas','campeonatos','resultados'].map(id=>document.getElementById(id)).filter(Boolean);
-  if ('IntersectionObserver' in window) {
-    const sectionObserver = new IntersectionObserver(entries=>{
-      const visible = entries.filter(entry=>entry.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
-      if (!visible) return;
-      navLinks.forEach(link=>link.classList.toggle('active',link.getAttribute('href')==='#'+visible.target.id));
-    },{rootMargin:'-18% 0px -65% 0px',threshold:[0,.15,.35]});
-    observedSections.forEach(section=>sectionObserver.observe(section));
-  }
-  // Fecha o menu de navegação por rolagem natural e garante salto suave para todas as áreas.
-  navLinks.forEach(link=>link.addEventListener('click',event=>{
-    const target=document.querySelector(link.getAttribute('href'));
-    if(target){event.preventDefault();target.scrollIntoView({behavior:'smooth',block:'start'});history.replaceState(null,'',link.getAttribute('href'));}
-  }));
+  // Navegação entre páginas independentes: o estado ativo acompanha body[data-page].
+  const currentPageForNav = document.body.dataset.page || "inicio";
+  const pageFiles = {
+    inicio: "index.html",
+    jogos: "jogos.html",
+    proximos: "proximos.html",
+    palpites: "palpites.html",
+    estatisticas: "estatisticas.html",
+    campeonatos: "campeonatos.html",
+    resultados: "resultados.html"
+  };
+  const currentFile = pageFiles[currentPageForNav] || "index.html";
+  document.querySelectorAll('header nav a[href$=".html"], .sidebar .menu a[href$=".html"]').forEach(link => {
+    const active = link.getAttribute("href").split("/").pop() === currentFile;
+    link.classList.toggle("active", active);
+    if (active) link.setAttribute("aria-current", "page");
+    else link.removeAttribute("aria-current");
+  });
 
   // Próximos jogos: consulta a janela de sete dias sem misturar com a lista de hoje.
   async function loadUpcomingGames(){
