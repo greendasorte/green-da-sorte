@@ -61,7 +61,7 @@ async function requestProvider(path, res, ttl = DEFAULT_TTL) {
     forwardHeaders(upstream, res);
 
     if (!upstream.ok) {
-      if ((upstream.status === 500 || upstream.status === 503) && cached && Date.now() - cached.savedAt < STALE_TTL) {
+      if ([429, 500, 502, 503, 504].includes(upstream.status) && cached && Date.now() - cached.savedAt < STALE_TTL) {
         return sendCached(res, cached, "STALE");
       }
       return res.status(upstream.status).json({
@@ -139,6 +139,12 @@ router.get("/games/filter", async (req, res) => {
   const date = req.query.date;
   if (date && !/^\d{4}-\d{2}-\d{2}$/.test(String(date))) {
     return res.status(400).json({ error: "date deve usar o formato YYYY-MM-DD." });
+  }
+  if (req.query.limit && (!/^\d+$/.test(String(req.query.limit)) || Number(req.query.limit) < 1 || Number(req.query.limit) > 100)) {
+    return res.status(400).json({ error: "limit deve ser um número entre 1 e 100." });
+  }
+  if (req.query.offset && !/^\d+$/.test(String(req.query.offset))) {
+    return res.status(400).json({ error: "offset deve ser um número inteiro maior ou igual a zero." });
   }
   const qs = queryString(req.query, GAME_FILTERS);
   return requestProvider("/games/filter" + (qs ? "?" + qs : ""), res, DEFAULT_TTL);

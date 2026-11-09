@@ -1,0 +1,51 @@
+name: Validate GREENdasorte integration
+
+on:
+  push:
+    branches:
+      - fix/sportsapi-integration
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  syntax-and-integration-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install backend dependencies
+        run: npm install --ignore-scripts
+      - name: Check backend JavaScript syntax
+        run: |
+          node --check server.js
+          node --check sportsapi.js
+      - name: Run SportsAPI proxy integration tests
+        run: npm test
+      - name: Check all inline frontend scripts
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          files = ["index.html", "jogos.html", "proximos.html", "palpites.html", "estatisticas.html", "campeonatos.html", "resultados.html"]
+          for name in files:
+              html = Path(name).read_text(encoding="utf-8")
+              scripts = re.findall(r"<script>(.*?)</script>", html, flags=re.S)
+              if len(scripts) != 1:
+                  raise SystemExit(f"{name}: esperado 1 script inline, encontrados {len(scripts)}")
+              Path(f"/tmp/{name}.js").write_text(scripts[0], encoding="utf-8")
+          PY
+          for file in index.html jogos.html proximos.html palpites.html estatisticas.html campeonatos.html resultados.html; do
+            node --check "/tmp/$file.js"
+          done
+      - name: Ensure frontend no longer calls legacy football providers
+        run: |
+          if grep -Ein "football-data|api-futebol\.com\.br|sofascore\.com" index.html jogos.html proximos.html palpites.html estatisticas.html campeonatos.html resultados.html; then
+            echo "Legacy provider reference found in frontend."
+            exit 1
+          fi
+          grep -q "/api/sportsapi/games/filter" index.html

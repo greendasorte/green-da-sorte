@@ -6,14 +6,24 @@ const PORT = process.env.PORT || 3000;
 const API_BASE = "https://api.api-futebol.com.br/v1";
 const API_KEY = process.env.API_FUTEBOL_KEY;
 const FOOTBALL_DATA_TOKEN = process.env.FOOTBALL_DATA_TOKEN;
+const SPORTSAPI_API_KEY = process.env.SPORTSAPI_API_KEY;
 const FOOTBALL_DATA_BASE = "https://api.football-data.org/v4";
 
+const allowedOrigins = new Set([
+  "https://greendasorte.github.io",
+  "https://green-da-sorte.onrender.com",
+  "https://green-da-sorte-2.onrender.com"
+]);
+
 app.use(cors({
-  origin: [
-    "https://greendasorte.github.io",
-    "https://green-da-sorte.onrender.com",
-    "https://green-da-sorte-2.onrender.com"
-  ]
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.has(origin) || /^https:\/\/green-da-sorte-2-pr-\d+\.onrender\.com$/.test(origin)) {
+      return callback(null, true);
+    }
+    return callback(new Error("Origem não autorizada pelo CORS."));
+  },
+  methods: ["GET", "HEAD", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Accept"]
 }));
 app.use(express.json());
 
@@ -25,16 +35,16 @@ app.get("/", (_req, res) => {
   res.json({
     name: "Green da Sorte API",
     status: "online",
-    provider: "Football-Data.org",
-    keyConfigured: Boolean(FOOTBALL_DATA_TOKEN)
+    provider: "SportsAPI",
+    keyConfigured: Boolean(SPORTSAPI_API_KEY)
   });
 });
 
 app.get("/api/status", (_req, res) => {
   res.json({
     status: "online",
-    provider: "Football-Data.org",
-    configured: Boolean(FOOTBALL_DATA_TOKEN),
+    provider: "SportsAPI",
+    configured: Boolean(SPORTSAPI_API_KEY),
     checkedAt: new Date().toISOString()
   });
 });
