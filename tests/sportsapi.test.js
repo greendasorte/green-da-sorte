@@ -1,6 +1,7 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const express = require("express");
+const nativeFetch = global.fetch;
 
 process.env.SPORTSAPI_API_KEY = "test_sportsapi_key";
 const sportsApiRouter = require("../sportsapi");
@@ -31,7 +32,7 @@ test("games/filter forwards the documented query and keeps the API key server-si
   t.after(() => { global.fetch = originalFetch; });
 
   const base = await startTestServer(t);
-  const response = await fetch(base + "/api/sportsapi/games/filter?sport=football&date=2026-11-09&statusIn=scheduled,live&limit=10");
+  const response = await nativeFetch(base + "/api/sportsapi/games/filter?sport=football&date=2026-11-09&statusIn=scheduled,live&limit=10");
   assert.equal(response.status, 200);
   const body = await response.json();
   assert.equal(body.matches[0].id, "match-1");
@@ -48,7 +49,7 @@ test("games/filter rejects invalid dates before contacting the provider", async 
   t.after(() => { global.fetch = originalFetch; });
 
   const base = await startTestServer(t);
-  const response = await fetch(base + "/api/sportsapi/games/filter?date=09-11-2026");
+  const response = await nativeFetch(base + "/api/sportsapi/games/filter?date=09-11-2026");
   assert.equal(response.status, 400);
   assert.equal(called, false);
 });
@@ -66,7 +67,7 @@ test("games/:id/odds proxies the requested match id", async t => {
   t.after(() => { global.fetch = originalFetch; });
 
   const base = await startTestServer(t);
-  const response = await fetch(base + "/api/sportsapi/games/match-odds/odds?sport=football");
+  const response = await nativeFetch(base + "/api/sportsapi/games/match-odds/odds?sport=football");
   assert.equal(response.status, 200);
   assert.match(requestedUrl, /\/games\/match-odds\/odds\?sport=football/);
   assert.equal((await response.json()).matchId, "match-odds");
