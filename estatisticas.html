@@ -243,7 +243,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
     <div id="gamesList"><div class="game-loading">⏳ Aguardando os jogos reais da API...</div></div>
   </div>
   <section class="card extra-section" id="proximos"><div class="section-head"><h2>📅 PRÓXIMOS JOGOS</h2><span class="date" id="upcomingRange">Próximos 7 dias</span></div><div id="upcomingStatus" class="section-note">Buscando próximos confrontos...</div><div id="upcomingList" class="empty-state">Aguardando dados da API.</div></section>
-  <section class="card extra-section" id="estatisticas"><div class="section-head"><h2>📊 ESTATÍSTICAS</h2><select id="statsCompetition" class="tab" aria-label="Selecionar campeonato"><option value="2013">Brasileirão Série A</option><option value="2021">Premier League</option><option value="2001">Champions League</option><option value="2014">La Liga</option><option value="2002">Bundesliga</option><option value="2019">Serie A</option><option value="2015">Ligue 1</option><option value="2017">Primeira Liga</option></select></div><div class="stats-grid"><div class="stat-box"><span>Jogos encontrados</span><strong id="statMatches">—</strong></div><div class="stat-box"><span>Clubes na tabela</span><strong id="statAnalyzed">—</strong></div><div class="stat-box"><span>Gols marcados</span><strong id="statBtts">—</strong></div><div class="stat-box"><span>Gols sofridos</span><strong id="statOver">—</strong></div></div><p class="section-note" id="statsNote">Carregando estatísticas da competição selecionada.</p><div id="competitionStats"><div class="empty-state">Carregando classificação e números do campeonato...</div></div></section>
+  <section class="card extra-section" id="estatisticas"><div class="section-head"><h2>📊 ESTATÍSTICAS</h2><select id="statsCompetition" class="tab" aria-label="Fonte das estatísticas"><option value="all">Todos os campeonatos disponíveis</option></select></div><div class="stats-grid"><div class="stat-box"><span>Jogos encontrados</span><strong id="statMatches">—</strong></div><div class="stat-box"><span>Clubes na tabela</span><strong id="statAnalyzed">—</strong></div><div class="stat-box"><span>Gols marcados</span><strong id="statBtts">—</strong></div><div class="stat-box"><span>Gols sofridos</span><strong id="statOver">—</strong></div></div><p class="section-note" id="statsNote">Carregando partidas e estatísticas da SportsAPI.</p><div id="competitionStats"><div class="empty-state">Carregando partidas e resultados...</div></div></section>
   <section class="card extra-section" id="campeonatos"><div class="section-head"><h2>🏆 CAMPEONATOS</h2></div><div class="championship-links" id="championshipLinks"><button class="tab" data-filter="Todos">Todos</button><button class="tab" data-filter="Brasileirão">Brasileirão</button><button class="tab" data-filter="Libertadores">Libertadores</button><button class="tab" data-filter="Champions League">Champions League</button><button class="tab" data-filter="Premier League">Premier League</button><button class="tab" data-filter="La Liga">La Liga</button><button class="tab" data-filter="Serie A">Serie A</button><button class="tab" data-filter="Bundesliga">Bundesliga</button></div><p class="section-note">São exibidas as competições que a API retornar no seu plano.</p></section>
   <section class="card extra-section" id="resultados"><div class="section-head"><h2>🏁 RESULTADOS DE HOJE</h2></div><div id="resultsList" class="empty-state">Aguardando dados da API.</div></section>
 </section>
@@ -257,6 +257,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 <dialog id="analysisDialog" class="analysis-dialog"><button type="button" class="dialog-close" id="closeAnalysis">×</button><div id="analysisContent"></div></dialog>
 <script>
 (() => {
+  const API_BASE = "https://green-da-sorte.onrender.com";
   const gamesList = document.getElementById('gamesList');
   const status = document.getElementById('gameStatus');
   const dateEl = document.getElementById('todayDate');
@@ -285,145 +286,141 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
     }[c]));
   }
 
-  const teamStatsCache = new Map();
-
-  async function getTeamStats(teamId) {
-    if (!teamId) return null;
-    if (teamStatsCache.has(teamId)) return teamStatsCache.get(teamId);
-    const promise = (async () => {
-      try {
-        const response = await fetch(`https://green-da-sorte.onrender.com/api/football-data/teams/${teamId}/matches`, {cache:"no-store"});
-        if (!response.ok) return null;
-        const data = await response.json();
-        const finished = (data.matches || []).filter(e =>
-          e.status === "FINISHED" &&
-          Number.isFinite(e.score?.fullTime?.home) &&
-          Number.isFinite(e.score?.fullTime?.away) &&
-          (e.homeTeam?.id === Number(teamId) || e.awayTeam?.id === Number(teamId))
-        ).slice(0, 5);
-        if (!finished.length) return null;
-        let scored = 0, conceded = 0, count = 0;
-        finished.forEach(e => {
-          const isHome = e.homeTeam?.id === Number(teamId);
-          scored += isHome ? e.score.fullTime.home : e.score.fullTime.away;
-          conceded += isHome ? e.score.fullTime.away : e.score.fullTime.home;
-          count++;
-        });
-        return {scored: scored / count, conceded: conceded / count, matches: count};
-      } catch (_) { return null; }
-    })();
-    teamStatsCache.set(teamId, promise);
-    return promise;
-  }
-
-  function poisson(lambda, goals) {
-    let p = Math.exp(-lambda);
-    for (let i = 1; i <= goals; i++) p *= lambda / i;
-    return p;
-  }
-
-  function modelProbabilities(homeStats, awayStats) {
-    if (!homeStats || !awayStats) return null;
-    // Estimativa simples usando os últimos jogos concluídos disponíveis para cada equipe.
-    const homeXg = Math.min(4.2, Math.max(0.2, (homeStats.scored + awayStats.conceded) / 2 * 1.08));
-    const awayXg = Math.min(4.2, Math.max(0.2, (awayStats.scored + homeStats.conceded) / 2 * 0.92));
-    let homeWin = 0, draw = 0, awayWin = 0, btts = 0, over25 = 0, total = 0;
-    for (let h = 0; h <= 8; h++) {
-      for (let a = 0; a <= 8; a++) {
-        const p = poisson(homeXg, h) * poisson(awayXg, a);
-        total += p;
-        if (h > a) homeWin += p;
-        else if (h === a) draw += p;
-        else awayWin += p;
-        if (h > 0 && a > 0) btts += p;
-        if (h + a >= 3) over25 += p;
-      }
+  async function fetchSportsApi(path) {
+    const response = await fetch(API_BASE + path, { cache: "no-store" });
+    if (!response.ok) {
+      let detail = "";
+      try { const body = await response.json(); detail = body.details?.message || body.error || ""; } catch (_) {}
+      throw new Error("SportsAPI HTTP " + response.status + (detail ? " — " + detail : ""));
     }
-    const pct = n => Math.round(n / total * 100);
-    return {home:pct(homeWin), draw:pct(draw), away:pct(awayWin), btts:pct(btts), over25:pct(over25), homeXg:homeXg.toFixed(1), awayXg:awayXg.toFixed(1)};
+    return response.json();
   }
 
-  async function estimateProbabilities(event) {
-    const homeId = event?.homeTeam?.id;
-    const awayId = event?.awayTeam?.id;
-    if (!homeId || !awayId) return null;
-    const [homeStats, awayStats] = await Promise.all([getTeamStats(homeId), getTeamStats(awayId)]);
-    return modelProbabilities(homeStats, awayStats);
+  function matchStatusLabel(status) {
+    return ({scheduled:"Agendado",live:"AO VIVO",finished:"Encerrado",postponed:"Adiado",cancelled:"Cancelado"})[String(status||"").toLowerCase()] || "Status indisponível";
   }
 
-  async function renderGames(events, sourceLabel) {
+  function matchKickoff(match) {
+    const value = Number(match?.startTime);
+    return Number.isFinite(value) && value > 0 ? new Date(value) : null;
+  }
+
+  function matchScore(match) {
+    const home = Number.isFinite(Number(match?.homeScore)) ? match.homeScore : "—";
+    const away = Number.isFinite(Number(match?.awayScore)) ? match.awayScore : "—";
+    return home + " : " + away;
+  }
+
+  function marketSummary(markets) {
+    if (!Array.isArray(markets) || !markets.length) return "A SportsAPI não publicou cotações para esta partida.";
+    return markets.slice(0, 5).map(market => {
+      const label = market.label || market.key || "Mercado";
+      const quotes = Array.isArray(market.quotes) ? market.quotes.slice(0, 2) : [];
+      const prices = quotes.map(quote => {
+        const latest = Array.isArray(quote.latest) ? quote.latest.join(" / ") : "Cotação indisponível";
+        return escapeHtml(quote.companyName || "Casa") + ": " + escapeHtml(latest);
+      }).join(" · ");
+      return "<p><b>" + escapeHtml(label) + ":</b> " + (prices || "Sem cotação recente") + "</p>";
+    }).join("");
+  }
+
+  async function attachAnalysis() {
+    document.querySelectorAll(".analyze").forEach(button => {
+      button.onclick = async () => {
+        const matchId = button.dataset.matchId;
+        const item = analyzedStats.get(matchId);
+        if (!item || !matchId) return;
+        analysisContent.innerHTML = "<h3>" + escapeHtml(item.home) + " x " + escapeHtml(item.away) + "</h3><p>Consultando detalhes e cotações reais da SportsAPI...</p>";
+        if (analysisDialog?.showModal) analysisDialog.showModal();
+        try {
+          const [detailsResult, oddsResult] = await Promise.allSettled([
+            fetchSportsApi("/api/sportsapi/games/" + encodeURIComponent(matchId) + "/details?sport=football"),
+            fetchSportsApi("/api/sportsapi/games/" + encodeURIComponent(matchId) + "/odds?sport=football")
+          ]);
+          const details = detailsResult.status === "fulfilled" ? detailsResult.value : null;
+          const odds = oddsResult.status === "fulfilled" ? oddsResult.value : null;
+          const prediction = details?.prediction || details?.form || details?.headToHead || null;
+          const detailsHtml = prediction
+            ? "<h4>Informações estatísticas</h4><pre style='white-space:pre-wrap;overflow-wrap:anywhere'>" + escapeHtml(JSON.stringify(prediction,null,2).slice(0,1800)) + "</pre>"
+            : "<p>Sem previsão ou histórico publicado para esta partida.</p>";
+          const oddsHtml = odds ? marketSummary(odds.markets) : "<p>Cotações indisponíveis nesta consulta.</p>";
+          const errors = [detailsResult,oddsResult].filter(result=>result.status==="rejected").map(result=>result.reason?.message||"Falha na consulta");
+          analysisContent.innerHTML =
+            "<h3>" + escapeHtml(item.home) + " x " + escapeHtml(item.away) + "</h3>" +
+            "<p><b>" + escapeHtml(item.league) + "</b> · " + escapeHtml(matchStatusLabel(item.event.status)) + "</p>" +
+            "<p>Placar: <b>" + escapeHtml(matchScore(item.event)) + "</b></p>" +
+            "<h4>Cotações disponíveis</h4>" + oddsHtml + detailsHtml +
+            (errors.length ? "<p style='color:#d9a441'>" + escapeHtml(errors.join(" · ")) + "</p>" : "") +
+            "<small>Dados fornecidos pela SportsAPI. Odds e estimativas não garantem resultados.</small>";
+        } catch (error) {
+          analysisContent.innerHTML = "<h3>" + escapeHtml(item.home) + " x " + escapeHtml(item.away) + "</h3><p>Não foi possível consultar os detalhes: " + escapeHtml(error.message) + "</p>";
+        }
+      };
+    });
+  }
+
+  function renderGames(events, sourceLabel) {
     gamesList.innerHTML = "";
+    analyzedStats.clear();
     if (!events.length) {
-      gamesList.innerHTML = '<div class="game-error">Nenhum jogo encontrado para hoje.</div>';
-      status.textContent = "Nenhum jogo encontrado.";
-      updateSummary([]); resultsList.textContent="Nenhuma partida finalizada retornada hoje."; picksList.textContent="Nenhum palpite disponível sem dados suficientes.";
+      gamesList.innerHTML = '<div class="game-error">A SportsAPI não retornou partidas para hoje nas competições disponíveis na sua conta.</div>';
+      status.textContent = "Nenhum jogo retornado pela SportsAPI.";
+      updateSummary([]);
+      resultsList.textContent = "Nenhum resultado finalizado retornado hoje.";
+      picksList.textContent = "Abra a análise de uma partida para consultar mercados e odds publicados pela API.";
       return;
     }
 
-    const selected = events.slice(0, 20);
-    const rows = [];
-    for (const e of selected) {
-      const home = e.homeTeam?.name || e[2] || "Casa";
-      const away = e.awayTeam?.name || e[3] || "Fora";
-      const league = e.tournament?.name || e[1] || "Futebol";
-      const time = e.startTimestamp
-        ? new Date(e.startTimestamp * 1000).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})
-        : e[0] || "--:--";
+    const selected = events.slice(0, 100);
+    for (const event of selected) {
+      const home = event.homeTeam?.name || "Mandante";
+      const away = event.awayTeam?.name || "Visitante";
+      const league = event.league?.name || "Futebol";
+      const kickoff = matchKickoff(event);
+      const time = kickoff ? kickoff.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"}) : "--:--";
+      const matchId = String(event.id || "");
       const row = document.createElement("div");
       row.className = "match";
-      row.dataset.league = league.toLowerCase();
+      row.dataset.league = league.toLocaleLowerCase("pt-BR");
       row.innerHTML = `
         <div><div class="time">${escapeHtml(time)}</div><div class="league">${escapeHtml(league)}</div></div>
         <div class="teams">${escapeHtml(home)} &nbsp; ⚔ &nbsp; ${escapeHtml(away)}</div>
-        <div class="prob"><div class="p home"><b>—</b>Casa</div><div class="p draw"><b>—</b>Empate</div><div class="p away"><b>—</b>Fora</div></div>
-        <button class="analyze" data-home="${escapeHtml(home)}" data-away="${escapeHtml(away)}">Ver análise ›</button>
-        <div class="match-markets" style="grid-column:2 / 4;font-size:11px;color:#aab8b2;padding-top:2px">⏳ Calculando com os últimos jogos...</div>`;
+        <div class="prob"><div class="p"><b>${escapeHtml(matchScore(event))}</b>${escapeHtml(matchStatusLabel(event.status))}</div></div>
+        <button class="analyze" data-match-id="${escapeHtml(matchId)}">Ver análise ›</button>
+        <div class="match-markets" style="grid-column:2 / 4;font-size:11px;color:#aab8b2;padding-top:2px">Consulte detalhes, estatísticas e odds disponíveis.</div>`;
       gamesList.appendChild(row);
-      rows.push({event:e,row,home,away});
+      analyzedStats.set(matchId,{event,home,away,league});
     }
-    status.textContent = `Calculando probabilidades para ${rows.length} jogos • ${sourceLabel}`;
+    status.textContent = selected.length + " partidas • dados reais da " + sourceLabel;
     attachAnalysis();
-
-    await Promise.all(rows.map(async ({event,row,home,away}) => {
-      const p = await estimateProbabilities(event);
-      const prob = row.querySelector(".prob");
-      const markets = row.querySelector(".match-markets");
-      if (!p) {
-        prob.innerHTML = '<div class="p"><b>—</b>Casa</div><div class="p"><b>—</b>Empate</div><div class="p"><b>—</b>Fora</div>';
-        markets.textContent = "Probabilidades indisponíveis: a API não retornou resultados recentes suficientes para este jogo.";
-        return;
-      }
-      prob.innerHTML = `<div class="p home"><b>${p.home}%</b>Casa</div><div class="p draw"><b>${p.draw}%</b>Empate</div><div class="p away"><b>${p.away}%</b>Fora</div>`;
-      analyzedStats.set(event.id || (home+"-"+away),{event,home,away,probabilities:p});
-      markets.innerHTML = `<span style="color:#16e06f;font-weight:800">AMBAS MARCAM: ${p.btts}%</span> &nbsp;·&nbsp; <span style="color:#16e06f;font-weight:800">OVER 2.5: ${p.over25}%</span> &nbsp;·&nbsp; Gols estimados: ${p.homeXg} x ${p.awayXg} <span style="display:block;color:#74877f;margin-top:4px">Modelo estatístico baseado nos últimos ${Math.min(5, Math.min((await getTeamStats(event.homeTeam?.id))?.matches || 0, (await getTeamStats(event.awayTeam?.id))?.matches || 0))} jogos disponíveis de cada equipe; não é garantia.</span>`;
-    }));
-    updateSummary(rows.map(x=>({probabilities:analyzedStats.get(x.event.id || (x.home+"-"+x.away))?.probabilities||null})));
-    renderResults(events); renderPicks(); applyFilters();
-    status.textContent = `${rows.length} jogos • probabilidades calculadas com resultados recentes • ${sourceLabel}`;
+    updateSummary(events);
+    renderResults(events);
+    renderPicks();
+    applyFilters();
   }
 
-  function attachAnalysis() {
-    document.querySelectorAll(".analyze").forEach(btn=>btn.onclick=()=>{
-      const home=btn.dataset.home,away=btn.dataset.away;
-      const item=Array.from(analyzedStats.values()).find(x=>x.home===home&&x.away===away),p=item?.probabilities;
-      analysisContent.innerHTML=`<h3>${escapeHtml(home)} x ${escapeHtml(away)}</h3><p>Estimativas baseadas nos últimos resultados disponíveis.</p><p>Casa: <b>${p?p.home+"%":"—"}</b> · Empate: <b>${p?p.draw+"%":"—"}</b> · Fora: <b>${p?p.away+"%":"—"}</b></p><p>Ambas marcam: <b>${p?p.btts+"%":"—"}</b> · Over 2.5: <b>${p?p.over25+"%":"—"}</b></p><p>Estimativas não garantem resultados.</p>`;
-      if(analysisDialog.showModal)analysisDialog.showModal();else alert(home+" x "+away);
-    });
+  function updateSummary(events) {
+    const matches = Array.isArray(events) ? events : [];
+    const finished = matches.filter(match=>String(match.status).toLowerCase()==="finished");
+    const goals = finished.reduce((sum,match)=>sum+(Number(match.homeScore)||0)+(Number(match.awayScore)||0),0);
+    const bothScored = finished.filter(match=>Number(match.homeScore)>0 && Number(match.awayScore)>0).length;
+    const el = id => document.getElementById(id);
+    if (el("statMatches")) el("statMatches").textContent = matches.length;
+    if (el("statAnalyzed")) el("statAnalyzed").textContent = finished.length;
+    if (el("statBtts")) el("statBtts").textContent = goals;
+    if (el("statOver")) el("statOver").textContent = bothScored;
+    if (el("statsNote")) el("statsNote").textContent = "Partidas recebidas da SportsAPI • gols e ambas marcam calculados somente com jogos finalizados.";
   }
-  function updateSummary(items){
-    const valid=items.filter(x=>x.probabilities); document.getElementById("statMatches").textContent=items.length;
-    document.getElementById("statAnalyzed").textContent=valid.length;
-    const avg=k=>valid.length?Math.round(valid.reduce((s,x)=>s+x.probabilities[k],0)/valid.length)+"%":"—";
-    document.getElementById("statBtts").textContent=avg("btts");document.getElementById("statOver").textContent=avg("over25");
-    document.getElementById("statsNote").textContent=valid.length?"Médias das estimativas calculadas para partidas com histórico recente disponível.":"Histórico insuficiente para calcular médias.";
+
+  function renderResults(events) {
+    const done = events.filter(event=>String(event.status).toLowerCase()==="finished");
+    resultsList.innerHTML = done.length ? done.map(event =>
+      '<div class="result-item"><span>' + escapeHtml(event.homeTeam?.name||"Mandante") + ' x ' + escapeHtml(event.awayTeam?.name||"Visitante") + '</span><strong>' + escapeHtml(matchScore(event)) + '</strong></div>'
+    ).join("") : '<div class="empty-state">Nenhuma partida finalizada retornada hoje.</div>';
   }
-  function renderResults(events){
-    const done=events.filter(e=>e.status==="FINISHED");
-    resultsList.innerHTML=done.length?done.map(e=>`<div class="result-item"><span>${escapeHtml(e.homeTeam?.name||"Mandante")} x ${escapeHtml(e.awayTeam?.name||"Visitante")}</span><strong>${e.score?.fullTime?.home??"—"} : ${e.score?.fullTime?.away??"—"}</strong></div>`).join(""):'<div class="empty-state">Nenhuma partida finalizada retornada pela API hoje.</div>';
-  }
-  function renderPicks(){
-    const picks=Array.from(analyzedStats.values()).filter(x=>x.probabilities).map(x=>({...x,market:x.probabilities.btts>=x.probabilities.over25?"Ambas marcam":"Mais de 2.5 gols",value:Math.max(x.probabilities.btts,x.probabilities.over25)})).sort((a,b)=>b.value-a.value).slice(0,5);
-    picksList.innerHTML=picks.length?picks.map(x=>`<div class="pick-item"><strong>${escapeHtml(x.home)} x ${escapeHtml(x.away)}</strong><div>${x.market}: <b>${x.value}%</b></div><small>Estimativa estatística, não garantia.</small></div>`).join(""):'<div class="empty-state">Sem dados recentes suficientes para gerar sugestões.</div>';
+
+  function renderPicks() {
+    picksList.innerHTML = '<div class="empty-state">Para evitar palpites sem fundamento, consulte cada partida em “Ver análise”. A tela exibirá somente mercados e cotações realmente publicados pela SportsAPI. Odds não são garantia de resultado.</div>';
   }
   function applyFilters(){
     const q=(searchInput?.value||"").trim().toLocaleLowerCase("pt-BR");
@@ -432,30 +429,34 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 
   async function loadGames() {
     formatDate();
-    gamesList.innerHTML = '<div class="game-loading">⏳ Buscando os jogos reais de hoje...</div>';
-    status.textContent = "Atualizando jogos...";
+    gamesList.innerHTML = '<div class="game-loading">⏳ Buscando jogos na SportsAPI...</div>';
+    status.textContent = "Consultando a SportsAPI...";
     try {
       const date = localDateISO();
-      const url = `https://green-da-sorte.onrender.com/api/football-data/matches?date=${date}`;
-      const response = await fetch(url, {cache:"no-store"});
-      if (!response.ok) throw new Error("Football-Data.org indisponível (HTTP " + response.status + ")");
-      const data = await response.json();
-      const events = (data.matches || []).filter(e => {
-        if (e.status === "CANCELLED" || !e.utcDate) return false;
-        const matchDay = new Intl.DateTimeFormat("sv-SE", {timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(e.utcDate));
+      const params = new URLSearchParams({
+        sport:"football",
+        date,
+        statusIn:"scheduled,live,finished",
+        limit:"100",
+        offset:"0"
+      });
+      const data = await fetchSportsApi("/api/sportsapi/games/filter?" + params.toString());
+      const events = (data.matches || []).filter(event => {
+        if (["cancelled","postponed"].includes(String(event.status||"").toLowerCase())) return false;
+        const kickoff = matchKickoff(event);
+        if (!kickoff) return true;
+        const matchDay = new Intl.DateTimeFormat("sv-SE",{timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).format(kickoff);
         return matchDay === date;
-      }).map(e => ({
-        ...e,
-        tournament: { name: e.competition?.name || "Futebol" },
-        startTimestamp: e.utcDate ? Math.floor(new Date(e.utcDate).getTime() / 1000) : null
-      }));
-      analyzedStats.clear();
-      renderGames(events, "Football-Data.org");
-    } catch (err) {
-      const limited=String(err?.message||"").includes("429");
-      gamesList.innerHTML = '<div class="game-error">'+(limited?'A API está temporariamente limitando as consultas. Aguarde alguns minutos antes de tentar novamente.':'Não foi possível carregar os jogos reais agora. Tente novamente em instantes.')+'</div>';
-      status.textContent = limited ? "Limite temporário da API (HTTP 429)." : "Falha ao consultar a API: " + (err?.message || "erro desconhecido");
-      updateSummary([]); resultsList.textContent="Resultados indisponíveis: falha na API."; picksList.textContent="Palpites indisponíveis até receber dados reais.";
+      }).sort((a,b)=>(Number(a.startTime)||0)-(Number(b.startTime)||0));
+      renderGames(events,"SportsAPI");
+      if (data.pagination?.hasNext) status.textContent += " • há mais partidas disponíveis na paginação da API";
+    } catch (error) {
+      const limited = String(error.message||"").includes("429");
+      gamesList.innerHTML = '<div class="game-error">' + (limited ? "Limite de consultas da SportsAPI atingido. Aguarde o tempo indicado e tente novamente." : "Não foi possível carregar os jogos da SportsAPI: " + escapeHtml(error.message)) + '</div>';
+      status.textContent = limited ? "Limite temporário da SportsAPI (HTTP 429)." : "Falha na consulta à SportsAPI.";
+      updateSummary([]);
+      resultsList.textContent = "Resultados indisponíveis.";
+      picksList.textContent = "Palpites indisponíveis até a API responder.";
     }
   }
 
@@ -500,66 +501,83 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
   }));
 
   // Próximos jogos: consulta a janela de sete dias sem misturar com a lista de hoje.
-  async function loadUpcomingGames(){
-    const list=document.getElementById('upcomingList');
-    const note=document.getElementById('upcomingStatus');
-    if(!list||!note)return;
-    const from=localDateISO();
-    const end=new Date(from+'T12:00:00'); end.setDate(end.getDate()+7);
-    const to=end.getFullYear()+'-'+String(end.getMonth()+1).padStart(2,'0')+'-'+String(end.getDate()).padStart(2,'0');
-    document.getElementById('upcomingRange').textContent='Até '+new Date(to+'T12:00:00').toLocaleDateString('pt-BR');
-    try{
-      const response=await fetch('https://green-da-sorte.onrender.com/api/football-data/matches-range?from='+from+'&to='+to,{cache:'no-store'});
-      if(!response.ok)throw new Error('HTTP '+response.status);
-      const data=await response.json();
-      const now=Date.now();
-      const matches=(data.matches||[]).filter(match=>{
-        const kickoff=match.utcDate?new Date(match.utcDate).getTime():NaN;
-        return ['SCHEDULED','TIMED'].includes(match.status) && Number.isFinite(kickoff) && kickoff>now;
-      }).sort((a,b)=>new Date(a.utcDate)-new Date(b.utcDate));
-      if(!matches.length){list.innerHTML='<div class="empty-state">Não há partidas futuras agendadas nesse período nas competições liberadas pela sua chave.</div>';note.textContent='Consulta concluída • '+from+' a '+to;return;}
-      list.innerHTML=matches.map(match=>{
-        const date=match.utcDate?new Date(match.utcDate):null;
-        const dateLabel=date?date.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'Data a confirmar';
-        const timeLabel=date?date.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'}):'--:--';
-        const home=match.homeTeam?.name||'Mandante',away=match.awayTeam?.name||'Visitante',league=match.competition?.name||'Futebol';
-        return '<div class="result-item"><span><small style="display:block;color:#16e06f;margin-bottom:4px">'+escapeHtml(dateLabel)+' • '+escapeHtml(timeLabel)+' • '+escapeHtml(league)+'</small><b>'+escapeHtml(home)+' x '+escapeHtml(away)+'</b></span><strong>'+(match.status==='FINISHED'?'Encerrado':match.status==='IN_PLAY'?'AO VIVO':'Agendado')+'</strong></div>';
-      }).join('');
-      note.textContent=matches.length+' próximos jogos agendados • dados da Football-Data.org';
-    }catch(error){const limited=String(error.message).includes("429");list.innerHTML='<div class="empty-state">'+(limited?'Limite temporário da API atingido. Aguarde alguns minutos e atualize a página.':'Não foi possível consultar os próximos jogos agora. Tente novamente mais tarde.')+'</div>';note.textContent=limited?'Limite temporário de consultas (HTTP 429).':'Falha na consulta ('+escapeHtml(error.message)+').';}
+  async function loadUpcomingGames() {
+    const list = document.getElementById("upcomingList");
+    const note = document.getElementById("upcomingStatus");
+    if (!list || !note) return;
+    const today = localDateISO();
+    const start = new Date(today + "T12:00:00");
+    const end = new Date(start);
+    end.setDate(end.getDate()+7);
+    const to = end.getFullYear()+"-"+String(end.getMonth()+1).padStart(2,"0")+"-"+String(end.getDate()).padStart(2,"0");
+    document.getElementById("upcomingRange").textContent = "Até " + end.toLocaleDateString("pt-BR");
+    list.innerHTML = '<div class="game-loading">Consultando os próximos sete dias na SportsAPI...</div>';
+    try {
+      const matches = [];
+      for (let offset=0; offset<=7; offset++) {
+        const day = new Date(start);
+        day.setDate(day.getDate()+offset);
+        const date = day.getFullYear()+"-"+String(day.getMonth()+1).padStart(2,"0")+"-"+String(day.getDate()).padStart(2,"0");
+        const params = new URLSearchParams({sport:"football",date,status:"scheduled",limit:"100",offset:"0"});
+        const data = await fetchSportsApi("/api/sportsapi/games/filter?" + params.toString());
+        matches.push(...(data.matches||[]));
+      }
+      const now = Date.now();
+      const upcoming = matches.filter(match => {
+        const kickoff = matchKickoff(match);
+        return String(match.status).toLowerCase()==="scheduled" && kickoff && kickoff.getTime()>now;
+      }).sort((a,b)=>a.startTime-b.startTime);
+      if (!upcoming.length) {
+        list.innerHTML = '<div class="empty-state">Nenhuma partida futura foi retornada para esse período nas competições liberadas pela sua conta.</div>';
+        note.textContent = "Consulta concluída • " + today + " a " + to;
+        return;
+      }
+      list.innerHTML = upcoming.map(match => {
+        const date = matchKickoff(match);
+        const dateLabel = date ? date.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",timeZone:"America/Sao_Paulo"}) : "Data a confirmar";
+        const timeLabel = date ? date.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"}) : "--:--";
+        return '<div class="result-item"><span><small style="display:block;color:#16e06f;margin-bottom:4px">' + escapeHtml(dateLabel) + ' • ' + escapeHtml(timeLabel) + ' • ' + escapeHtml(match.league?.name||"Futebol") + '</small><b>' + escapeHtml(match.homeTeam?.name||"Mandante") + ' x ' + escapeHtml(match.awayTeam?.name||"Visitante") + '</b></span><strong>' + escapeHtml(matchStatusLabel(match.status)) + '</strong></div>';
+      }).join("");
+      note.textContent = upcoming.length + " próximos jogos • SportsAPI";
+    } catch (error) {
+      const limited = String(error.message||"").includes("429");
+      list.innerHTML = '<div class="empty-state">' + (limited ? "Limite temporário de consultas da API. Aguarde e tente novamente." : "Falha ao consultar próximos jogos: " + escapeHtml(error.message)) + '</div>';
+      note.textContent = limited ? "Limite temporário (HTTP 429)." : "Falha na consulta à SportsAPI.";
+    }
   }
+
   const currentPage=document.body.dataset.page||"inicio";
   if(currentPage==="proximos") loadUpcomingGames();
 
   // Estatísticas da competição: classificação, pontos, gols e aproveitamento via API.
   const statsCompetition=document.getElementById('statsCompetition');
   const competitionStats=document.getElementById('competitionStats');
-  async function loadCompetitionStats(){
-    if(!statsCompetition||!competitionStats)return;
-    const id=statsCompetition.value;
-    const label=statsCompetition.options[statsCompetition.selectedIndex]?.text||'Campeonato';
-    competitionStats.innerHTML='<div class="stats-loading">Consultando classificação de '+escapeHtml(label)+'...</div>';
-    try{
-      const response=await fetch('https://green-da-sorte.onrender.com/api/football-data/competitions/'+id+'/standings',{cache:'no-store'});
-      if(!response.ok)throw new Error('HTTP '+response.status);
-      const data=await response.json();
-      const standings=(data.standings||[]).find(item=>item.type==='TOTAL')||(data.standings||[])[0];
-      const table=standings?.table||[];
-      if(!table.length){competitionStats.innerHTML='<div class="stats-empty">A API não disponibilizou a classificação para esta competição no seu plano.</div>';return;}
-      const played=table.reduce((sum,row)=>sum+(Number(row.playedGames)||0),0);
-      const goals=table.reduce((sum,row)=>sum+(Number(row.goalsFor)||0),0);
-      const conceded=table.reduce((sum,row)=>sum+(Number(row.goalsAgainst)||0),0);
-      const points=table.reduce((sum,row)=>sum+(Number(row.points)||0),0);
-      document.getElementById('statMatches').textContent=Math.round(played/2);
-      document.getElementById('statAnalyzed').textContent=table.length;
-      document.getElementById('statBtts').textContent=goals;
-      document.getElementById('statOver').textContent=conceded;
-      document.getElementById('statsNote').textContent='Dados oficiais da classificação • '+label+' • temporada atual. Os indicadores mostram totais acumulados da classificação.';
-      competitionStats.innerHTML='<div class="stats-table-wrap"><table class="stats-table"><thead><tr><th># / Clube</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th><th>Pts</th></tr></thead><tbody>'+table.map(row=>'<tr><td>'+(row.position||'—')+'. '+escapeHtml(row.team?.name||'Equipe')+'</td><td>'+Number(row.playedGames||0)+'</td><td>'+Number(row.won||0)+'</td><td>'+Number(row.draw||0)+'</td><td>'+Number(row.lost||0)+'</td><td>'+Number(row.goalsFor||0)+'</td><td>'+Number(row.goalsAgainst||0)+'</td><td>'+Number(row.goalDifference||0)+'</td><td><b style="color:#16e06f">'+Number(row.points||0)+'</b></td></tr>').join('')+'</tbody></table></div>';
-    }catch(error){
-      competitionStats.innerHTML='<div class="stats-empty">Não foi possível carregar a classificação agora ('+escapeHtml(error.message)+'). Verifique se a competição está liberada na sua chave.</div>';
+  async function loadCompetitionStats() {
+    if (!competitionStats) return;
+    const label = "Todos os campeonatos disponíveis";
+    competitionStats.innerHTML = '<div class="stats-loading">Consultando partidas e resultados na SportsAPI...</div>';
+    try {
+      const params = new URLSearchParams({sport:"football",date:localDateISO(),statusIn:"scheduled,live,finished",limit:"100",offset:"0"});
+      const data = await fetchSportsApi("/api/sportsapi/games/filter?" + params.toString());
+      const matches = data.matches || [];
+      updateSummary(matches);
+      if (!matches.length) {
+        competitionStats.innerHTML = '<div class="stats-empty">A SportsAPI não retornou partidas para a data selecionada.</div>';
+        return;
+      }
+      const rows = matches.map(match => {
+        const kickoff = matchKickoff(match);
+        const time = kickoff ? kickoff.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"}) : "--:--";
+        return '<tr><td>' + escapeHtml(time) + '</td><td>' + escapeHtml(match.league?.name||"Futebol") + '</td><td>' + escapeHtml(match.homeTeam?.name||"Mandante") + ' x ' + escapeHtml(match.awayTeam?.name||"Visitante") + '</td><td>' + escapeHtml(matchScore(match)) + '</td><td>' + escapeHtml(matchStatusLabel(match.status)) + '</td></tr>';
+      }).join("");
+      competitionStats.innerHTML = '<div class="stats-table-wrap"><table class="stats-table"><thead><tr><th>Hora</th><th>Campeonato</th><th>Confronto</th><th>Placar</th><th>Status</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+      if (statsCompetition) statsCompetition.innerHTML = '<option value="all">Todos os campeonatos disponíveis</option>';
+      if (document.getElementById("statsNote")) document.getElementById("statsNote").textContent = matches.length + " partidas retornadas • " + label + " • totais calculados apenas com os placares disponíveis.";
+    } catch (error) {
+      competitionStats.innerHTML = '<div class="stats-empty">Não foi possível carregar os dados da SportsAPI: ' + escapeHtml(error.message) + '</div>';
     }
   }
+
   statsCompetition?.addEventListener('change',loadCompetitionStats);
   if(currentPage==="estatisticas") loadCompetitionStats();
 
