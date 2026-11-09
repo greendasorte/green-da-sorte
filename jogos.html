@@ -243,7 +243,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
     <div id="gamesList"><div class="game-loading">⏳ Aguardando os jogos reais da API...</div></div>
   </div>
   <section class="card extra-section" id="proximos"><div class="section-head"><h2>📅 PRÓXIMOS JOGOS</h2><span class="date" id="upcomingRange">Próximos 7 dias</span></div><div id="upcomingStatus" class="section-note">Buscando próximos confrontos...</div><div id="upcomingList" class="empty-state">Aguardando dados da API.</div></section>
-  <section class="card extra-section" id="estatisticas"><div class="section-head"><h2>📊 ESTATÍSTICAS</h2><select id="statsCompetition" class="tab" aria-label="Fonte das estatísticas"><option value="all">Todos os campeonatos disponíveis</option></select></div><div class="stats-grid"><div class="stat-box"><span>Jogos encontrados</span><strong id="statMatches">—</strong></div><div class="stat-box"><span>Clubes na tabela</span><strong id="statAnalyzed">—</strong></div><div class="stat-box"><span>Gols marcados</span><strong id="statBtts">—</strong></div><div class="stat-box"><span>Gols sofridos</span><strong id="statOver">—</strong></div></div><p class="section-note" id="statsNote">Carregando partidas e estatísticas da SportsAPI.</p><div id="competitionStats"><div class="empty-state">Carregando partidas e resultados...</div></div></section>
+  <section class="card extra-section" id="estatisticas"><div class="section-head"><h2>📊 ESTATÍSTICAS</h2><select id="statsCompetition" class="tab" aria-label="Fonte das estatísticas"><option value="all">Todos os campeonatos disponíveis</option></select></div><div class="stats-grid"><div class="stat-box"><span>Jogos encontrados</span><strong id="statMatches">—</strong></div><div class="stat-box"><span>Jogos finalizados</span><strong id="statAnalyzed">—</strong></div><div class="stat-box"><span>Gols marcados</span><strong id="statBtts">—</strong></div><div class="stat-box"><span>Ambas marcaram</span><strong id="statOver">—</strong></div></div><p class="section-note" id="statsNote">Carregando partidas e estatísticas da SportsAPI.</p><div id="competitionStats"><div class="empty-state">Carregando partidas e resultados...</div></div></section>
   <section class="card extra-section" id="campeonatos"><div class="section-head"><h2>🏆 CAMPEONATOS</h2></div><div class="championship-links" id="championshipLinks"><button class="tab" data-filter="Todos">Todos</button><button class="tab" data-filter="Brasileirão">Brasileirão</button><button class="tab" data-filter="Libertadores">Libertadores</button><button class="tab" data-filter="Champions League">Champions League</button><button class="tab" data-filter="Premier League">Premier League</button><button class="tab" data-filter="La Liga">La Liga</button><button class="tab" data-filter="Serie A">Serie A</button><button class="tab" data-filter="Bundesliga">Bundesliga</button></div><p class="section-note">São exibidas as competições que a API retornar no seu plano.</p></section>
   <section class="card extra-section" id="resultados"><div class="section-head"><h2>🏁 RESULTADOS DE HOJE</h2></div><div id="resultsList" class="empty-state">Aguardando dados da API.</div></section>
 </section>
@@ -306,8 +306,8 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
   }
 
   function matchScore(match) {
-    const home = Number.isFinite(Number(match?.homeScore)) ? match.homeScore : "—";
-    const away = Number.isFinite(Number(match?.awayScore)) ? match.awayScore : "—";
+    const home = match?.homeScore !== null && match?.homeScore !== undefined && Number.isFinite(Number(match.homeScore)) ? match.homeScore : "—";
+    const away = match?.awayScore !== null && match?.awayScore !== undefined && Number.isFinite(Number(match.awayScore)) ? match.awayScore : "—";
     return home + " : " + away;
   }
 
@@ -546,8 +546,40 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
     }
   }
 
+  async function loadChampionships() {
+    const container = document.getElementById("championshipLinks");
+    if (!container) return;
+    try {
+      const params = new URLSearchParams({sport:"football",date:localDateISO(),limit:"100",offset:"0"});
+      const data = await fetchSportsApi("/api/sportsapi/games/filter?" + params.toString());
+      const competitions = data.facets?.competitions || [];
+      if (!competitions.length) {
+        container.innerHTML = '<div class="empty-state">A SportsAPI ainda não retornou campeonatos para hoje.</div>';
+        return;
+      }
+      container.innerHTML = competitions.slice(0,16).map(competition => {
+        const name = competition.name || competition.label || "Campeonato";
+        return '<button class="tab" type="button" data-filter="' + escapeHtml(name) + '">' + escapeHtml(name) + '</button>';
+      }).join("");
+      container.querySelectorAll("[data-filter]").forEach(button => button.addEventListener("click", () => {
+        const filter = button.dataset.filter.toLocaleLowerCase("pt-BR");
+        if (tabs) {
+          const all = tabs.querySelector('[data-league="todos"]');
+          if (all) all.click();
+        }
+        if (searchInput) searchInput.value = button.dataset.filter;
+        activeLeague = "todos";
+        applyFilters();
+        document.getElementById("jogos")?.scrollIntoView({behavior:"smooth"});
+      }));
+    } catch (error) {
+      container.innerHTML = '<div class="empty-state">Não foi possível carregar os campeonatos: ' + escapeHtml(error.message) + '</div>';
+    }
+  }
+
   const currentPage=document.body.dataset.page||"inicio";
   if(currentPage==="proximos") loadUpcomingGames();
+  if(currentPage==="campeonatos") loadChampionships();
 
   // Estatísticas da competição: classificação, pontos, gols e aproveitamento via API.
   const statsCompetition=document.getElementById('statsCompetition');
