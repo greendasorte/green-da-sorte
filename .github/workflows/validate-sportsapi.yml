@@ -18,10 +18,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Install backend dependencies
+        run: npm install --ignore-scripts
       - name: Check backend JavaScript syntax
         run: |
           node --check server.js
           node --check sportsapi.js
+      - name: Run SportsAPI proxy integration tests
+        run: npm test
       - name: Check all inline frontend scripts
         run: |
           python3 - <<'PY'
