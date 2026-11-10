@@ -421,7 +421,6 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
       note.textContent=matches.length+" próximos jogos • dados da SportsAPI";
     }catch(e){list.innerHTML='<div class="empty-state">Falha ao consultar agenda SportsAPI: '+escapeHtml(e.message)+'.</div>';note.textContent="Erro na consulta SportsAPI.";}
   }
-  const currentPage=document.body.dataset.page
 
     const currentPage=document.body.dataset.page||"inicio";
   if(currentPage==="proximos") loadUpcomingGames();
