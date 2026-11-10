@@ -15,7 +15,7 @@ main{display:grid;grid-template-columns:245px 1fr 315px;gap:16px;padding:20px 22
 .sidebar,.card{background:linear-gradient(180deg,#07120f,#050d0b);border:1px solid var(--line);border-radius:12px}
 .sidebar{padding:16px}.menu-title{font-size:11px;color:var(--green);font-weight:800;margin:4px 10px 14px}.menu a{display:block;padding:13px 12px;border-radius:9px;color:#d6dfdb;text-decoration:none;margin-bottom:4px}.menu a.active,.menu a:hover{background:#07351f;color:var(--green)}.comp{border-top:1px solid var(--line);margin-top:14px;padding-top:16px}.comp a{font-size:14px}
 .hero{height:124px;border:1px solid #174b36;border-radius:12px;background:radial-gradient(circle at 75% 30%,#0d5b35,transparent 32%),linear-gradient(110deg,#07130f,#061b13 55%,#08281a);display:flex;align-items:center;padding:22px 30px;margin-bottom:15px}.hero .big{font-size:30px;font-weight:900}.hero .big span{color:var(--green)}.hero p{margin:7px 0 0;color:#b3c0bb}
-.whatsapp{border:2px solid var(--green);border-radius:12px;background:linear-gradient(90deg,#06150f,#0a2418);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;margin-bottom:15px}.wa-title{font-size:18px;font-weight:900;color:var(--green)}.wa-sub{font-size:12px;color:#aab8b2;margin-top:3px}.wa-btn{background:#11a954;color:#fff;text-decoration:none;padding:11px 18px;border-radius:9px;font-weight:800}
+.whatsapp{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:16px 20px;margin:0 0 16px;border:1px solid #22b96b;border-radius:15px;background:linear-gradient(110deg,#071b11,#0d2b1b);box-shadow:0 12px 28px #0003;min-width:0}.whatsapp>div{flex:1 1 230px;min-width:0}.wa-title{font-size:15px;font-weight:900;letter-spacing:.03em;color:#63efa0;line-height:1.35}.wa-sub{font-size:12px;line-height:1.5;color:#b1c2b8;margin-top:5px}.wa-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:0 0 auto;min-height:44px;padding:11px 17px;border-radius:10px;background:linear-gradient(135deg,#16b967,#0b914c);color:#fff;text-decoration:none;font-size:12px;font-weight:850;white-space:nowrap;box-shadow:0 7px 18px #0b9f5638}
 .section-head{display:flex;align-items:center;justify-content:space-between;padding:15px 17px;border-bottom:1px solid var(--line)}.section-head h2{margin:0;font-size:19px}.date{font-size:12px;color:#9eada7}.tabs{display:flex;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);overflow:auto}.tab{background:#0a1714;border:1px solid #16372c;color:#aab8b2;padding:9px 16px;border-radius:8px;white-space:nowrap;font-size:12px}.tab.active{background:#08a653;color:#fff;border-color:#16e06f}
 .match{display:grid;grid-template-columns:105px 1fr 290px 105px;align-items:center;gap:12px;padding:13px 12px;border-bottom:1px solid #10271f}.match:last-child{border-bottom:0}.time{font-weight:800}.league{font-size:10px;color:var(--green);margin-top:4px}.teams{text-align:center;font-weight:700}.prob{display:flex;gap:5px}.p{padding:7px 6px;border-radius:7px;background:#0b2019;text-align:center;min-width:82px;font-size:11px}.p b{display:block;font-size:14px;color:#fff}.p.home{background:#07472b}.p.draw{background:#17282a}.p.away{background:#0b2638}.analyze{background:transparent;color:#d4ded9;border:1px solid #244238;border-radius:8px;padding:8px;font-size:11px}
 .side-card{padding:15px;margin-bottom:15px}.side-title{font-weight:900;font-size:16px;margin-bottom:14px}.live{border:1px solid #17412f;border-radius:9px;padding:12px;margin-bottom:10px}.live-head{display:flex;justify-content:space-between;font-weight:800}.live-head .red{color:#ff4040}.bar{height:5px;background:#20332d;border-radius:5px;margin:6px 0 10px}.bar i{display:block;height:100%;background:var(--green);border-radius:5px}.tip{border-left:3px solid var(--green);padding:11px;background:#081610;border-radius:8px}.confidence{display:inline-block;color:#04100a;background:var(--green);font-weight:900;padding:5px 8px;border-radius:15px;font-size:11px;margin:7px 0}
@@ -48,8 +48,8 @@ nav a.active{border-bottom-color:var(--green);font-weight:800}
 #upcomingList .result-item span{min-width:0}
 #upcomingList .result-item strong{white-space:nowrap;color:var(--green)}
 @media(max-width:1100px){header{padding-bottom:0}header nav{justify-content:flex-start;align-items:center;min-height:58px;box-shadow:0 -8px 28px #0005}header nav a{padding:9px 3px 7px}.search{max-width:240px}}
-@media(max-width:760px){body{padding-bottom:76px}header{height:auto;min-height:68px;gap:10px;padding:10px 12px}.logo{flex:0 0 auto}.brand{font-size:17px}.clover{font-size:34px}.search{width:min(44vw,190px);max-width:none;margin-left:auto}header nav{height:64px;min-height:64px;bottom:0;padding:7px 10px calc(7px + env(safe-area-inset-bottom));gap:16px;justify-content:flex-start}header nav a{font-size:11px;flex:0 0 auto;padding:8px 2px}.hero{padding:18px;min-height:112px}.hero .big{font-size:24px}.whatsapp{gap:10px;align-items:center}.wa-title{font-size:14px}.wa-btn{padding:10px 12px;font-size:11px;white-space:nowrap}.section-head{padding:13px}.section-head h2{font-size:16px}.match{padding:13px 10px;gap:8px}.match .teams{font-size:13px}.match .prob{gap:4px}.match .p{min-width:0;flex:1;padding:7px 3px;font-size:10px}.match .p b{font-size:13px}.analyze{font-size:11px;padding:9px 12px;min-height:36px}.stats-grid{gap:8px;padding:10px}.stat-box{padding:11px}.stat-box strong{font-size:21px}.right{margin-top:12px}.extra-section{margin-top:12px}footer{padding:16px;line-height:1.8} }
-@media(max-width:380px){.brand{font-size:15px}.search{width:39vw}.wa-sub{font-size:10px}.wa-btn{padding:9px;font-size:10px}.match .teams{font-size:12px}}
+@media(max-width:760px){body{padding-bottom:76px}header{height:auto;min-height:68px;gap:10px;padding:10px 12px}.logo{flex:0 0 auto}.brand{font-size:17px}.clover{font-size:34px}.search{width:min(44vw,190px);max-width:none;margin-left:auto}header nav{height:64px;min-height:64px;bottom:0;padding:7px 10px calc(7px + env(safe-area-inset-bottom));gap:16px;justify-content:flex-start}header nav a{font-size:11px;flex:0 0 auto;padding:8px 2px}.hero{padding:18px;min-height:112px}.hero .big{font-size:24px}.whatsapp{align-items:stretch;gap:12px;padding:14px}.whatsapp>div{flex-basis:100%}.wa-title{font-size:14px}.wa-btn{width:100%;min-height:44px;padding:11px 14px;font-size:12px;white-space:normal}.section-head{padding:13px}.section-head h2{font-size:16px}.match{padding:13px 10px;gap:8px}.match .teams{font-size:13px}.match .prob{gap:4px}.match .p{min-width:0;flex:1;padding:7px 3px;font-size:10px}.match .p b{font-size:13px}.analyze{font-size:11px;padding:9px 12px;min-height:36px}.stats-grid{gap:8px;padding:10px}.stat-box{padding:11px}.stat-box strong{font-size:21px}.right{margin-top:12px}.extra-section{margin-top:12px}footer{padding:16px;line-height:1.8} }
+@media(max-width:380px){.brand{font-size:15px}.search{width:39vw}.wa-sub{font-size:11px}.wa-btn{padding:11px;font-size:12px}.match .teams{font-size:12px}}
 
 /* Correções após validação visual em desktop */
 html,body{max-width:100%;overflow-x:hidden}
@@ -299,185 +299,73 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
     }[c]));
   }
 
-  const teamStatsCache = new Map();
-
-  async function getTeamStats(teamId) {
-    if (!teamId) return null;
-    if (teamStatsCache.has(teamId)) return teamStatsCache.get(teamId);
-    const promise = (async () => {
-      try {
-        const response = await fetch(`https://green-da-sorte.onrender.com/api/football-data/teams/${teamId}/matches`, {cache:"no-store"});
-        if (!response.ok) return null;
-        const data = await response.json();
-        const finished = (data.matches || []).filter(e =>
-          e.status === "FINISHED" &&
-          Number.isFinite(e.score?.fullTime?.home) &&
-          Number.isFinite(e.score?.fullTime?.away) &&
-          (e.homeTeam?.id === Number(teamId) || e.awayTeam?.id === Number(teamId))
-        ).slice(0, 5);
-        if (!finished.length) return null;
-        let scored = 0, conceded = 0, count = 0;
-        finished.forEach(e => {
-          const isHome = e.homeTeam?.id === Number(teamId);
-          scored += isHome ? e.score.fullTime.home : e.score.fullTime.away;
-          conceded += isHome ? e.score.fullTime.away : e.score.fullTime.home;
-          count++;
-        });
-        return {scored: scored / count, conceded: conceded / count, matches: count};
-      } catch (_) { return null; }
-    })();
-    teamStatsCache.set(teamId, promise);
-    return promise;
+  const detailCache = new Map();
+  async function getMatchDetails(id) {
+    if (!id) return null;
+    if (detailCache.has(id)) return detailCache.get(id);
+    const promise=(async()=>{try{const r=await fetch("https://green-da-sorte.onrender.com/api/sportsapi/games/"+encodeURIComponent(id)+"/details?sport=football",{cache:"no-store"});if(!r.ok)return null;return await r.json();}catch(_){return null;}})();
+    detailCache.set(id,promise);return promise;
+  }
+  function gameDate(m){return Number.isFinite(Number(m.startTime))?new Date(Number(m.startTime)):null;}
+  function gameStatusLabel(m){return ({live:"AO VIVO",scheduled:"AGENDADO",finished:"ENCERRADO",postponed:"ADIADO",cancelled:"CANCELADO"})[m.status]||"STATUS INDISPONÍVEL";}
+  async function renderGames(events,sourceLabel){
+    gamesList.innerHTML="";analyzedStats.clear();
+    if(!events.length){gamesList.innerHTML='<div class="game-error">Nenhum jogo encontrado nesta data nas competições disponíveis na SportsAPI.</div>';status.textContent="Consulta concluída • SportsAPI";updateSummary([]);resultsList.textContent="Nenhum resultado finalizado retornado nesta data.";picksList.innerHTML='<div class="empty-state">Sem odds publicadas para gerar sugestões neste momento.</div>';return;}
+    const rows=events.slice(0,30).map(event=>{
+      const home=event.homeTeam?.name||"Mandante",away=event.awayTeam?.name||"Visitante",league=event.league?.name||"Futebol",kickoff=gameDate(event);
+      const time=kickoff?kickoff.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"}):"--:--";
+      const score=Number.isFinite(event.homeScore)&&Number.isFinite(event.awayScore)?event.homeScore+" x "+event.awayScore:"";
+      const row=document.createElement("div");row.className="match";row.dataset.league=league.toLocaleLowerCase("pt-BR");
+      row.innerHTML=`<div><div class="time">${escapeHtml(time)}</div><div class="league">${escapeHtml(league)}</div></div><div class="teams">${escapeHtml(home)} &nbsp; ⚔ &nbsp; ${escapeHtml(away)}${score?'<div style="color:#63efa0;font-size:16px;margin-top:5px">'+escapeHtml(score)+'</div>':''}</div><div class="prob"><div class="p"><b>${escapeHtml(gameStatusLabel(event))}</b>Status</div><div class="p"><b>${escapeHtml(event.gameTimeDisplay||score||"—")}</b>${event.status==="live"?"Tempo":"Placar"}</div><div class="p"><b>${escapeHtml(event.roundName||"—")}</b>Rodada</div></div><button class="analyze" data-id="${escapeHtml(event.id)}" data-home="${escapeHtml(home)}" data-away="${escapeHtml(away)}">Ver detalhes ›</button><div class="match-markets" style="grid-column:2 / 4;font-size:11px;color:#aab8b2;padding-top:2px">${event.venue?.name?"Estádio: "+escapeHtml(event.venue.name):"Dados fornecidos pela SportsAPI."}</div>`;
+      gamesList.appendChild(row);return {event,row,home,away};
+    });
+    status.textContent="Carregando partidas reais • "+sourceLabel;attachAnalysis();
+    const chosen=rows.filter(x=>x.event.id).slice(0,3),details=await Promise.all(chosen.map(x=>getMatchDetails(x.event.id)));
+    chosen.forEach((item,i)=>{const d=details[i],target=item.row.querySelector(".match-markets");if(!d){target.textContent="Detalhes extras não publicados. Dados básicos confirmados pela SportsAPI.";return;}
+      const stats=Array.isArray(d.statistics)?d.statistics.slice(0,3).map(x=>x.label+": "+x.home+" x "+x.away).join(" • "):"",odds=Array.isArray(d.odds?.markets)?d.odds.markets.length:0;
+      target.textContent=[stats,odds?odds+" mercado(s) com odds":"Odds não publicadas para esta partida"].filter(Boolean).join(" • ")||"Detalhes consultados na SportsAPI.";
+      analyzedStats.set(item.event.id,{event:item.event,home:item.home,away:item.away,details:d});
+    });
+    rows.slice(3).forEach(x=>x.row.querySelector(".match-markets").textContent="Partida listada pela SportsAPI • detalhes extras sob consulta.");
+    updateSummary(rows.map(x=>({event:x.event})));renderResults(events);renderPicks();applyFilters();status.textContent=rows.length+" partidas listadas • provedor: SportsAPI";
   }
 
-  function poisson(lambda, goals) {
-    let p = Math.exp(-lambda);
-    for (let i = 1; i <= goals; i++) p *= lambda / i;
-    return p;
-  }
-
-  function modelProbabilities(homeStats, awayStats) {
-    if (!homeStats || !awayStats) return null;
-    // Estimativa simples usando os últimos jogos concluídos disponíveis para cada equipe.
-    const homeXg = Math.min(4.2, Math.max(0.2, (homeStats.scored + awayStats.conceded) / 2 * 1.08));
-    const awayXg = Math.min(4.2, Math.max(0.2, (awayStats.scored + homeStats.conceded) / 2 * 0.92));
-    let homeWin = 0, draw = 0, awayWin = 0, btts = 0, over25 = 0, total = 0;
-    for (let h = 0; h <= 8; h++) {
-      for (let a = 0; a <= 8; a++) {
-        const p = poisson(homeXg, h) * poisson(awayXg, a);
-        total += p;
-        if (h > a) homeWin += p;
-        else if (h === a) draw += p;
-        else awayWin += p;
-        if (h > 0 && a > 0) btts += p;
-        if (h + a >= 3) over25 += p;
-      }
-    }
-    const pct = n => Math.round(n / total * 100);
-    return {home:pct(homeWin), draw:pct(draw), away:pct(awayWin), btts:pct(btts), over25:pct(over25), homeXg:homeXg.toFixed(1), awayXg:awayXg.toFixed(1)};
-  }
-
-  async function estimateProbabilities(event) {
-    const homeId = event?.homeTeam?.id;
-    const awayId = event?.awayTeam?.id;
-    if (!homeId || !awayId) return null;
-    const [homeStats, awayStats] = await Promise.all([getTeamStats(homeId), getTeamStats(awayId)]);
-    return modelProbabilities(homeStats, awayStats);
-  }
-
-  async function renderGames(events, sourceLabel) {
-    gamesList.innerHTML = "";
-    if (!events.length) {
-      gamesList.innerHTML = '<div class="game-error">Nenhum jogo encontrado para hoje.</div>';
-      status.textContent = "Nenhum jogo encontrado.";
-      updateSummary([]); resultsList.textContent="Nenhuma partida finalizada retornada hoje."; picksList.textContent="Nenhum palpite disponível sem dados suficientes.";
-      return;
-    }
-
-    const selected = events.slice(0, 20);
-    const rows = [];
-    for (const e of selected) {
-      const home = e.homeTeam?.name || e[2] || "Casa";
-      const away = e.awayTeam?.name || e[3] || "Fora";
-      const league = e.tournament?.name || e[1] || "Futebol";
-      const time = e.startTimestamp
-        ? new Date(e.startTimestamp * 1000).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"})
-        : e[0] || "--:--";
-      const row = document.createElement("div");
-      row.className = "match";
-      row.dataset.league = league.toLowerCase();
-      row.innerHTML = `
-        <div><div class="time">${escapeHtml(time)}</div><div class="league">${escapeHtml(league)}</div></div>
-        <div class="teams">${escapeHtml(home)} &nbsp; ⚔ &nbsp; ${escapeHtml(away)}</div>
-        <div class="prob"><div class="p home"><b>—</b>Casa</div><div class="p draw"><b>—</b>Empate</div><div class="p away"><b>—</b>Fora</div></div>
-        <button class="analyze" data-home="${escapeHtml(home)}" data-away="${escapeHtml(away)}">Ver análise ›</button>
-        <div class="match-markets" style="grid-column:2 / 4;font-size:11px;color:#aab8b2;padding-top:2px">⏳ Calculando com os últimos jogos...</div>`;
-      gamesList.appendChild(row);
-      rows.push({event:e,row,home,away});
-    }
-    status.textContent = `Calculando probabilidades para até 3 jogos • ${sourceLabel}`;
-    attachAnalysis();
-
-    await Promise.all(rows.map(async ({event,row,home,away}, index) => {
-      if (index >= 3) {
-        row.querySelector(".match-markets").textContent = "Análise estatística limitada aos 3 primeiros jogos para respeitar a cota gratuita da API.";
-        return;
-      }
-      const p = await estimateProbabilities(event);
-      const prob = row.querySelector(".prob");
-      const markets = row.querySelector(".match-markets");
-      if (!p) {
-        prob.innerHTML = '<div class="p"><b>—</b>Casa</div><div class="p"><b>—</b>Empate</div><div class="p"><b>—</b>Fora</div>';
-        markets.textContent = "Probabilidades indisponíveis: a API não retornou resultados recentes suficientes para este jogo.";
-        return;
-      }
-      prob.innerHTML = `<div class="p home"><b>${p.home}%</b>Casa</div><div class="p draw"><b>${p.draw}%</b>Empate</div><div class="p away"><b>${p.away}%</b>Fora</div>`;
-      analyzedStats.set(event.id || (home+"-"+away),{event,home,away,probabilities:p});
-      markets.innerHTML = `<span style="color:#16e06f;font-weight:800">AMBAS MARCAM: ${p.btts}%</span> &nbsp;·&nbsp; <span style="color:#16e06f;font-weight:800">OVER 2.5: ${p.over25}%</span> &nbsp;·&nbsp; Gols estimados: ${p.homeXg} x ${p.awayXg} <span style="display:block;color:#74877f;margin-top:4px">Modelo estatístico baseado nos últimos ${Math.min(5, Math.min((await getTeamStats(event.homeTeam?.id))?.matches || 0, (await getTeamStats(event.awayTeam?.id))?.matches || 0))} jogos disponíveis de cada equipe; não é garantia.</span>`;
-    }));
-    updateSummary(rows.map(x=>({probabilities:analyzedStats.get(x.event.id || (x.home+"-"+x.away))?.probabilities||null})));
-    renderResults(events); renderPicks(); applyFilters();
-    status.textContent = `${rows.length} jogos listados • análise estatística dos 3 primeiros • ${sourceLabel}`;
-  }
-
-  function attachAnalysis() {
+    function attachAnalysis(){
     document.querySelectorAll(".analyze").forEach(btn=>btn.onclick=()=>{
-      const home=btn.dataset.home,away=btn.dataset.away;
-      const item=Array.from(analyzedStats.values()).find(x=>x.home===home&&x.away===away),p=item?.probabilities;
-      analysisContent.innerHTML=`<h3>${escapeHtml(home)} x ${escapeHtml(away)}</h3><p>Estimativas baseadas nos últimos resultados disponíveis.</p><p>Casa: <b>${p?p.home+"%":"—"}</b> · Empate: <b>${p?p.draw+"%":"—"}</b> · Fora: <b>${p?p.away+"%":"—"}</b></p><p>Ambas marcam: <b>${p?p.btts+"%":"—"}</b> · Over 2.5: <b>${p?p.over25+"%":"—"}</b></p><p>Estimativas não garantem resultados.</p>`;
-      if(analysisDialog.showModal)analysisDialog.showModal();else alert(home+" x "+away);
+      const d=analyzedStats.get(btn.dataset.id)?.details||{},stats=Array.isArray(d.statistics)?d.statistics:[],odds=Array.isArray(d.odds?.markets)?d.odds.markets:[];
+      analysisContent.innerHTML=`<h3>${escapeHtml(btn.dataset.home)} x ${escapeHtml(btn.dataset.away)}</h3><p>${escapeHtml(d.info?.intro||"Detalhes publicados pela SportsAPI, quando disponíveis.")}</p><h4 style="color:#63efa0">Estatísticas</h4>${stats.length?stats.map(x=>'<p>'+escapeHtml(x.label||x.key)+': <b>'+escapeHtml(x.home??"—")+' x '+escapeHtml(x.away??"—")+'</b></p>').join(""):"<p>Estatísticas detalhadas não publicadas.</p>"}<h4 style="color:#63efa0">Mercados e odds</h4><p>${odds.length?odds.map(x=>escapeHtml(x.name||x.key||"Mercado")).join(" • "):"Nenhuma cotação publicada para esta partida."}</p><p style="color:#9aada2">Cotações podem mudar e não garantem resultados.</p>`;
+      if(analysisDialog.showModal)analysisDialog.showModal();else alert(btn.dataset.home+" x "+btn.dataset.away);
     });
   }
-  function updateSummary(items){
-    const valid=items.filter(x=>x.probabilities); document.getElementById("statMatches").textContent=items.length;
-    document.getElementById("statAnalyzed").textContent=valid.length;
-    const avg=k=>valid.length?Math.round(valid.reduce((s,x)=>s+x.probabilities[k],0)/valid.length)+"%":"—";
-    document.getElementById("statBtts").textContent=avg("btts");document.getElementById("statOver").textContent=avg("over25");
-    document.getElementById("statsNote").textContent=valid.length?"Médias das estimativas calculadas para partidas com histórico recente disponível.":"Histórico insuficiente para calcular médias.";
+
+    function updateSummary(items){
+    const done=items.filter(x=>x.event?.status==="finished"),goals=done.reduce((n,x)=>n+(Number(x.event.homeScore)||0)+(Number(x.event.awayScore)||0),0);
+    document.getElementById("statMatches").textContent=items.length;document.getElementById("statAnalyzed").textContent=done.length;document.getElementById("statBtts").textContent=goals;document.getElementById("statOver").textContent=items.filter(x=>x.event?.status==="live").length;
+    const note=document.getElementById("statsNote");if(note)note.textContent="Indicadores calculados somente com partidas retornadas pela SportsAPI. Sem estimativas artificiais.";
   }
   function renderResults(events){
-    const done=events.filter(e=>e.status==="FINISHED");
-    resultsList.innerHTML=done.length?done.map(e=>`<div class="result-item"><span>${escapeHtml(e.homeTeam?.name||"Mandante")} x ${escapeHtml(e.awayTeam?.name||"Visitante")}</span><strong>${e.score?.fullTime?.home??"—"} : ${e.score?.fullTime?.away??"—"}</strong></div>`).join(""):'<div class="empty-state">Nenhuma partida finalizada retornada pela API hoje.</div>';
+    const done=events.filter(e=>e.status==="finished");
+    resultsList.innerHTML=done.length?done.map(e=>'<div class="result-item"><span>'+escapeHtml(e.homeTeam?.name||"Mandante")+' x '+escapeHtml(e.awayTeam?.name||"Visitante")+'</span><strong>'+escapeHtml(e.homeScore??"—")+' : '+escapeHtml(e.awayScore??"—")+'</strong></div>').join(""):'<div class="empty-state">Nenhuma partida finalizada retornada pela SportsAPI nesta data.</div>';
   }
   function renderPicks(){
-    const picks=Array.from(analyzedStats.values()).filter(x=>x.probabilities).map(x=>({...x,market:x.probabilities.btts>=x.probabilities.over25?"Ambas marcam":"Mais de 2.5 gols",value:Math.max(x.probabilities.btts,x.probabilities.over25)})).sort((a,b)=>b.value-a.value).slice(0,5);
-    picksList.innerHTML=picks.length?picks.map(x=>`<div class="pick-item"><strong>${escapeHtml(x.home)} x ${escapeHtml(x.away)}</strong><div>${x.market}: <b>${x.value}%</b></div><small>Estimativa estatística, não garantia.</small></div>`).join(""):'<div class="empty-state">Sem dados recentes suficientes para gerar sugestões.</div>';
+    const available=Array.from(analyzedStats.values()).filter(x=>Array.isArray(x.details?.odds?.markets)&&x.details.odds.markets.length);
+    picksList.innerHTML=available.length?available.map(x=>'<div class="pick-item"><strong>'+escapeHtml(x.home)+' x '+escapeHtml(x.away)+'</strong><div>'+x.details.odds.markets.length+' mercado(s) com cotações disponíveis</div><small>Consulte as odds nos detalhes. Cotações podem mudar.</small></div>').join(""):'<div class="empty-state">A SportsAPI não publicou odds para os jogos consultados. Não exibimos cotações inventadas.</div>';
   }
-  function applyFilters(){
+
+    function applyFilters(){
     const q=(searchInput?.value||"").trim().toLocaleLowerCase("pt-BR");
     document.querySelectorAll("#gamesList .match").forEach(row=>{const league=activeLeague==="todos"||row.dataset.league.includes(activeLeague);const match=!q||row.textContent.toLocaleLowerCase("pt-BR").includes(q);row.style.display=league&&match?"":"none";});
   }
 
-  async function loadGames() {
-    formatDate();
-    gamesList.innerHTML = '<div class="game-loading">⏳ Buscando os jogos reais de hoje...</div>';
-    status.textContent = "Atualizando jogos...";
-    try {
-      const date = localDateISO();
-      const url = `https://green-da-sorte.onrender.com/api/football-data/matches?date=${date}`;
-      const response = await fetch(url, {cache:"no-store"});
-      if (!response.ok) throw new Error("Football-Data.org indisponível (HTTP " + response.status + ")");
-      const data = await response.json();
-      const events = (data.matches || []).filter(e => {
-        if (e.status === "CANCELLED" || !e.utcDate) return false;
-        const matchDay = new Intl.DateTimeFormat("sv-SE", {timeZone:"America/Sao_Paulo",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(e.utcDate));
-        return matchDay === date;
-      }).map(e => ({
-        ...e,
-        tournament: { name: e.competition?.name || "Futebol" },
-        startTimestamp: e.utcDate ? Math.floor(new Date(e.utcDate).getTime() / 1000) : null
-      }));
-      analyzedStats.clear();
-      renderGames(events, "Football-Data.org");
-    } catch (err) {
-      const limited=String(err?.message||"").includes("429");
-      gamesList.innerHTML = '<div class="game-error">'+(limited?'A API está temporariamente limitando as consultas. Aguarde alguns minutos antes de tentar novamente.':'Não foi possível carregar os jogos reais agora. Tente novamente em instantes.')+'</div>';
-      status.textContent = limited ? "Limite temporário da API (HTTP 429)." : "Falha ao consultar a API: " + (err?.message || "erro desconhecido");
-      updateSummary([]); resultsList.textContent="Resultados indisponíveis: falha na API."; picksList.textContent="Palpites indisponíveis até receber dados reais.";
-    }
+  async function loadGames(){
+    formatDate();gamesList.innerHTML='<div class="game-loading">⏳ Consultando jogos reais na SportsAPI...</div>';status.textContent="Conectando à SportsAPI...";
+    try{const date=localDateISO(),r=await fetch("https://green-da-sorte.onrender.com/api/sportsapi/games/filter?sport=football&date="+encodeURIComponent(date)+"&limit=100&offset=0",{cache:"no-store"}),data=await r.json();if(!r.ok)throw new Error(data?.details?.message||data?.error||"SportsAPI HTTP "+r.status);renderGames((data.matches||[]).filter(x=>x&&x.status!=="cancelled"),"SportsAPI");}
+    catch(err){gamesList.innerHTML='<div class="game-error">Falha ao consultar SportsAPI: '+escapeHtml(err.message)+'. Confira SPORTSAPI_API_KEY no Render.</div>';status.textContent="Falha na consulta SportsAPI.";updateSummary([]);resultsList.textContent="Resultados indisponíveis.";picksList.textContent="Odds indisponíveis até a API responder.";}
   }
 
-  tabs.querySelectorAll(".tab[data-league]").forEach(tab => {
+  
+
+    tabs.querySelectorAll(".tab[data-league]").forEach(tab => {
     tab.addEventListener("click", () => {
       tabs.querySelectorAll(".tab[data-league]").forEach(t => t.classList.remove("active"));
       tab.classList.add("active");
@@ -519,68 +407,39 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
     else link.removeAttribute("aria-current");
   });
 
-  // Próximos jogos: consulta a janela de sete dias sem misturar com a lista de hoje.
+  // Próximos jogos: a SportsAPI aceita uma data por chamada.
   async function loadUpcomingGames(){
-    const list=document.getElementById('upcomingList');
-    const note=document.getElementById('upcomingStatus');
-    if(!list||!note)return;
-    const from=localDateISO();
-    const end=new Date(from+'T12:00:00'); end.setDate(end.getDate()+7);
-    const to=end.getFullYear()+'-'+String(end.getMonth()+1).padStart(2,'0')+'-'+String(end.getDate()).padStart(2,'0');
-    document.getElementById('upcomingRange').textContent='Até '+new Date(to+'T12:00:00').toLocaleDateString('pt-BR');
-    try{
-      const response=await fetch('https://green-da-sorte.onrender.com/api/football-data/matches-range?from='+from+'&to='+to,{cache:'no-store'});
-      if(!response.ok)throw new Error('HTTP '+response.status);
-      const data=await response.json();
-      const now=Date.now();
-      const matches=(data.matches||[]).filter(match=>{
-        const kickoff=match.utcDate?new Date(match.utcDate).getTime():NaN;
-        return ['SCHEDULED','TIMED'].includes(match.status) && Number.isFinite(kickoff) && kickoff>now;
-      }).sort((a,b)=>new Date(a.utcDate)-new Date(b.utcDate));
-      if(!matches.length){list.innerHTML='<div class="empty-state">Não há partidas futuras agendadas nesse período nas competições liberadas pela sua chave.</div>';note.textContent='Consulta concluída • '+from+' a '+to;return;}
-      list.innerHTML=matches.map(match=>{
-        const date=match.utcDate?new Date(match.utcDate):null;
-        const dateLabel=date?date.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'}):'Data a confirmar';
-        const timeLabel=date?date.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit',timeZone:'America/Sao_Paulo'}):'--:--';
-        const home=match.homeTeam?.name||'Mandante',away=match.awayTeam?.name||'Visitante',league=match.competition?.name||'Futebol';
-        return '<div class="result-item"><span><small style="display:block;color:#16e06f;margin-bottom:4px">'+escapeHtml(dateLabel)+' • '+escapeHtml(timeLabel)+' • '+escapeHtml(league)+'</small><b>'+escapeHtml(home)+' x '+escapeHtml(away)+'</b></span><strong>'+(match.status==='FINISHED'?'Encerrado':match.status==='IN_PLAY'?'AO VIVO':'Agendado')+'</strong></div>';
-      }).join('');
-      note.textContent=matches.length+' próximos jogos agendados • dados da Football-Data.org';
-    }catch(error){const limited=String(error.message).includes("429");list.innerHTML='<div class="empty-state">'+(limited?'Limite temporário da API atingido. Aguarde alguns minutos e atualize a página.':'Não foi possível consultar os próximos jogos agora. Tente novamente mais tarde.')+'</div>';note.textContent=limited?'Limite temporário de consultas (HTTP 429).':'Falha na consulta ('+escapeHtml(error.message)+').';}
+    const list=document.getElementById("upcomingList"),note=document.getElementById("upcomingStatus");if(!list||!note)return;
+    const from=localDateISO(),end=new Date(from+"T12:00:00");end.setDate(end.getDate()+7);const to=end.getFullYear()+"-"+String(end.getMonth()+1).padStart(2,"0")+"-"+String(end.getDate()).padStart(2,"0");
+    document.getElementById("upcomingRange").textContent="Até "+new Date(to+"T12:00:00").toLocaleDateString("pt-BR");list.innerHTML='<div class="empty-state">Consultando agenda SportsAPI...</div>';
+    try{const dates=[];for(let i=0;i<=7;i++){const d=new Date(from+"T12:00:00");d.setDate(d.getDate()+i);dates.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"));}
+      const rs=await Promise.all(dates.map(date=>fetch("https://green-da-sorte.onrender.com/api/sportsapi/games?sport=football&date="+date+"&limit=100",{cache:"no-store"})));
+      const ps=await Promise.all(rs.map(async r=>{const j=await r.json();if(!r.ok)throw new Error(j?.error||"HTTP "+r.status);return j;}));
+      const matches=ps.flatMap(x=>x.matches||[]).filter(m=>m.status==="scheduled"&&Number(m.startTime)>Date.now()).sort((a,b)=>a.startTime-b.startTime);
+      if(!matches.length){list.innerHTML='<div class="empty-state">Nenhuma partida futura retornada nos próximos sete dias.</div>';note.textContent="Consulta concluída • SportsAPI";return;}
+      list.innerHTML=matches.slice(0,60).map(m=>{const d=new Date(Number(m.startTime));return '<div class="result-item"><span><small style="display:block;color:#63e99c;margin-bottom:4px">'+escapeHtml(d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",timeZone:"America/Sao_Paulo"}))+' • '+escapeHtml(d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"}))+' • '+escapeHtml(m.league?.name||"Futebol")+'</small><b>'+escapeHtml(m.homeTeam?.name||"Mandante")+' x '+escapeHtml(m.awayTeam?.name||"Visitante")+'</b></span><strong>Agendado</strong></div>';}).join("");
+      note.textContent=matches.length+" próximos jogos • dados da SportsAPI";
+    }catch(e){list.innerHTML='<div class="empty-state">Falha ao consultar agenda SportsAPI: '+escapeHtml(e.message)+'.</div>';note.textContent="Erro na consulta SportsAPI.";}
   }
-  const currentPage=document.body.dataset.page||"inicio";
+  const currentPage=document.body.dataset.page
+
+    const currentPage=document.body.dataset.page||"inicio";
   if(currentPage==="proximos") loadUpcomingGames();
 
-  // Estatísticas da competição: classificação, pontos, gols e aproveitamento via API.
-  const statsCompetition=document.getElementById('statsCompetition');
-  const competitionStats=document.getElementById('competitionStats');
+  // Estatísticas: resumo real dos jogos do campeonato na data selecionada.
+  const statsCompetition=document.getElementById("statsCompetition"),competitionStats=document.getElementById("competitionStats");
   async function loadCompetitionStats(){
-    if(!statsCompetition||!competitionStats)return;
-    const id=statsCompetition.value;
-    const label=statsCompetition.options[statsCompetition.selectedIndex]?.text||'Campeonato';
-    competitionStats.innerHTML='<div class="stats-loading">Consultando classificação de '+escapeHtml(label)+'...</div>';
-    try{
-      const response=await fetch('https://green-da-sorte.onrender.com/api/football-data/competitions/'+id+'/standings',{cache:'no-store'});
-      if(!response.ok)throw new Error('HTTP '+response.status);
-      const data=await response.json();
-      const standings=(data.standings||[]).find(item=>item.type==='TOTAL')||(data.standings||[])[0];
-      const table=standings?.table||[];
-      if(!table.length){competitionStats.innerHTML='<div class="stats-empty">A API não disponibilizou a classificação para esta competição no seu plano.</div>';return;}
-      const played=table.reduce((sum,row)=>sum+(Number(row.playedGames)||0),0);
-      const goals=table.reduce((sum,row)=>sum+(Number(row.goalsFor)||0),0);
-      const conceded=table.reduce((sum,row)=>sum+(Number(row.goalsAgainst)||0),0);
-      const points=table.reduce((sum,row)=>sum+(Number(row.points)||0),0);
-      document.getElementById('statMatches').textContent=Math.round(played/2);
-      document.getElementById('statAnalyzed').textContent=table.length;
-      document.getElementById('statBtts').textContent=goals;
-      document.getElementById('statOver').textContent=conceded;
-      document.getElementById('statsNote').textContent='Dados oficiais da classificação • '+label+' • temporada atual. Os indicadores mostram totais acumulados da classificação.';
-      competitionStats.innerHTML='<div class="stats-table-wrap"><table class="stats-table"><thead><tr><th># / Clube</th><th>J</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th><th>Pts</th></tr></thead><tbody>'+table.map(row=>'<tr><td>'+(row.position||'—')+'. '+escapeHtml(row.team?.name||'Equipe')+'</td><td>'+Number(row.playedGames||0)+'</td><td>'+Number(row.won||0)+'</td><td>'+Number(row.draw||0)+'</td><td>'+Number(row.lost||0)+'</td><td>'+Number(row.goalsFor||0)+'</td><td>'+Number(row.goalsAgainst||0)+'</td><td>'+Number(row.goalDifference||0)+'</td><td><b style="color:#16e06f">'+Number(row.points||0)+'</b></td></tr>').join('')+'</tbody></table></div>';
-    }catch(error){
-      competitionStats.innerHTML='<div class="stats-empty">Não foi possível carregar a classificação agora ('+escapeHtml(error.message)+'). Verifique se a competição está liberada na sua chave.</div>';
-    }
+    if(!statsCompetition||!competitionStats)return;const competition=statsCompetition.options[statsCompetition.selectedIndex]?.text||"Brasileirão",date=localDateISO();
+    competitionStats.innerHTML='<div class="stats-loading">Consultando partidas reais da SportsAPI...</div>';
+    try{const r=await fetch("https://green-da-sorte.onrender.com/api/sportsapi/games/filter?sport=football&date="+date+"&competition="+encodeURIComponent(competition)+"&limit=100",{cache:"no-store"}),data=await r.json();if(!r.ok)throw new Error(data?.error||"HTTP "+r.status);
+      const ms=data.matches||[],done=ms.filter(m=>m.status==="finished"),goals=done.reduce((n,m)=>n+(Number(m.homeScore)||0)+(Number(m.awayScore)||0),0);
+      document.getElementById("statMatches").textContent=ms.length;document.getElementById("statAnalyzed").textContent=done.length;document.getElementById("statBtts").textContent=goals;document.getElementById("statOver").textContent=ms.filter(m=>m.status==="live").length;
+      document.getElementById("statsNote").textContent="Resumo das partidas da data • SportsAPI. Este endpoint não fornece classificação da liga.";
+      competitionStats.innerHTML=ms.length?'<div class="stats-table-wrap"><table class="stats-table"><thead><tr><th>Horário</th><th>Confronto</th><th>Status</th><th>Placar</th></tr></thead><tbody>'+ms.map(m=>'<tr><td>'+escapeHtml(new Date(Number(m.startTime)).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"}))+'</td><td>'+escapeHtml(m.homeTeam?.name||"Mandante")+' x '+escapeHtml(m.awayTeam?.name||"Visitante")+'</td><td>'+escapeHtml(gameStatusLabel(m))+'</td><td>'+escapeHtml(m.homeScore??"—")+' : '+escapeHtml(m.awayScore??"—")+'</td></tr>').join("")+'</tbody></table></div>':'<div class="stats-empty">Nenhuma partida encontrada para '+escapeHtml(competition)+' nesta data.</div>';
+    }catch(e){competitionStats.innerHTML='<div class="stats-empty">Falha ao consultar SportsAPI: '+escapeHtml(e.message)+'.</div>';}
   }
-  statsCompetition?.addEventListener('change',loadCompetitionStats);
+
+    statsCompetition?.addEventListener('change',loadCompetitionStats);
   if(currentPage==="estatisticas") loadCompetitionStats();
 
   if(["inicio","jogos","palpites","campeonatos","resultados"].includes(currentPage)) loadGames();
