@@ -391,10 +391,14 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
       gamesList.appendChild(row);
       rows.push({event:e,row,home,away});
     }
-    status.textContent = `Calculando probabilidades para ${rows.length} jogos • ${sourceLabel}`;
+    status.textContent = `Calculando probabilidades para até 3 jogos • ${sourceLabel}`;
     attachAnalysis();
 
-    await Promise.all(rows.map(async ({event,row,home,away}) => {
+    await Promise.all(rows.map(async ({event,row,home,away}, index) => {
+      if (index >= 3) {
+        row.querySelector(".match-markets").textContent = "Análise estatística limitada aos 3 primeiros jogos para respeitar a cota gratuita da API.";
+        return;
+      }
       const p = await estimateProbabilities(event);
       const prob = row.querySelector(".prob");
       const markets = row.querySelector(".match-markets");
@@ -409,7 +413,7 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
     }));
     updateSummary(rows.map(x=>({probabilities:analyzedStats.get(x.event.id || (x.home+"-"+x.away))?.probabilities||null})));
     renderResults(events); renderPicks(); applyFilters();
-    status.textContent = `${rows.length} jogos • probabilidades calculadas com resultados recentes • ${sourceLabel}`;
+    status.textContent = `${rows.length} jogos listados • análise estatística dos 3 primeiros • ${sourceLabel}`;
   }
 
   function attachAnalysis() {
