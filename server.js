@@ -18,7 +18,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Integração SportsAPI isolada: a fonte antiga permanece ativa durante a validação.
+// Provedor oficial de dados esportivos do GREENdasorte: SportsAPI (Onyx Softwares).
 const sportsApiRouter = require("./sportsapi");
 app.use("/api/sportsapi", sportsApiRouter);
 
@@ -26,16 +26,17 @@ app.get("/", (_req, res) => {
   res.json({
     name: "Green da Sorte API",
     status: "online",
-    provider: "Football-Data.org",
-    keyConfigured: Boolean(FOOTBALL_DATA_TOKEN)
+    provider: "SportsAPI",
+    keyConfigured: Boolean(process.env.SPORTSAPI_API_KEY)
   });
 });
 
 app.get("/api/status", (_req, res) => {
   res.json({
     status: "online",
-    provider: "Football-Data.org",
-    configured: Boolean(FOOTBALL_DATA_TOKEN),
+    provider: "SportsAPI",
+    configured: Boolean(process.env.SPORTSAPI_API_KEY),
+    integration: "/api/sportsapi",
     checkedAt: new Date().toISOString()
   });
 });
