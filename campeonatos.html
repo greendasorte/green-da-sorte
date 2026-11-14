@@ -338,7 +338,7 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
       gamesList.appendChild(row);return {event,row,home,away};
     });
     status.textContent="Carregando partidas reais • "+sourceLabel;attachAnalysis();
-    const chosen=rows.filter(x=>x.event.id).sort((a,b)=>{
+    const chosen=rows.filter(x=>x.event.id&&x.event.status==="scheduled").sort((a,b)=>{
       const priority=x=>x.event.status==="live"?0:x.event.status==="scheduled"?1:2;
       return priority(a)-priority(b)||(gameDate(a.event)-gameDate(b.event));
     }).slice(0,24);
