@@ -277,15 +277,25 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
   const analyzedStats=new Map(); let activeLeague="todos";
 
 
-  function localDateISO() {
-    const d = new Date();
-    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  // SportsAPI retorna startTime em epoch ms UTC. A interface usa o calendário de Belo Horizonte.
+  const APP_TIME_ZONE = "America/Sao_Paulo";
+  function dateISOInAppZone(value = new Date()) {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: APP_TIME_ZONE, year: "numeric", month: "2-digit", day: "2-digit"
+    }).formatToParts(value);
+    const part = type => parts.find(item => item.type === type)?.value || "00";
+    return part("year") + "-" + part("month") + "-" + part("day");
   }
+  function addDaysISO(iso, days) {
+    const date = new Date(iso + "T12:00:00Z");
+    date.setUTCDate(date.getUTCDate() + days);
+    return date.toISOString().slice(0, 10);
+  }
+  function localDateISO() { return dateISOInAppZone(new Date()); }
 
   function formatDate() {
-    const d = new Date();
-    dateEl.textContent = "📅 " + d.toLocaleDateString("pt-BR", {
-      day:"2-digit", month:"long", year:"numeric"
+    dateEl.textContent = "📅 " + new Date().toLocaleDateString("pt-BR", {
+      day:"2-digit", month:"long", year:"numeric", timeZone: APP_TIME_ZONE
     });
   }
 
@@ -302,9 +312,16 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
     const promise=(async()=>{try{const r=await fetch("https://green-da-sorte.onrender.com/api/sportsapi/games/"+encodeURIComponent(id)+"/details?sport=football",{cache:"no-store"});if(!r.ok)return null;return await r.json();}catch(_){return null;}})();
     detailCache.set(id,promise);return promise;
   }
-  function gameDate(m){return Number.isFinite(Number(m.startTime))?new Date(Number(m.startTime)):null;}
+  function gameDate(m){
+    if (!m || m.startTime == null) return null;
+    const raw = m.startTime;
+    const timestamp = typeof raw === "number" ? raw :
+      (/^\\d{10}$/.test(String(raw)) ? Number(raw) * 1000 :
+      (/^\\d{13}$/.test(String(raw)) ? Number(raw) : Date.parse(String(raw))));
+    return Number.isFinite(timestamp) ? new Date(timestamp) : null;
+  }
   function gameStatusLabel(m){return ({live:"AO VIVO",scheduled:"AGENDADO",finished:"ENCERRADO",postponed:"ADIADO",cancelled:"CANCELADO"})[m.status]||"STATUS INDISPONÍVEL";}
-  async function renderGames(events,sourceLabel){
+  async function renderGames(events,sourceLabel,competitions=[]){
     gamesList.innerHTML="";analyzedStats.clear();
     if(!events.length){gamesList.innerHTML='<div class="game-error">Nenhum jogo encontrado nesta data nas competições disponíveis na SportsAPI.</div>';status.textContent="Consulta concluída • SportsAPI";updateSummary([]);resultsList.textContent="Nenhum resultado finalizado retornado nesta data.";picksList.innerHTML='<div class="empty-state">Sem odds publicadas para gerar sugestões neste momento.</div>';return;}
     const rows=events.slice(0,30).map(event=>{
@@ -315,14 +332,15 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
       row.innerHTML=`<div><div class="time">${escapeHtml(time)}</div><div class="league">${escapeHtml(league)}</div></div><div class="teams">${escapeHtml(home)} &nbsp; ⚔ &nbsp; ${escapeHtml(away)}${score?'<div style="color:#63efa0;font-size:16px;margin-top:5px">'+escapeHtml(score)+'</div>':''}</div><div class="prob"><div class="p"><b>${escapeHtml(gameStatusLabel(event))}</b>Status</div><div class="p"><b>${escapeHtml(event.gameTimeDisplay||score||"—")}</b>${event.status==="live"?"Tempo":"Placar"}</div><div class="p"><b>${escapeHtml(event.roundName||"—")}</b>Rodada</div></div><button class="analyze" data-id="${escapeHtml(event.id)}" data-home="${escapeHtml(home)}" data-away="${escapeHtml(away)}">Ver detalhes ›</button><div class="match-markets" style="grid-column:2 / 4;font-size:11px;color:#aab8b2;padding-top:2px">${event.venue?.name?"Estádio: "+escapeHtml(event.venue.name):"Dados fornecidos pela SportsAPI."}</div>`;
       gamesList.appendChild(row);return {event,row,home,away};
     });
+    renderChampionships(competitions,events);
     status.textContent="Carregando partidas reais • "+sourceLabel;attachAnalysis();
-    const chosen=rows.filter(x=>x.event.id).slice(0,3),details=await Promise.all(chosen.map(x=>getMatchDetails(x.event.id)));
+    const chosen=rows.filter(x=>x.event.id).slice(0,10),details=await Promise.all(chosen.map(x=>getMatchDetails(x.event.id)));
     chosen.forEach((item,i)=>{const d=details[i],target=item.row.querySelector(".match-markets");if(!d){target.textContent="Detalhes extras não publicados. Dados básicos confirmados pela SportsAPI.";return;}
       const stats=Array.isArray(d.statistics)?d.statistics.slice(0,3).map(x=>x.label+": "+x.home+" x "+x.away).join(" • "):"",odds=Array.isArray(d.odds?.markets)?d.odds.markets.length:0;
       target.textContent=[stats,odds?odds+" mercado(s) com odds":"Odds não publicadas para esta partida"].filter(Boolean).join(" • ")||"Detalhes consultados na SportsAPI.";
       analyzedStats.set(item.event.id,{event:item.event,home:item.home,away:item.away,details:d});
     });
-    rows.slice(3).forEach(x=>x.row.querySelector(".match-markets").textContent="Partida listada pela SportsAPI • detalhes extras sob consulta.");
+    rows.slice(10).forEach(x=>x.row.querySelector(".match-markets").textContent="Partida listada pela SportsAPI • detalhes extras sob consulta.");
     updateSummary(rows.map(x=>({event:x.event})));renderResults(events);renderPicks();applyFilters();status.textContent=rows.length+" partidas listadas • provedor: SportsAPI";
   }
 
@@ -339,6 +357,21 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
     document.getElementById("statMatches").textContent=items.length;document.getElementById("statAnalyzed").textContent=done.length;document.getElementById("statBtts").textContent=goals;document.getElementById("statOver").textContent=items.filter(x=>x.event?.status==="live").length;
     const note=document.getElementById("statsNote");if(note)note.textContent="Indicadores calculados somente com partidas retornadas pela SportsAPI. Sem estimativas artificiais.";
   }
+  function renderChampionships(competitions, events) {
+    const container=document.getElementById("championshipLinks");
+    if(!container)return;
+    const items=(competitions||[]).filter(item=>item?.name);
+    const fallback=Array.from(new Map((events||[]).map(match=>{
+      const name=match.league?.name||"Outras competições";
+      return [name,{name,count:(events||[]).filter(x=>(x.league?.name||"Outras competições")===name).length}];
+    })).values());
+    const list=(items.length?items:fallback).sort((a,b)=>a.name.localeCompare(b.name,"pt-BR"));
+    container.innerHTML='<button class="tab active" data-filter="todos">Todas</button>'+
+      list.map(item=>'<button class="tab" data-filter="'+escapeHtml(item.name)+'">'+escapeHtml(item.name)+
+      ' <small>('+Number(item.count||0)+')</small></button>').join("");
+    if(!list.length)container.innerHTML='<span class="empty-state">A API não retornou competições para esta data.</span>';
+  }
+
   function renderResults(events){
     const done=events.filter(e=>e.status==="finished");
     resultsList.innerHTML=done.length?done.map(e=>'<div class="result-item"><span>'+escapeHtml(e.homeTeam?.name||"Mandante")+' x '+escapeHtml(e.awayTeam?.name||"Visitante")+'</span><strong>'+escapeHtml(e.homeScore??"—")+' : '+escapeHtml(e.awayScore??"—")+'</strong></div>').join(""):'<div class="empty-state">Nenhuma partida finalizada retornada pela SportsAPI nesta data.</div>';
@@ -354,9 +387,42 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
   }
 
   async function loadGames(){
-    formatDate();gamesList.innerHTML='<div class="game-loading">⏳ Consultando jogos reais na SportsAPI...</div>';status.textContent="Conectando à SportsAPI...";
-    try{const date=localDateISO(),r=await fetch("https://green-da-sorte.onrender.com/api/sportsapi/games/filter?sport=football&date="+encodeURIComponent(date)+"&limit=100&offset=0",{cache:"no-store"}),data=await r.json();if(!r.ok)throw new Error(data?.details?.message||data?.error||"SportsAPI HTTP "+r.status);renderGames((data.matches||[]).filter(x=>x&&x.status!=="cancelled"),"SportsAPI");}
-    catch(err){gamesList.innerHTML='<div class="game-error">Falha ao consultar SportsAPI: '+escapeHtml(err.message)+'. Confira SPORTSAPI_API_KEY no Render.</div>';status.textContent="Falha na consulta SportsAPI.";updateSummary([]);resultsList.textContent="Resultados indisponíveis.";picksList.textContent="Odds indisponíveis até a API responder.";}
+    formatDate();
+    gamesList.innerHTML='<div class="game-loading">⏳ Consultando jogos no horário de Brasília...</div>';
+    status.textContent="Conectando à SportsAPI...";
+    try {
+      // A API filtra por dia UTC. Buscamos os dois dias UTC que podem conter o dia local de BH.
+      const localDay = localDateISO();
+      const utcDays = [localDay, addDaysISO(localDay, 1)];
+      const responses = await Promise.all(utcDays.map(date =>
+        fetch("https://green-da-sorte.onrender.com/api/sportsapi/games/filter?sport=football&date=" +
+          encodeURIComponent(date) + "&limit=100&offset=0", { cache: "no-store" })
+      ));
+      const payloads = await Promise.all(responses.map(async response => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data?.details?.message || data?.error || "SportsAPI HTTP " + response.status);
+        return data;
+      }));
+      const unique = new Map();
+      payloads.flatMap(data => data.matches || []).forEach(match => {
+        const kickoff = gameDate(match);
+        if (kickoff && dateISOInAppZone(kickoff) === localDay && match.status !== "cancelled") {
+          unique.set(String(match.id), match);
+        }
+      });
+      const events = Array.from(unique.values()).sort((a,b) => gameDate(a) - gameDate(b));
+      const competitions = new Map();
+      payloads.flatMap(data => data.facets?.competitions || []).forEach(item => {
+        if (item?.name) competitions.set(String(item.id || item.name), item);
+      });
+      renderGames(events, "SportsAPI • horário de Brasília", Array.from(competitions.values()));
+    } catch(err) {
+      gamesList.innerHTML='<div class="game-error">Falha ao consultar SportsAPI: '+escapeHtml(err.message)+'. Confira a conexão no Render.</div>';
+      status.textContent="Falha na consulta SportsAPI.";
+      updateSummary([]);
+      resultsList.textContent="Resultados indisponíveis.";
+      picksList.textContent="Palpites indisponíveis até a API responder.";
+    }
   }
 
   
@@ -378,7 +444,14 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
     });
   });
 
-  document.querySelectorAll("#championshipLinks [data-filter]").forEach(button=>button.addEventListener("click",()=>{const filter=button.dataset.filter.toLocaleLowerCase("pt-BR");const tab=Array.from(tabs.querySelectorAll(".tab[data-league]")).find(x=>x.dataset.league.toLocaleLowerCase("pt-BR")===filter);if(tab)tab.click();document.getElementById("jogos").scrollIntoView({behavior:"smooth"});}));
+  const championshipLinks=document.getElementById("championshipLinks");
+  championshipLinks?.addEventListener("click",event=>{
+    const button=event.target.closest("button[data-filter]");
+    if(!button)return;
+    activeLeague=button.dataset.filter==="todos"?"todos":button.dataset.filter.toLocaleLowerCase("pt-BR");
+    applyFilters();
+    document.getElementById("jogos")?.scrollIntoView({behavior:"smooth"});
+  });
   searchInput?.addEventListener("input",applyFilters);
   document.getElementById("closeAnalysis").addEventListener("click",()=>analysisDialog.close());
   analysisDialog.addEventListener("click",e=>{if(e.target===analysisDialog)analysisDialog.close();});
