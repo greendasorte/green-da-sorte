@@ -329,18 +329,23 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
       const time=kickoff?kickoff.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"}):"--:--";
       const score=Number.isFinite(event.homeScore)&&Number.isFinite(event.awayScore)?event.homeScore+" x "+event.awayScore:"";
       const row=document.createElement("div");row.className="match";row.dataset.league=league.toLocaleLowerCase("pt-BR");
-      row.innerHTML=`<div><div class="time">${escapeHtml(time)}</div><div class="league">${escapeHtml(league)}</div></div><div class="teams">${escapeHtml(home)} &nbsp; ⚔ &nbsp; ${escapeHtml(away)}${score?'<div style="color:#63efa0;font-size:16px;margin-top:5px">'+escapeHtml(score)+'</div>':''}</div><div class="prob"><div class="p"><b>${escapeHtml(gameStatusLabel(event))}</b>Status</div><div class="p"><b>${escapeHtml(event.gameTimeDisplay||score||"—")}</b>${event.status==="live"?"Tempo":"Placar"}</div><div class="p"><b>${escapeHtml(event.roundName||"—")}</b>Rodada</div></div><button class="analyze" data-id="${escapeHtml(event.id)}" data-home="${escapeHtml(home)}" data-away="${escapeHtml(away)}">Ver detalhes ›</button><div class="match-markets" style="grid-column:2 / 4;font-size:11px;color:#aab8b2;padding-top:2px">${event.venue?.name?"Estádio: "+escapeHtml(event.venue.name):"Dados fornecidos pela SportsAPI."}</div>`;
+      row.innerHTML=`<div><div class="time">${escapeHtml(time)}</div><div class="league">${escapeHtml(league)}</div></div><div class="teams">${escapeHtml(home)} &nbsp; ⚔ &nbsp; ${escapeHtml(away)}${score?'<div style="color:#63efa0;font-size:16px;margin-top:5px">'+escapeHtml(score)+'</div>':''}</div><div class="prob"><div class="p"><b>${escapeHtml(gameStatusLabel(event))}</b>Status</div><div class="p"><b>${escapeHtml(event.status==="live"?(event.gameTimeDisplay||"—"):(score||"—"))}</b>${event.status==="live"?"Tempo":"Placar"}</div><div class="p"><b>${escapeHtml(event.roundName||"—")}</b>Rodada</div></div><button class="analyze" data-id="${escapeHtml(event.id)}" data-home="${escapeHtml(home)}" data-away="${escapeHtml(away)}">Ver detalhes ›</button><div class="match-markets" style="grid-column:2 / 4;font-size:11px;color:#aab8b2;padding-top:2px">${event.venue?.name?"Estádio: "+escapeHtml(event.venue.name):"Dados fornecidos pela SportsAPI."}</div>`;
       gamesList.appendChild(row);return {event,row,home,away};
     });
     renderChampionships(competitions,events);
     status.textContent="Carregando partidas reais • "+sourceLabel;attachAnalysis();
-    const chosen=rows.filter(x=>x.event.id).slice(0,10),details=await Promise.all(chosen.map(x=>getMatchDetails(x.event.id)));
+    const chosen=rows.filter(x=>x.event.id).sort((a,b)=>{
+      const priority=x=>x.event.status==="live"?0:x.event.status==="scheduled"?1:2;
+      return priority(a)-priority(b)||(gameDate(a.event)-gameDate(b.event));
+    }).slice(0,12);
+    const details=await Promise.all(chosen.map(x=>getMatchDetails(x.event.id)));
     chosen.forEach((item,i)=>{const d=details[i],target=item.row.querySelector(".match-markets");if(!d){target.textContent="Detalhes extras não publicados. Dados básicos confirmados pela SportsAPI.";return;}
       const stats=Array.isArray(d.statistics)?d.statistics.slice(0,3).map(x=>x.label+": "+x.home+" x "+x.away).join(" • "):"",odds=Array.isArray(d.odds?.markets)?d.odds.markets.length:0;
       target.textContent=[stats,odds?odds+" mercado(s) com odds":"Odds não publicadas para esta partida"].filter(Boolean).join(" • ")||"Detalhes consultados na SportsAPI.";
       analyzedStats.set(item.event.id,{event:item.event,home:item.home,away:item.away,details:d});
     });
-    rows.slice(10).forEach(x=>x.row.querySelector(".match-markets").textContent="Partida listada pela SportsAPI • detalhes extras sob consulta.");
+    const detailedIds=new Set(chosen.map(x=>String(x.event.id)));
+    rows.filter(x=>!detailedIds.has(String(x.event.id))).forEach(x=>x.row.querySelector(".match-markets").textContent="Partida listada pela SportsAPI • detalhes extras sob consulta.");
     updateSummary(rows.map(x=>({event:x.event})));renderResults(events);renderPicks();applyFilters();status.textContent=rows.length+" partidas listadas • provedor: SportsAPI";
   }
 
@@ -481,10 +486,13 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
     const list=document.getElementById("upcomingList"),note=document.getElementById("upcomingStatus");if(!list||!note)return;
     const from=localDateISO(),end=new Date(from+"T12:00:00");end.setDate(end.getDate()+7);const to=end.getFullYear()+"-"+String(end.getMonth()+1).padStart(2,"0")+"-"+String(end.getDate()).padStart(2,"0");
     document.getElementById("upcomingRange").textContent="Até "+new Date(to+"T12:00:00").toLocaleDateString("pt-BR");list.innerHTML='<div class="empty-state">Consultando agenda SportsAPI...</div>';
-    try{const dates=[];for(let i=0;i<=7;i++){const d=new Date(from+"T12:00:00");d.setDate(d.getDate()+i);dates.push(d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"));}
+    try{const dates=[];for(let i=0;i<=8;i++)dates.push(addDaysISO(from,i));
       const rs=await Promise.all(dates.map(date=>fetch("https://green-da-sorte.onrender.com/api/sportsapi/games?sport=football&date="+date+"&limit=100",{cache:"no-store"})));
       const ps=await Promise.all(rs.map(async r=>{const j=await r.json();if(!r.ok)throw new Error(j?.error||"HTTP "+r.status);return j;}));
-      const matches=ps.flatMap(x=>x.matches||[]).filter(m=>m.status==="scheduled"&&Number(m.startTime)>Date.now()).sort((a,b)=>a.startTime-b.startTime);
+      const matches=ps.flatMap(x=>x.matches||[]).filter(m=>{
+        const kickoff=gameDate(m);if(!kickoff||m.status!=="scheduled"||kickoff.getTime()<=Date.now())return false;
+        const localDay=dateISOInAppZone(kickoff);return localDay>=from&&localDay<=to;
+      }).sort((a,b)=>gameDate(a)-gameDate(b));
       if(!matches.length){list.innerHTML='<div class="empty-state">Nenhuma partida futura retornada nos próximos sete dias.</div>';note.textContent="Consulta concluída • SportsAPI";return;}
       list.innerHTML=matches.slice(0,60).map(m=>{const d=new Date(Number(m.startTime));return '<div class="result-item"><span><small style="display:block;color:#63e99c;margin-bottom:4px">'+escapeHtml(d.toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",timeZone:"America/Sao_Paulo"}))+' • '+escapeHtml(d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"}))+' • '+escapeHtml(m.league?.name||"Futebol")+'</small><b>'+escapeHtml(m.homeTeam?.name||"Mandante")+' x '+escapeHtml(m.awayTeam?.name||"Visitante")+'</b></span><strong>Agendado</strong></div>';}).join("");
       note.textContent=matches.length+" próximos jogos • dados da SportsAPI";
@@ -499,8 +507,12 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
   async function loadCompetitionStats(){
     if(!statsCompetition||!competitionStats)return;const competition=statsCompetition.options[statsCompetition.selectedIndex]?.text||"Brasileirão",date=localDateISO();
     competitionStats.innerHTML='<div class="stats-loading">Consultando partidas reais da SportsAPI...</div>';
-    try{const r=await fetch("https://green-da-sorte.onrender.com/api/sportsapi/games/filter?sport=football&date="+date+"&competition="+encodeURIComponent(competition)+"&limit=100",{cache:"no-store"}),data=await r.json();if(!r.ok)throw new Error(data?.error||"HTTP "+r.status);
-      const ms=data.matches||[],done=ms.filter(m=>m.status==="finished"),goals=done.reduce((n,m)=>n+(Number(m.homeScore)||0)+(Number(m.awayScore)||0),0);
+    try{
+      const dates=[date,addDaysISO(date,1)];
+      const responses=await Promise.all(dates.map(day=>fetch("https://green-da-sorte.onrender.com/api/sportsapi/games/filter?sport=football&date="+day+"&competition="+encodeURIComponent(competition)+"&limit=100",{cache:"no-store"})));
+      const payloads=await Promise.all(responses.map(async r=>{const j=await r.json();if(!r.ok)throw new Error(j?.error||"HTTP "+r.status);return j;}));
+      const unique=new Map(payloads.flatMap(j=>j.matches||[]).filter(m=>{const kickoff=gameDate(m);return kickoff&&dateISOInAppZone(kickoff)===date;}).map(m=>[String(m.id),m]));
+      const ms=Array.from(unique.values()),done=ms.filter(m=>m.status==="finished"),goals=done.reduce((n,m)=>n+(Number(m.homeScore)||0)+(Number(m.awayScore)||0),0);
       document.getElementById("statMatches").textContent=ms.length;document.getElementById("statAnalyzed").textContent=done.length;document.getElementById("statBtts").textContent=goals;document.getElementById("statOver").textContent=ms.filter(m=>m.status==="live").length;
       document.getElementById("statsNote").textContent="Resumo das partidas da data • SportsAPI. Este endpoint não fornece classificação da liga.";
       competitionStats.innerHTML=ms.length?'<div class="stats-table-wrap"><table class="stats-table"><thead><tr><th>Horário</th><th>Confronto</th><th>Status</th><th>Placar</th></tr></thead><tbody>'+ms.map(m=>'<tr><td>'+escapeHtml(new Date(Number(m.startTime)).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"}))+'</td><td>'+escapeHtml(m.homeTeam?.name||"Mandante")+' x '+escapeHtml(m.awayTeam?.name||"Visitante")+'</td><td>'+escapeHtml(gameStatusLabel(m))+'</td><td>'+escapeHtml(m.homeScore??"—")+' : '+escapeHtml(m.awayScore??"—")+'</td></tr>').join("")+'</tbody></table></div>':'<div class="stats-empty">Nenhuma partida encontrada para '+escapeHtml(competition)+' nesta data.</div>';
