@@ -323,6 +323,7 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
   function gameStatusLabel(m){return ({live:"AO VIVO",scheduled:"AGENDADO",finished:"ENCERRADO",postponed:"ADIADO",cancelled:"CANCELADO"})[m.status]||"STATUS INDISPONÍVEL";}
   async function renderGames(events,sourceLabel,competitions=[]){
     gamesList.innerHTML="";analyzedStats.clear();
+    renderChampionships(competitions,events);
     if(!events.length){gamesList.innerHTML='<div class="game-error">Nenhum jogo encontrado nesta data nas competições disponíveis na SportsAPI.</div>';status.textContent="Consulta concluída • SportsAPI";updateSummary([]);resultsList.textContent="Nenhum resultado finalizado retornado nesta data.";picksList.innerHTML='<div class="empty-state">Sem odds publicadas para gerar sugestões neste momento.</div>';return;}
     const rows=events.slice(0,30).map(event=>{
       const home=event.homeTeam?.name||"Mandante",away=event.awayTeam?.name||"Visitante",league=event.league?.name||"Futebol",kickoff=gameDate(event);
@@ -332,7 +333,6 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
       row.innerHTML=`<div><div class="time">${escapeHtml(time)}</div><div class="league">${escapeHtml(league)}</div></div><div class="teams">${escapeHtml(home)} &nbsp; ⚔ &nbsp; ${escapeHtml(away)}${score?'<div style="color:#63efa0;font-size:16px;margin-top:5px">'+escapeHtml(score)+'</div>':''}</div><div class="prob"><div class="p"><b>${escapeHtml(gameStatusLabel(event))}</b>Status</div><div class="p"><b>${escapeHtml(event.status==="live"?(event.gameTimeDisplay||"—"):(score||"—"))}</b>${event.status==="live"?"Tempo":"Placar"}</div><div class="p"><b>${escapeHtml(event.roundName||"—")}</b>Rodada</div></div><button class="analyze" data-id="${escapeHtml(event.id)}" data-home="${escapeHtml(home)}" data-away="${escapeHtml(away)}">Ver detalhes ›</button><div class="match-markets" style="grid-column:2 / 4;font-size:11px;color:#aab8b2;padding-top:2px">${event.venue?.name?"Estádio: "+escapeHtml(event.venue.name):"Dados fornecidos pela SportsAPI."}</div>`;
       gamesList.appendChild(row);return {event,row,home,away};
     });
-    renderChampionships(competitions,events);
     status.textContent="Carregando partidas reais • "+sourceLabel;attachAnalysis();
     const chosen=rows.filter(x=>x.event.id).sort((a,b)=>{
       const priority=x=>x.event.status==="live"?0:x.event.status==="scheduled"?1:2;
