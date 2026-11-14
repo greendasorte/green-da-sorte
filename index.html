@@ -325,7 +325,7 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
     gamesList.innerHTML="";analyzedStats.clear();
     renderChampionships(competitions,events);
     if(!events.length){gamesList.innerHTML='<div class="game-error">Nenhum jogo encontrado nesta data nas competições disponíveis na SportsAPI.</div>';status.textContent="Consulta concluída • SportsAPI";updateSummary([]);resultsList.textContent="Nenhum resultado finalizado retornado nesta data.";picksList.innerHTML='<div class="empty-state">Sem odds publicadas para gerar sugestões neste momento.</div>';return;}
-    const rows=events.slice(0,30).map(event=>{
+    const rows=events.map(event=>{
       const home=event.homeTeam?.name||"Mandante",away=event.awayTeam?.name||"Visitante",league=event.league?.name||"Futebol",kickoff=gameDate(event);
       const time=kickoff?kickoff.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",timeZone:"America/Sao_Paulo"}):"--:--";
       const score=Number.isFinite(event.homeScore)&&Number.isFinite(event.awayScore)?event.homeScore+" x "+event.awayScore:"";
@@ -337,8 +337,8 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
     const chosen=rows.filter(x=>x.event.id).sort((a,b)=>{
       const priority=x=>x.event.status==="live"?0:x.event.status==="scheduled"?1:2;
       return priority(a)-priority(b)||(gameDate(a.event)-gameDate(b.event));
-    }).slice(0,12);
-    const details=await Promise.all(chosen.map(x=>getMatchDetails(x.event.id)));
+    }).slice(0,24);
+    const details=[];for(let i=0;i<chosen.length;i+=4){const batch=await Promise.all(chosen.slice(i,i+4).map(x=>getMatchDetails(x.event.id)));details.push(...batch);}
     chosen.forEach((item,i)=>{const d=details[i],target=item.row.querySelector(".match-markets");if(!d){target.textContent="Detalhes extras não publicados. Dados básicos confirmados pela SportsAPI.";return;}
       const stats=Array.isArray(d.statistics)?d.statistics.slice(0,3).map(x=>x.label+": "+x.home+" x "+x.away).join(" • "):"",odds=Array.isArray(d.odds?.markets)?d.odds.markets.length:0;
       target.textContent=[stats,odds?odds+" mercado(s) com odds":"Odds não publicadas para esta partida"].filter(Boolean).join(" • ")||"Detalhes consultados na SportsAPI.";
@@ -381,9 +381,44 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
     const done=events.filter(e=>e.status==="finished");
     resultsList.innerHTML=done.length?done.map(e=>'<div class="result-item"><span>'+escapeHtml(e.homeTeam?.name||"Mandante")+' x '+escapeHtml(e.awayTeam?.name||"Visitante")+'</span><strong>'+escapeHtml(e.homeScore??"—")+' : '+escapeHtml(e.awayScore??"—")+'</strong></div>').join(""):'<div class="empty-state">Nenhuma partida finalizada retornada pela SportsAPI nesta data.</div>';
   }
+  function asPercent(value){
+    if(value===null||value===undefined||value==="")return null;
+    const n=Number(String(value).replace("%","").replace(",","."));return Number.isFinite(n)?n:null;
+  }
+  function buildPicksForMatch(item){
+    const d=item.details||{},form=Array.isArray(d.form)?d.form:[];
+    const home=form.find(x=>x.side==="home"),away=form.find(x=>x.side==="away"),out=[];
+    if(home&&away&&Number(home.matches)>=3&&Number(away.matches)>=3){
+      const hBtts=asPercent(home.bothTeamsScorePercent),aBtts=asPercent(away.bothTeamsScorePercent);
+      if(hBtts!==null&&aBtts!==null){
+        const average=(hBtts+aBtts)/2;
+        if(average>=65)out.push({market:"AMBAS MARCAM",selection:"SIM",reason:"Os dois times marcaram em "+Math.round(average)+"% das amostras recentes combinadas."});
+        else if(average<=35)out.push({market:"AMBAS MARCAM",selection:"NÃO",reason:"A taxa combinada de ambas marcam foi de "+Math.round(average)+"% nas amostras recentes."});
+      }
+      const hMatches=Number(home.matches),aMatches=Number(away.matches);
+      const hGoals=(Number(home.goals)||0)+(Number(home.conceded)||0);
+      const aGoals=(Number(away.goals)||0)+(Number(away.conceded)||0);
+      const avgGoals=((hGoals/hMatches)+(aGoals/aMatches))/2;
+      if(avgGoals>=2.6)out.push({market:"TOTAL DE GOLS",selection:"MAIS DE 1.5",reason:"As últimas partidas dos dois times registram média combinada de "+avgGoals.toFixed(1).replace(".",",")+" gols por jogo."});
+      const hPoints=((Number(home.wins)||0)*3+(Number(home.draws)||0))/(hMatches*3);
+      const aPoints=((Number(away.wins)||0)*3+(Number(away.draws)||0))/(aMatches*3);
+      if(hPoints-aPoints>=0.18)out.push({market:"DUPLA CHANCE",selection:"MANDANTE OU EMPATE",reason:"O mandante apresenta melhor aproveitamento recente: "+Math.round(hPoints*100)+"% contra "+Math.round(aPoints*100)+"% de pontos possíveis."});
+      else if(aPoints-hPoints>=0.18)out.push({market:"DUPLA CHANCE",selection:"VISITANTE OU EMPATE",reason:"O visitante apresenta melhor aproveitamento recente: "+Math.round(aPoints*100)+"% contra "+Math.round(hPoints*100)+"% de pontos possíveis."});
+    }
+    if(!out.length&&d.headToHead&&Number(d.headToHead.totalMatches)>=5){
+      const h=d.headToHead,total=Number(h.totalMatches),homeSafe=(Number(h.homeWins)||0)+(Number(h.draws)||0),awaySafe=(Number(h.awayWins)||0)+(Number(h.draws)||0);
+      if(homeSafe/total>=0.70)out.push({market:"DUPLA CHANCE",selection:"MANDANTE OU EMPATE",reason:"Nos últimos "+total+" confrontos diretos, o mandante não perdeu em "+Math.round(homeSafe/total*100)+"% dos jogos."});
+      else if(awaySafe/total>=0.70)out.push({market:"DUPLA CHANCE",selection:"VISITANTE OU EMPATE",reason:"Nos últimos "+total+" confrontos diretos, o visitante não perdeu em "+Math.round(awaySafe/total*100)+"% dos jogos."});
+    }
+    return out;
+  }
   function renderPicks(){
-    const available=Array.from(analyzedStats.values()).filter(x=>Array.isArray(x.details?.odds?.markets)&&x.details.odds.markets.length);
-    picksList.innerHTML=available.length?available.map(x=>'<div class="pick-item"><strong>'+escapeHtml(x.home)+' x '+escapeHtml(x.away)+'</strong><div>'+x.details.odds.markets.length+' mercado(s) com cotações disponíveis</div><small>Consulte as odds nos detalhes. Cotações podem mudar.</small></div>').join(""):'<div class="empty-state">A SportsAPI não publicou odds para os jogos consultados. Não exibimos cotações inventadas.</div>';
+    const picks=[];
+    Array.from(analyzedStats.values()).filter(x=>x.event?.status==="scheduled").forEach(item=>{
+      buildPicksForMatch(item).forEach(p=>picks.push({item:item,pick:p}));
+    });
+    picksList.innerHTML=picks.length?picks.map((entry,i)=>'<div class="pick-item"><strong>'+String(i+1).padStart(2,"0")+'. '+escapeHtml(entry.item.home)+' x '+escapeHtml(entry.item.away)+'</strong><div style="color:#63e99c;font-weight:850;margin-top:6px">'+escapeHtml(entry.pick.market)+' — '+escapeHtml(entry.pick.selection)+'</div><small>'+escapeHtml(entry.item.event.league?.name||"Futebol")+' • '+escapeHtml(entry.pick.reason)+'</small></div>').join(""):'<div class="empty-state">A SportsAPI não retornou forma recente ou histórico suficiente para montar palpites estatísticos hoje. Nenhuma seleção foi inventada. Verifique se o pacote de previsões/estatísticas está ativo na sua conta.</div>';
+    const note=document.querySelector("#palpites .section-note");if(note)note.textContent="Palpites estatísticos baseados em forma recente e confrontos diretos publicados pela SportsAPI. Não são garantias; aposte com responsabilidade.";
   }
 
     function applyFilters(){
@@ -391,41 +426,46 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
     document.querySelectorAll("#gamesList .match").forEach(row=>{const league=activeLeague==="todos"||row.dataset.league.includes(activeLeague);const match=!q||row.textContent.toLocaleLowerCase("pt-BR").includes(q);row.style.display=league&&match?"":"none";});
   }
 
+  async function fetchAllGamesForDate(date){
+    const all=[];let offset=0,first=null,pages=0;
+    do{
+      const url="https://green-da-sorte.onrender.com/api/sportsapi/games/filter?sport=football&date="+encodeURIComponent(date)+"&limit=100&offset="+offset;
+      const response=await fetch(url,{cache:"no-store"});
+      const data=await response.json();
+      if(!response.ok)throw new Error(data?.details?.message||data?.error||"SportsAPI HTTP "+response.status);
+      if(!first)first=data;
+      all.push(...(Array.isArray(data.matches)?data.matches:[]));
+      const page=data.pagination||{};
+      pages++;
+      if(!page.hasNext||page.nextOffset==null||pages>=30)break;
+      offset=Number(page.nextOffset);
+    }while(true);
+    return {matches:all,facets:first?.facets||{},total:first?.pagination?.total??first?.total??all.length,pages:pages};
+  }
+
   async function loadGames(){
     formatDate();
-    gamesList.innerHTML='<div class="game-loading">⏳ Consultando jogos no horário de Brasília...</div>';
+    gamesList.innerHTML='<div class="game-loading">⏳ Consultando todas as páginas de jogos no horário de Brasília...</div>';
     status.textContent="Conectando à SportsAPI...";
     try {
-      // A API filtra por dia UTC. Buscamos os dois dias UTC que podem conter o dia local de BH.
-      const localDay = localDateISO();
-      const utcDays = [localDay, addDaysISO(localDay, 1)];
-      const responses = await Promise.all(utcDays.map(date =>
-        fetch("https://green-da-sorte.onrender.com/api/sportsapi/games/filter?sport=football&date=" +
-          encodeURIComponent(date) + "&limit=100&offset=0", { cache: "no-store" })
-      ));
-      const payloads = await Promise.all(responses.map(async response => {
-        const data = await response.json();
-        if (!response.ok) throw new Error(data?.details?.message || data?.error || "SportsAPI HTTP " + response.status);
-        return data;
-      }));
-      const unique = new Map();
-      payloads.flatMap(data => data.matches || []).forEach(match => {
-        const kickoff = gameDate(match);
-        if (kickoff && dateISOInAppZone(kickoff) === localDay && match.status !== "cancelled") {
-          unique.set(String(match.id), match);
-        }
+      // O dia local de BH pode incluir partidas de dois dias UTC; percorremos a paginação completa de cada dia.
+      const localDay=localDateISO(),utcDays=[localDay,addDaysISO(localDay,1)];
+      const payloads=await Promise.all(utcDays.map(fetchAllGamesForDate));
+      const unique=new Map();
+      payloads.flatMap(data=>data.matches||[]).forEach(match=>{
+        const kickoff=gameDate(match);
+        if(kickoff&&dateISOInAppZone(kickoff)===localDay&&match.status!=="cancelled")unique.set(String(match.id),match);
       });
-      const events = Array.from(unique.values()).sort((a,b) => gameDate(a) - gameDate(b));
-      const competitions = new Map();
-      payloads.flatMap(data => data.facets?.competitions || []).forEach(item => {
-        if (item?.name) competitions.set(String(item.id || item.name), item);
+      const events=Array.from(unique.values()).sort((a,b)=>gameDate(a)-gameDate(b));
+      const competitions=new Map();
+      payloads.flatMap(data=>data.facets?.competitions||[]).forEach(item=>{
+        if(item?.name)competitions.set(String(item.id||item.name),item);
       });
-      renderGames(events, "SportsAPI • horário de Brasília", Array.from(competitions.values()));
-    } catch(err) {
+      renderGames(events,"SportsAPI • horário de Brasília • paginação completa",Array.from(competitions.values()));
+    }catch(err){
       gamesList.innerHTML='<div class="game-error">Falha ao consultar SportsAPI: '+escapeHtml(err.message)+'. Confira a conexão no Render.</div>';
       status.textContent="Falha na consulta SportsAPI.";
-      updateSummary([]);
-      resultsList.textContent="Resultados indisponíveis.";
+      updateSummary([]);resultsList.textContent="Resultados indisponíveis.";
       picksList.textContent="Palpites indisponíveis até a API responder.";
     }
   }
