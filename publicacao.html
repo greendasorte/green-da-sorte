@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#06130d">
+<title>GREENdaSORTE | Central de Publicação</title>
+<style>
+:root{color-scheme:dark;--bg:#06110c;--panel:#0b1b13;--line:#1b4932;--green:#35e681;--muted:#a7b9ae;--white:#f4fff8}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 85% 0,#103d27 0,transparent 34%),var(--bg);color:var(--white);font:15px/1.5 Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+.wrap{max-width:980px;margin:auto;padding:28px 18px 60px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:28px}.brand{font-weight:950;letter-spacing:.04em;font-size:20px}.brand span{color:var(--green)}.back{color:var(--green);text-decoration:none;font-weight:700}
+h1{font-size:clamp(26px,5vw,38px);line-height:1.1;margin:0 0 8px}.sub{color:var(--muted);margin:0 0 24px}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0 24px}.step,.panel{background:linear-gradient(160deg,#0d2117,#09150f);border:1px solid var(--line);border-radius:15px}.step{padding:13px;font-size:13px;color:var(--muted)}.step b{display:block;color:var(--green);font-size:14px;margin-bottom:3px}.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{padding:18px;min-width:0}.panel h2{font-size:17px;margin:0 0 14px}.field{display:block;font-weight:700;font-size:13px;margin:14px 0 7px}input,textarea{width:100%;background:#050e09;border:1px solid #28533b;border-radius:10px;color:var(--white);padding:12px;font:inherit;outline:none}textarea{min-height:330px;resize:vertical}input:focus,textarea:focus{border-color:var(--green)}.hint{font-size:12px;color:var(--muted);margin:8px 0}.preview{white-space:pre-wrap;overflow-wrap:anywhere;min-height:330px;background:#050e09;border:1px solid #244a35;border-radius:10px;padding:14px;color:#e8fff0}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.btn{border:0;border-radius:10px;padding:12px 16px;font-weight:850;font-size:14px;cursor:pointer}.primary{background:linear-gradient(135deg,#35e681,#0caa56);color:#042010}.secondary{background:#12271b;color:#dfffea;border:1px solid #28533b}.danger{background:#321719;color:#ffd9d9;border:1px solid #633033}.status{margin-top:12px;color:var(--muted);font-size:13px;min-height:20px}.notice{margin-top:18px;padding:13px 15px;border-left:3px solid var(--green);background:#0a1b11;color:#c8dfd0;border-radius:8px;font-size:13px}
+@media(max-width:720px){.layout{grid-template-columns:1fr}.steps{grid-template-columns:1fr}.preview,textarea{min-height:240px}.top{align-items:flex-start;flex-direction:column}}
+</style>
+</head>
+<body><main class="wrap">
+<header class="top"><div class="brand">GREEN<span>da</span>SORTE 🍀</div><a class="back" href="index.html">← Voltar ao painel</a></header>
+<h1>Central de publicação</h1><p class="sub">Prepare os palpites, confira a mensagem e só depois abra o WhatsApp para enviar ao grupo escolhido.</p>
+<section class="steps"><div class="step"><b>01 · Preparar</b>Insira os palpites revisados.</div><div class="step"><b>02 · Aprovar</b>Confira e edite a prévia antes de publicar.</div><div class="step"><b>03 · Enviar</b>Abra o WhatsApp e escolha o grupo.</div></section>
+<div class="layout">
+<section class="panel"><h2>Mensagem para o grupo</h2>
+<label class="field" for="date">Data dos jogos</label><input id="date" type="date">
+<label class="field" for="message">Texto dos palpites</label>
+<textarea id="message" placeholder="Cole aqui os palpites já conferidos: jogos, mercados, justificativas e odds somente quando verificadas."></textarea>
+<p class="hint">Não invente jogos, estatísticas ou odds. Confira os dados da SportsAPI antes de aprovar.</p>
+<div class="actions"><button class="btn secondary" id="previewBtn">Atualizar prévia</button><button class="btn danger" id="clearBtn">Limpar rascunho</button></div>
+</section>
+<section class="panel"><h2>Prévia para aprovação</h2><div id="preview" class="preview">Sua mensagem aparecerá aqui. Preencha o texto e toque em “Atualizar prévia”.</div>
+<div class="actions"><button class="btn primary" id="approveBtn">Aprovar e abrir WhatsApp</button></div><div class="status" id="status" role="status" aria-live="polite"></div>
+</section></div>
+<div class="notice"><b>Importante:</b> esta primeira versão não envia mensagens sozinha nem acessa seu grupo. Ela abre o WhatsApp com o texto pronto; você escolhe o grupo e confirma o envio. A conexão oficial para envio automatizado a grupos depende de um provedor e de suporte específico a grupos.</div>
+</main>
+<script>
+const dateEl=document.getElementById('date'),messageEl=document.getElementById('message'),previewEl=document.getElementById('preview'),statusEl=document.getElementById('status');
+const today=new Date();dateEl.value=new Date(today.getTime()-today.getTimezoneOffset()*60000).toISOString().slice(0,10);
+function compose(){const raw=messageEl.value.trim();if(!raw)return '';const [y,m,d]=dateEl.value.split('-');const dateLabel=y&&m&&d?d+'/'+m+'/'+y:'';return '🍀 GREENdaSORTE | PALPITES DO DIA\n📅 '+dateLabel+'\n\n'+raw+'\n\n⚠️ Palpites são análises, não garantias de resultado. Aposte com responsabilidade.'}
+function updatePreview(){const text=compose();previewEl.textContent=text||'Sua mensagem aparecerá aqui. Preencha o texto e toque em “Atualizar prévia”.';return text}
+document.getElementById('previewBtn').addEventListener('click',()=>{updatePreview();statusEl.textContent='Prévia atualizada. Confira os jogos e mercados antes de aprovar.'});
+document.getElementById('approveBtn').addEventListener('click',()=>{const text=updatePreview();if(!text){statusEl.textContent='Escreva ou cole os palpites antes de aprovar.';return}if(!confirm('Você conferiu os jogos, mercados, horários e odds desta mensagem?')){statusEl.textContent='Envio não aprovado. Revise a mensagem e tente novamente.';return}window.open('https://wa.me/?text='+encodeURIComponent(text),'_blank','noopener');statusEl.textContent='WhatsApp aberto com a mensagem pronta. Escolha o grupo e confirme o envio por lá.'});
+document.getElementById('clearBtn').addEventListener('click',()=>{if(!confirm('Apagar o texto deste rascunho?'))return;messageEl.value='';updatePreview();statusEl.textContent='Rascunho limpo.'});
+messageEl.addEventListener('input',()=>{statusEl.textContent='Rascunho alterado. Atualize a prévia antes de aprovar.'});
+</script></body></html>
