@@ -223,6 +223,27 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
   :root{scroll-behavior:auto}
   *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
 }
+
+/* Ajustes finais para telas pequenas: evita cortes e melhora os alvos de toque. */
+@media(max-width:760px){
+  header{min-height:64px;height:auto;gap:8px;padding:10px 12px;flex-wrap:wrap}
+  .logo{flex:1 1 auto;min-width:0}
+  .search{width:min(42vw,180px);max-width:42vw;min-width:0}
+  main{min-width:0;width:100%;max-width:100%;padding:10px}
+  main>section,.card,.sidebar{min-width:0;max-width:100%}
+  .match{grid-template-columns:minmax(64px,78px) minmax(0,1fr);gap:8px;padding:12px 10px}
+  .teams{min-width:0;overflow-wrap:anywhere;word-break:normal}
+  .prob{grid-column:1/-1!important;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .analyze{grid-column:1/-1!important;justify-self:stretch;width:100%;min-height:42px}
+  .match-markets{grid-column:1/-1!important;overflow-wrap:anywhere}
+  .tabs{max-width:100%;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .whatsapp{padding:14px;gap:12px}
+  .wa-btn{width:100%;min-height:44px}
+  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stats-table-wrap{max-width:100%;overflow-x:auto}
+  .result-item{min-width:0;overflow-wrap:anywhere}
+}
 </style>
 </head>
 <body data-page="resultados">
@@ -313,7 +334,7 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
   async function getMatchDetails(id) {
     if (!id) return null;
     if (detailCache.has(id)) return detailCache.get(id);
-    const promise=(async()=>{try{const r=await fetch("https://green-da-sorte.onrender.com/api/sportsapi/games/"+encodeURIComponent(id)+"/details?sport=football",{cache:"no-store"});if(!r.ok)return null;return await r.json();}catch(_){return null;}})();
+    const promise=(async()=>{try{const r=await fetch("https://green-da-sorte.onrender.com/api/sportsapi/games/"+encodeURIComponent(id)+"/details?sport=football",{cache:"default"});if(!r.ok)return null;return await r.json();}catch(_){return null;}})();
     detailCache.set(id,promise);return promise;
   }
   function gameDate(m){
@@ -338,10 +359,11 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
       gamesList.appendChild(row);return {event,row,home,away};
     });
     status.textContent="Carregando partidas reais • "+sourceLabel;attachAnalysis();
-    const chosen=rows.filter(x=>x.event.id&&x.event.status==="scheduled").sort((a,b)=>{
+    const needsDetails=["inicio","palpites"].includes(document.body.dataset.page||"inicio");
+    const chosen=needsDetails?rows.filter(x=>x.event.id&&x.event.status==="scheduled").sort((a,b)=>{
       const priority=x=>x.event.status==="live"?0:x.event.status==="scheduled"?1:2;
       return priority(a)-priority(b)||(gameDate(a.event)-gameDate(b.event));
-    }).slice(0,24);
+    }).slice(0,10):[];
     const details=[];for(let i=0;i<chosen.length;i+=4){const batch=await Promise.all(chosen.slice(i,i+4).map(x=>getMatchDetails(x.event.id)));details.push(...batch);}
     chosen.forEach((item,i)=>{const d=details[i],target=item.row.querySelector(".match-markets");if(!d){target.textContent="Detalhes extras não publicados. Dados básicos confirmados pela SportsAPI.";return;}
       const stats=Array.isArray(d.statistics)?d.statistics.slice(0,3).map(x=>x.label+": "+x.home+" x "+x.away).join(" • "):"",odds=Array.isArray(d.odds?.markets)?d.odds.markets.length:0;
@@ -434,7 +456,7 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
     const all=[];let offset=0,first=null,pages=0;
     do{
       const url="https://green-da-sorte.onrender.com/api/sportsapi/games/filter?sport=football&date="+encodeURIComponent(date)+"&limit=100&offset="+offset;
-      const response=await fetch(url,{cache:"no-store"});
+      const response=await fetch(url,{cache:"default"});
       const data=await response.json();
       if(!response.ok)throw new Error(data?.details?.message||data?.error||"SportsAPI HTTP "+response.status);
       if(!first)first=data;
@@ -531,7 +553,7 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
     const from=localDateISO(),end=new Date(from+"T12:00:00");end.setDate(end.getDate()+7);const to=end.getFullYear()+"-"+String(end.getMonth()+1).padStart(2,"0")+"-"+String(end.getDate()).padStart(2,"0");
     document.getElementById("upcomingRange").textContent="Até "+new Date(to+"T12:00:00").toLocaleDateString("pt-BR");list.innerHTML='<div class="empty-state">Consultando agenda SportsAPI...</div>';
     try{const dates=[];for(let i=0;i<=8;i++)dates.push(addDaysISO(from,i));
-      const rs=await Promise.all(dates.map(date=>fetch("https://green-da-sorte.onrender.com/api/sportsapi/games?sport=football&date="+date+"&limit=100",{cache:"no-store"})));
+      const rs=[];for(let i=0;i<dates.length;i+=3){const batch=await Promise.all(dates.slice(i,i+3).map(date=>fetch("https://green-da-sorte.onrender.com/api/sportsapi/games?sport=football&date="+date+"&limit=100",{cache:"default"})));rs.push(...batch);}
       const ps=await Promise.all(rs.map(async r=>{const j=await r.json();if(!r.ok)throw new Error(j?.error||"HTTP "+r.status);return j;}));
       const matches=ps.flatMap(x=>x.matches||[]).filter(m=>{
         const kickoff=gameDate(m);if(!kickoff||m.status!=="scheduled"||kickoff.getTime()<=Date.now())return false;
@@ -553,7 +575,7 @@ header nav a[aria-current="page"]{color:var(--green);border-bottom-color:var(--g
     competitionStats.innerHTML='<div class="stats-loading">Consultando partidas reais da SportsAPI...</div>';
     try{
       const dates=[date,addDaysISO(date,1)];
-      const responses=await Promise.all(dates.map(day=>fetch("https://green-da-sorte.onrender.com/api/sportsapi/games/filter?sport=football&date="+day+"&competition="+encodeURIComponent(competition)+"&limit=100",{cache:"no-store"})));
+      const responses=await Promise.all(dates.map(day=>fetch("https://green-da-sorte.onrender.com/api/sportsapi/games/filter?sport=football&date="+day+"&competition="+encodeURIComponent(competition)+"&limit=100",{cache:"default"})));
       const payloads=await Promise.all(responses.map(async r=>{const j=await r.json();if(!r.ok)throw new Error(j?.error||"HTTP "+r.status);return j;}));
       const unique=new Map(payloads.flatMap(j=>j.matches||[]).filter(m=>{const kickoff=gameDate(m);return kickoff&&dateISOInAppZone(kickoff)===date;}).map(m=>[String(m.id),m]));
       const ms=Array.from(unique.values()),done=ms.filter(m=>m.status==="finished"),goals=done.reduce((n,m)=>n+(Number(m.homeScore)||0)+(Number(m.awayScore)||0),0);
