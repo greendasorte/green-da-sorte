@@ -11,8 +11,11 @@ const DETAILS_TTL = 60 * 1000;
 const META_TTL = 5 * 60 * 1000;
 const STALE_TTL = 5 * 60 * 1000;
 
-function sendCached(res, item, state) {
+function sendCached(res, item, state, browserCache = false) {
   res.set("X-Data-Cache", state);
+  // Dados públicos de partidas podem ser reutilizados brevemente pelo navegador.
+  // Informações de conta/limites continuam sem cache compartilhado.
+  res.set("Cache-Control", browserCache ? "public, max-age=15, stale-while-revalidate=45" : "no-store");
   return res.json(item.data);
 }
 
@@ -36,7 +39,7 @@ async function requestProvider(path, res, ttl = DEFAULT_TTL) {
   const now = Date.now();
   const cached = cache.get(key);
   if (cached && now - cached.savedAt < ttl) {
-    return sendCached(res, cached, "HIT");
+    return sendCached(res, cached, "HIT", path.startsWith("/games"));
   }
 
   try {
@@ -62,7 +65,7 @@ async function requestProvider(path, res, ttl = DEFAULT_TTL) {
 
     if (!upstream.ok) {
       if ((upstream.status === 500 || upstream.status === 503) && cached && Date.now() - cached.savedAt < STALE_TTL) {
-        return sendCached(res, cached, "STALE");
+        return sendCached(res, cached, "STALE", path.startsWith("/games"));
       }
       return res.status(upstream.status).json({
         error: "A SportsAPI retornou um erro.",
@@ -75,7 +78,7 @@ async function requestProvider(path, res, ttl = DEFAULT_TTL) {
 
     const item = { data, savedAt: Date.now() };
     cache.set(key, item);
-    return sendCached(res, item, "MISS");
+    return sendCached(res, item, "MISS", path.startsWith("/games"));
   } catch (error) {
     if (cached && Date.now() - cached.savedAt < STALE_TTL) {
       return sendCached(res, cached, "STALE");
